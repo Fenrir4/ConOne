@@ -1,410 +1,215 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { 
-  ShoppingCart, X, Star, Lock, Trash2, Plus, Edit2, Truck, 
-  CreditCard, Phone, LogOut, Upload, Menu, Minus, Send, 
-  Flame, ShieldCheck, Box, ArrowLeft, Heart 
-} from 'lucide-react';
-import { initializeApp } from "firebase/app";
-import { getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc } from "firebase/firestore";
-
-// ============================================================
-// FIREBASE CONFIG
-// ============================================================
-const firebaseConfig = {
-  apiKey: "AIzaSyAu47cciZnYXyEPMTHeH7a1bmX-kCYtGQA",
-  authDomain: "conone-757e4.firebaseapp.com",
-  projectId: "conone-757e4",
-  storageBucket: "conone-757e4.firebasestorage.app",
-  messagingSenderId: "960208791384",
-  appId: "1:960208791384:web:9e9e109b9df3c1bd95a72d",
-  measurementId: "G-B1T6D9BNWN"
-};
-
-// Ініціалізація Firebase
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-// Демо-товари (Тематика 18+) - для відображення, якщо база порожня або недоступна
-const INITIAL_PRODUCTS = [
-    { id: '1', name: "Презервативи SKYN Elite (10 шт)", price: 350, category: "Презервативи", image: "https://m.media-amazon.com/images/I/71Xy8M-zVmL._AC_SL1500_.jpg", rating: 5 },
-    { id: '2', name: "Лубрикант System JO H2O (30 мл)", price: 420, category: "Лубриканти", image: "https://m.media-amazon.com/images/I/61t+gN-1L+L._AC_SL1500_.jpg", rating: 5 },
-    { id: '3', name: "Вібратор Satisfyer Pro 2", price: 1800, category: "Іграшки", image: "https://m.media-amazon.com/images/I/61A6-yKqjWL._AC_SL1500_.jpg", rating: 5 },
-    { id: '4', name: "Набір ONE Mixed Pleasures (3 шт)", price: 99, category: "Презервативи", image: "https://m.media-amazon.com/images/I/81+Xy-zVmL._AC_SL1500_.jpg", rating: 4 }
-];
-
-const POPULAR_CITIES = ["Київ", "Харків", "Одеса", "Дніпро", "Львів", "Запоріжжя", "Вінниця", "Хмельницький", "Житомир", "Чернівці", "Рівне", "Івано-Франківськ", "Тернопіль", "Луцьк", "Ужгород", "Біла Церква"];
-const TELEGRAM_BOT_TOKEN = "8490403071:AAFZvriLL_vzQq-ziMVTfiHAu8DmtH84Fjk"; 
-const TELEGRAM_CHAT_ID = "7085928669";
-const ADMIN_PASSWORD = "toy@56"; 
+import React, { useState, useEffect } from 'react';
+import { ArrowLeft, ArrowRight, ShoppingBag, Heart, ShieldCheck, Flame, Star } from 'lucide-react';
 
 const App = () => {
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [dbError, setDbError] = useState(null);
-  const [activePage, setActivePage] = useState('home');
-  const [cart, setCart] = useState([]);
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isAdminMode, setIsAdminMode] = useState(false);
-  const [passwordInput, setPasswordInput] = useState("");
-  const [showLoginModal, setShowLoginModal] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
-  // Дані замовлення
-  const [customerName, setCustomerName] = useState("");
-  const [customerPhone, setCustomerPhone] = useState("");
-  const [customerCity, setCustomerCity] = useState("");
-  const [customerBranch, setCustomerBranch] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("cod");
-  const [isOrderSending, setIsOrderSending] = useState(false);
+  // Дані товарів (Секс-іграшки / Аксесуари)
+  const products = [
+    {
+      id: 1,
+      title: "Rose Pleasure",
+      subtitle: "Вакуумний стимулятор",
+      description: "Елегантний дизайн у формі троянди. 7 режимів вібрації для незабутніх моментів наодинці. Виготовлений з медичного силікону.",
+      price: "2 499 ₴",
+      oldPrice: "3 200 ₴",
+      rating: 4.9,
+      themeColor: "bg-rose-100",
+      accentColor: "text-rose-600",
+      buttonColor: "bg-rose-600 hover:bg-rose-700",
+      imageBg: "bg-rose-200"
+    },
+    {
+      id: 2,
+      title: "Midnight Wand",
+      subtitle: "Масажер для тіла",
+      description: "Потужний вібратор для глибокого масажу м'язів та чутливих зон. Водонепроникний, тихий двигун, акумуляторна батарея.",
+      price: "1 899 ₴",
+      oldPrice: null,
+      rating: 5.0,
+      themeColor: "bg-indigo-100",
+      accentColor: "text-indigo-600",
+      buttonColor: "bg-indigo-900 hover:bg-indigo-800",
+      imageBg: "bg-indigo-300"
+    },
+    {
+      id: 3,
+      title: "Silk Touch Oil",
+      subtitle: "Масажна олія",
+      description: "Розслаблююча олія з феромонами та ароматом ванілі. Ідеально ковзає, не залишає слідів та зволожує шкіру.",
+      price: "450 ₴",
+      oldPrice: "600 ₴",
+      rating: 4.8,
+      themeColor: "bg-amber-50",
+      accentColor: "text-amber-600",
+      buttonColor: "bg-amber-600 hover:bg-amber-700",
+      imageBg: "bg-amber-200"
+    },
+    {
+      id: 4,
+      title: "Rabbit Dual",
+      subtitle: "Вібратор 2-в-1",
+      description: "Подвійна стимуляція для максимального задоволення. Ергономічна форма та оксамитовий силікон преміум якості.",
+      price: "3 100 ₴",
+      oldPrice: "3 800 ₴",
+      rating: 4.9,
+      themeColor: "bg-purple-100",
+      accentColor: "text-purple-600",
+      buttonColor: "bg-purple-600 hover:bg-purple-700",
+      imageBg: "bg-purple-300"
+    }
+  ];
 
-  // Синхронізація з Firebase
+  const prevSlide = () => {
+    setCurrentIndex((prev) => (prev === 0 ? products.length - 1 : prev - 1));
+  };
+
+  const nextSlide = () => {
+    setCurrentIndex((prev) => (prev === products.length - 1 ? 0 : prev + 1));
+  };
+
+  // Керування клавіатурою
   useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, "products"), (snapshot) => {
-        const productsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setProducts(productsData.length > 0 ? productsData : []); 
-        setDbError(null); 
-        setLoading(false);
-    }, (error) => {
-        console.error("DB Error:", error);
-        let msg = "Помилка бази даних.";
-        if(error.code === 'permission-denied') msg = "Немає прав доступу (Перевірте Rules у Firebase)";
-        setDbError(msg); 
-        setProducts(INITIAL_PRODUCTS); // Фолбек на демо-дані
-        setLoading(false);
-    });
-    return () => unsubscribe();
+    const handleKeyDown = (e) => {
+      if (e.key === 'ArrowLeft') prevSlide();
+      if (e.key === 'ArrowRight') nextSlide();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  const uniqueCategories = useMemo(() => {
-    const cats = new Set(products.map(p => p.category).filter(Boolean));
-    return Array.from(cats);
-  }, [products]);
-
-  const filteredProducts = selectedCategory ? products.filter(p => p.category === selectedCategory) : products;
-
-  // --- ADMIN FUNCTIONS ---
-  const addNewProduct = async () => {
-    try { 
-        await addDoc(collection(db, "products"), { 
-            name: "Новий Товар", 
-            price: 0, 
-            category: uniqueCategories[0] || "Інше", 
-            image: "https://via.placeholder.com/300", 
-            rating: 5, 
-            createdAt: Date.now() 
-        }); 
-    } catch(e) { alert("Помилка додавання: " + e.message); }
-  };
-
-  const updateProductField = async (id, f, v) => { 
-      await updateDoc(doc(db, "products", id), { [f]: v }); 
-  };
-
-  const removeProduct = async (id) => { 
-      if (window.confirm("Видалити?")) await deleteDoc(doc(db, "products", id)); 
-  };
-
-  const handleFileUpload = (e, id) => {
-    const f = e.target.files[0];
-    if(f && f.size < 800000) { // < 800KB
-        const r = new FileReader(); 
-        r.onloadend = () => updateProductField(id, 'image', r.result); 
-        r.readAsDataURL(f); 
-    } else if(f) alert("Фото має бути менше 800Кб");
-  };
-
-  // --- CART FUNCTIONS ---
-  const addToCart = (p) => {
-    const existing = cart.find(i => i.id === p.id);
-    if (existing) setCart(cart.map(i => i.id === p.id ? { ...i, quantity: i.quantity + 1 } : i));
-    else setCart([...cart, { ...p, price: Number(p.price)||0, quantity: 1 }]);
-    setIsCartOpen(true);
-  };
-
-  const updateQty = (id, d) => setCart(cart.map(i => i.id === id ? { ...i, quantity: Math.max(1, i.quantity + d) } : i));
-  const removeFromCart = (id) => setCart(cart.filter(i => i.id !== id));
-  const totalAmount = cart.reduce((sum, i) => sum + ((Number(i.price)||0) * i.quantity), 0);
-
-  const sendOrder = async (e) => {
-    e.preventDefault();
-    setIsOrderSending(true);
-    const payText = paymentMethod === 'cod' ? '📦 Накладний (Анонімно)' : '💳 На карту (Анонімно)';
-    let msg = `<b>🍓 НОВЕ ЗАМОВЛЕННЯ!</b>\n\n👤 ${customerName}\n📞 ${customerPhone}\n🏙 ${customerCity}, №${customerBranch}\n💰 ${payText}\n\n`;
-    cart.forEach((i, idx) => msg += `${idx+1}. ${i.name} (x${i.quantity}) - ${i.price * i.quantity} грн\n`);
-    msg += `\n💵 <b>СУМА: ${totalAmount} грн</b>`;
-    
-    try {
-        await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-            method: 'POST', 
-            headers: {'Content-Type': 'application/json'}, 
-            body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: msg, parse_mode: 'HTML' })
-        });
-        alert(`Замовлення прийнято! Менеджер зв'яжеться з вами. Анонімність гарантуємо.`);
-        setCart([]); 
-        setIsCartOpen(false);
-    } catch (e) { 
-        alert("Помилка відправки."); 
-    } finally { 
-        setIsOrderSending(false); 
+  // Автоплей
+  useEffect(() => {
+    let interval;
+    if (isAutoPlaying) {
+      interval = setInterval(nextSlide, 5000); // 5 секунд на слайд
     }
-  };
+    return () => clearInterval(interval);
+  }, [isAutoPlaying]);
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-    if (passwordInput === ADMIN_PASSWORD) { setIsAdminMode(true); setShowLoginModal(false); setPasswordInput(""); } 
-    else { alert("Невірний пароль!"); }
-  };
-
-  // --- COMPONENT: Product Card ---
-  const ProductCard = ({ p }) => (
-    <div className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-purple-50 flex flex-col h-full group overflow-hidden">
-        <div className="relative h-64 bg-white p-4 flex items-center justify-center border-b border-purple-50">
-            <img src={p.image} alt={p.name} className="w-full h-full object-contain group-hover:scale-105 transition duration-500" />
-            <div className="absolute top-0 right-0 bg-violet-600 text-white text-xs font-bold px-3 py-1 rounded-bl-xl">18+</div>
-        </div>
-        <div className="p-5 flex-1 flex flex-col">
-            <div className="text-[10px] text-violet-600 font-bold uppercase mb-2 bg-purple-50 inline-block px-2 py-1 rounded w-fit tracking-wider">{p.category}</div>
-            <h3 className="font-bold text-gray-800 leading-tight mb-2 line-clamp-2">{p.name}</h3>
-            <div className="mt-auto pt-4 border-t border-gray-50 flex justify-between items-center">
-                <span className="text-2xl font-black text-gray-900">{p.price} <span className="text-sm font-medium text-gray-400">грн</span></span>
-                <button onClick={() => addToCart(p)} className="bg-violet-600 text-white px-4 py-2.5 rounded-xl hover:bg-violet-800 transition active:scale-95 flex items-center gap-2 shadow-lg shadow-purple-200">
-                    <ShoppingCart size={18}/> 
-                </button>
-            </div>
-        </div>
-    </div>
-  );
+  const product = products[currentIndex];
 
   return (
-    <div className="min-h-screen flex flex-col relative bg-slate-50 font-sans text-gray-800">
-      {/* Styles Injection */}
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4 font-sans text-gray-800">
+      {/* Styles Injection for specific effects if needed */}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap');
-        body { font-family: 'Montserrat', sans-serif; }
-        .animate-fade-in { animation: fadeIn 0.5s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #7c3aed; border-radius: 10px; }
-        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #7c3aed; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .font-sans { font-family: 'Montserrat', sans-serif; }
       `}</style>
 
-      {/* NAV */}
-      <nav className="sticky top-0 z-40 bg-white/90 backdrop-blur-md shadow-sm border-b border-purple-100">
-        <div className="max-w-6xl mx-auto px-4">
-            <div className="flex justify-between items-center h-16">
-                <div className="flex items-center gap-3 cursor-pointer" onClick={() => {setIsAdminMode(false); setActivePage('home')}}>
-                    <div className="relative w-10 h-10 flex items-center justify-center bg-violet-600 rounded-xl shadow-lg shadow-purple-200">
-                        <Flame className="text-white w-6 h-6" fill="currentColor" />
-                    </div>
-                    <span className="text-lg md:text-xl font-black tracking-tight text-gray-800">Night<span className="text-violet-600">Secret</span></span>
-                    {isAdminMode && <span className="ml-2 bg-violet-600 text-white text-[10px] px-2 py-1 rounded-full font-bold">Admin</span>}
-                </div>
-                <div className="hidden md:flex gap-8 font-bold text-gray-600 text-sm">
-                    <button onClick={() => setActivePage('home')} className="hover:text-violet-600 transition">Головна</button>
-                    <button onClick={() => setActivePage('delivery')} className="hover:text-violet-600 transition">Анонімність</button>
-                    <button onClick={() => setActivePage('about')} className="hover:text-violet-600 transition">Про нас</button>
-                </div>
-                <div className="flex items-center gap-3">
-                    {!isAdminMode && <button onClick={() => setIsCartOpen(true)} className="relative px-4 py-2.5 bg-gray-900 text-white rounded-xl hover:bg-gray-800 shadow-lg shadow-gray-200 flex items-center gap-2 transition active:scale-95">
-                        <ShoppingCart size={20}/> 
-                        {cart.length > 0 && <span className="bg-pink-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center ml-1">{cart.reduce((a,b)=>a+b.quantity,0)}</span>}
-                    </button>}
-                    {isAdminMode && <button onClick={() => setIsAdminMode(false)} className="p-2.5 rounded-full border bg-red-50 text-red-500 hover:bg-red-100" title="Вийти"><LogOut size={22}/></button>}
-                    {!isAdminMode && <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="md:hidden p-2.5 rounded-full border">{isMobileMenuOpen ? <X size={22}/> : <Menu size={22}/>}</button>}
-                </div>
-            </div>
+      <div className="max-w-6xl w-full bg-white rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col md:flex-row relative min-h-[650px]">
+        
+        {/* ЛЕЙБЛ: Анонімність */}
+        <div className="absolute top-6 left-6 z-20 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full flex items-center gap-2 text-xs font-bold text-gray-500 shadow-sm border border-gray-100">
+          <ShieldCheck size={16} className="text-green-500" />
+          <span>АНОНІМНА ДОСТАВКА</span>
         </div>
-        {isMobileMenuOpen && !isAdminMode && (
-            <div className="md:hidden absolute top-16 left-0 w-full bg-white border-b shadow-xl p-4 flex flex-col gap-4 font-bold text-center text-gray-700 animate-fade-in">
-                <button onClick={() => {setActivePage('home'); setIsMobileMenuOpen(false)}}>Головна</button>
-                <button onClick={() => {setActivePage('delivery'); setIsMobileMenuOpen(false)}}>Анонімність та Доставка</button>
-                <button onClick={() => {setActivePage('about'); setIsMobileMenuOpen(false)}}>Про нас</button>
-            </div>
-        )}
-      </nav>
 
-      <div className="flex-grow">
-        {/* ADMIN MODE */}
-        {isAdminMode ? (
-            <div className="max-w-6xl mx-auto px-4 py-8 animate-fade-in">
-                <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-                    <h2 className="text-3xl font-bold text-gray-800">Адмін-панель</h2>
-                    <button onClick={addNewProduct} className="flex items-center gap-2 bg-violet-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-violet-800 transition"><Plus size={20}/> Додати товар</button>
-                </div>
-                {dbError && <div className="bg-red-100 text-red-700 p-4 mb-6 rounded font-bold">ПОМИЛКА БАЗИ ДАНИХ: {dbError}</div>}
-                {loading ? <div className="loader"></div> : (
-                    <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
-                        {products.length === 0 && <div className="p-12 text-center text-gray-500">Товарів немає.</div>}
-                        {products.map(p => (
-                            <div key={p.id} className="flex items-center gap-4 p-4 border-b border-gray-50 hover:bg-purple-50/30">
-                                <div className="relative group w-20 h-20 shrink-0">
-                                    <input type="file" id={`upl-${p.id}`} className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, p.id)}/>
-                                    <div className="w-full h-full rounded-xl bg-gray-50 border cursor-pointer overflow-hidden flex items-center justify-center" onClick={() => document.getElementById(`upl-${p.id}`).click()}>
-                                        <img src={p.image} className="w-full h-full object-contain" alt="" />
-                                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition"><Upload className="text-white" size={20}/></div>
-                                    </div>
-                                </div>
-                                <div className="flex-1 w-full space-y-2">
-                                    <input value={p.name} onChange={(e) => updateProductField(p.id, 'name', e.target.value)} className="w-full font-bold bg-transparent focus:bg-white rounded px-2 outline-none border border-transparent focus:border-purple-300"/>
-                                    <div className="relative">
-                                        <input list={`tags-${p.id}`} value={p.category} onChange={(e) => updateProductField(p.id, 'category', e.target.value)} className="text-sm bg-gray-50 rounded px-2 py-1 w-full outline-none border border-transparent focus:border-purple-300" placeholder="Категорія"/>
-                                        <datalist id={`tags-${p.id}`}>{uniqueCategories.map(c=><option key={c} value={c}/>)}</datalist>
-                                    </div>
-                                </div>
-                                <input type="number" value={p.price} onChange={(e) => updateProductField(p.id, 'price', Number(e.target.value))} className="w-24 font-bold text-violet-600 bg-transparent focus:bg-white rounded px-2 outline-none"/>
-                                <button onClick={() => removeProduct(p.id)} className="p-2 text-red-400 hover:bg-red-100 rounded-lg"><Trash2 size={20}/></button>
-                            </div>
-                        ))}
-                    </div>
-                )}
+        {/* Ліва частина - Візуалізація продукту */}
+        <div className={`w-full md:w-1/2 ${product.imageBg} transition-colors duration-700 flex items-center justify-center p-12 relative overflow-hidden`}>
+          
+          {/* Декоративні кола на фоні */}
+          <div className="absolute top-[-20%] left-[-20%] w-[140%] h-[140%] border-[80px] border-white/10 rounded-full animate-pulse"></div>
+          
+          {/* Імітація зображення продукту (Placeholder) */}
+          <div className="relative z-10 w-72 h-72 md:w-96 md:h-96 bg-white/20 backdrop-blur-md rounded-full border-4 border-white/40 shadow-2xl flex items-center justify-center group cursor-pointer transition-transform duration-500 hover:scale-105">
+             <Flame size={100} className="text-white drop-shadow-lg" />
+             <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <span className="bg-black/40 text-white px-5 py-2.5 rounded-full font-bold text-sm backdrop-blur-md border border-white/20">
+                  Переглянути
+                </span>
+             </div>
+          </div>
+
+          {/* Індикатор слайдів (дотси) */}
+          <div className="absolute bottom-10 flex gap-3">
+            {products.map((_, idx) => (
+              <button 
+                key={idx}
+                onClick={() => setCurrentIndex(idx)}
+                className={`h-2.5 rounded-full transition-all duration-300 shadow-sm ${idx === currentIndex ? 'w-10 bg-white' : 'w-2.5 bg-white/40 hover:bg-white/70'}`}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Права частина - Картка товару */}
+        <div className="w-full md:w-1/2 p-8 md:p-16 flex flex-col bg-white relative">
+          
+          {/* Хедер картки */}
+          <div className="flex justify-between items-start mb-6">
+            <div>
+               <span className={`text-sm font-bold tracking-widest uppercase mb-2 block ${product.accentColor}`}>
+                 Bestseller
+               </span>
+               <div className="flex items-center gap-1 text-yellow-400 text-sm">
+                 <div className="flex">
+                    {[1,2,3,4,5].map(star => <Star key={star} fill="currentColor" size={16} className={star <= Math.round(product.rating) ? "text-yellow-400" : "text-gray-200"} />)}
+                 </div>
+                 <span className="text-gray-400 font-bold ml-2">{product.rating}</span>
+               </div>
             </div>
-        ) : activePage === 'delivery' ? (
-            <div className="max-w-4xl mx-auto px-4 py-12 animate-fade-in">
-                <h1 className="text-3xl font-extrabold text-center mb-10 text-gray-800">100% Анонімність та Доставка</h1>
-                <div className="grid md:grid-cols-2 gap-8">
-                    <div className="bg-white p-8 rounded-3xl shadow-lg border border-purple-50">
-                        <div className="bg-purple-100 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 text-violet-600"><ShieldCheck size={32}/></div>
-                        <h2 className="text-xl font-bold mb-4">Повна конфіденційність</h2>
-                        <ul className="space-y-3 text-sm text-gray-600">
-                            <li className="flex items-center gap-2"><Box size={16}/> Упаковка без написів</li>
-                            <li className="flex items-center gap-2"><Lock size={16}/> Опис: "Косметика"</li>
-                            <li className="flex items-center gap-2"><Truck size={16}/> Швидка відправка</li>
-                        </ul>
-                    </div>
-                    <div className="bg-white p-8 rounded-3xl shadow-lg border border-purple-50">
-                        <div className="bg-green-100 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 text-green-600"><CreditCard size={32}/></div>
-                        <h2 className="text-xl font-bold mb-4">Оплата</h2>
-                        <ul className="space-y-3 text-gray-600 text-sm">
-                            <li>💵 <b>Накладний:</b> При отриманні</li>
-                            <li>💳 <b>Карта:</b> Mono/Privat</li>
-                        </ul>
-                    </div>
-                </div>
+            
+            <button className="p-3 rounded-full bg-gray-50 hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors">
+              <Heart size={24} />
+            </button>
+          </div>
+
+          {/* Основна інфо */}
+          <div className="mt-2 mb-auto">
+            <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 leading-tight mb-3">
+              {product.title}
+            </h1>
+            <h2 className="text-xl md:text-2xl text-gray-400 font-semibold mb-8">
+              {product.subtitle}
+            </h2>
+            <p className="text-gray-600 text-lg leading-relaxed mb-10">
+              {product.description}
+            </p>
+
+            {/* Ціна */}
+            <div className="flex items-end gap-4 mb-10">
+              <span className="text-4xl font-black text-gray-900">{product.price}</span>
+              {product.oldPrice && (
+                <span className="text-xl text-gray-400 line-through mb-1.5 font-medium">{product.oldPrice}</span>
+              )}
             </div>
-        ) : activePage === 'about' ? (
-            <div className="max-w-4xl mx-auto px-4 py-12 animate-fade-in text-center">
-                <div className="bg-white rounded-[2.5rem] p-12 shadow-xl border border-purple-50 relative overflow-hidden">
-                    <div className="relative z-10">
-                        <div className="w-24 h-24 bg-violet-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl shadow-purple-200"><Flame size={40} className="text-white"/></div>
-                        <h1 className="text-3xl md:text-4xl font-extrabold text-gray-800 mb-6">Night Secret</h1>
-                        <p className="text-lg text-gray-600 leading-relaxed mb-8 max-w-2xl mx-auto">Твій простір безпечного задоволення.</p>
-                    </div>
-                    <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-violet-600 to-pink-600"></div>
-                </div>
+          </div>
+
+          {/* Кнопки дії */}
+          <div className="flex flex-col gap-6">
+            <div className="flex gap-4">
+              <button className={`flex-1 ${product.buttonColor} text-white font-bold text-lg py-4 px-8 rounded-2xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3`}>
+                <ShoppingBag size={22} />
+                <span>В кошик</span>
+              </button>
             </div>
-        ) : (
-            // HOME PAGE
-            <div className="max-w-6xl mx-auto px-4 py-8">
-                <div className="bg-gradient-to-r from-violet-600 to-violet-900 rounded-[2.5rem] p-8 md:p-16 mb-12 text-white shadow-2xl relative overflow-hidden text-center md:text-left flex items-center">
-                    <div className="relative z-10 max-w-2xl">
-                        <span className="inline-block bg-white/10 backdrop-blur-md px-4 py-2 rounded-lg text-sm font-bold uppercase mb-6 border border-white/20 tracking-widest">Анонімно • Швидко</span>
-                        <h1 className="text-4xl md:text-6xl font-extrabold mb-6 leading-tight">Територія твого <br/><span className="text-pink-600">задоволення</span></h1>
-                        <p className="text-lg opacity-80 mb-8 max-w-lg">Найкращі товари для незабутніх моментів.</p>
-                        <button onClick={()=>document.getElementById('catalog').scrollIntoView({behavior:'smooth'})} className="bg-white text-violet-600 px-8 py-4 rounded-xl font-bold hover:bg-gray-100 transition shadow-lg flex items-center gap-2 w-fit mx-auto md:mx-0">До каталогу <ArrowLeft className="rotate-180"/></button>
-                    </div>
-                    <div className="absolute -right-20 -bottom-40 w-96 h-96 bg-pink-600 blur-[100px] opacity-50 rounded-full"></div>
-                </div>
-                
-                <div id="catalog" className="mb-8">
-                    <div className="flex flex-wrap gap-2 justify-center md:justify-start">
-                        <button onClick={()=>setSelectedCategory(null)} className={`px-5 py-2.5 rounded-xl text-sm font-bold transition ${selectedCategory===null ? 'bg-gray-900 text-white' : 'bg-white text-gray-600 border hover:border-violet-600'}`}>Всі</button>
-                        {uniqueCategories.map(c=><button key={c} onClick={()=>setSelectedCategory(c)} className={`px-5 py-2.5 rounded-xl text-sm font-bold transition ${selectedCategory===c ? 'bg-violet-600 text-white shadow-lg shadow-purple-200' : 'bg-white text-gray-600 border hover:border-violet-600'}`}>{c}</button>)}
-                    </div>
-                </div>
-                
-                {loading ? <div className="loader"></div> : (
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-16">
-                        {filteredProducts.length===0 && <div className="col-span-full text-center text-gray-400 py-10">Товарів немає.</div>}
-                        {filteredProducts.map(p => <ProductCard key={p.id} p={p}/>)}
-                    </div>
-                )}
+            
+            {/* Навігація внизу */}
+            <div className="flex items-center justify-between pt-8 border-t border-gray-100">
+               <span className="text-xs text-gray-400 font-bold uppercase tracking-widest">
+                 Наступний товар
+               </span>
+               <div className="flex gap-3">
+                  <button 
+                    onClick={prevSlide}
+                    className="w-12 h-12 rounded-full border-2 border-gray-100 flex items-center justify-center hover:bg-gray-100 hover:border-gray-300 text-gray-600 transition-all"
+                  >
+                    <ArrowLeft size={20} />
+                  </button>
+                  <button 
+                    onClick={nextSlide}
+                    className="w-12 h-12 rounded-full border-2 border-gray-100 flex items-center justify-center hover:bg-gray-100 hover:border-gray-300 text-gray-600 transition-all"
+                  >
+                    <ArrowRight size={20} />
+                  </button>
+               </div>
             </div>
-        )}
+          </div>
+
+        </div>
       </div>
-
-      {!isAdminMode && (
-        <footer className="bg-gray-900 text-gray-300 pt-16 pb-8 mt-auto rounded-t-[3rem]">
-            <div className="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
-                <div><div className="flex items-center gap-2 mb-4"><div className="w-8 h-8 flex items-center justify-center bg-violet-600 rounded-lg"><Flame className="text-white w-5 h-5" fill="currentColor" /></div><span className="text-xl font-bold text-white">Night<span className="text-violet-600">Secret</span></span></div><p className="text-sm mt-4 text-gray-400">Твій секрет у безпеці.</p></div>
-                <div><h3 className="text-white font-bold mb-6">Інформація</h3><ul className="space-y-3 text-sm"><li><button onClick={() => setActivePage('delivery')} className="hover:text-violet-600 transition flex items-center gap-2"><ShieldCheck size={16}/> Анонімність</button></li><li><button onClick={() => setActivePage('about')} className="hover:text-violet-600 transition flex items-center gap-2"><Heart size={16}/> Про нас</button></li></ul></div>
-                <div><h3 className="text-white font-bold mb-6">Контакти</h3><ul className="space-y-3 text-sm"><li className="flex items-center gap-3"><Phone size={18} className="text-violet-600"/> +38 (097) 123 45 67</li><li className="flex items-center gap-3"><Send size={18} className="text-violet-600"/> @night_secret_ua</li><li className="text-xs text-gray-500 mt-2">18+</li></ul></div>
-            </div>
-            <div className="max-w-6xl mx-auto px-4 pt-8 mt-8 border-t border-gray-800 text-xs text-gray-500 flex justify-between items-center"><p>© 2024 Night Secret.</p><button onClick={() => setShowLoginModal(true)} className="bg-white/5 hover:bg-white/20 text-gray-500 hover:text-white p-2 rounded-full transition"><Lock size={14}/></button></div>
-        </footer>
-      )}
-
-      {showLoginModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/40 backdrop-blur-md" onClick={() => setShowLoginModal(false)}>
-            <div className="bg-white rounded-[2rem] shadow-2xl p-8 max-w-sm w-full relative" onClick={e => e.stopPropagation()}>
-                <h3 className="text-2xl font-extrabold text-center mb-6 text-gray-800">Вхід Admin</h3>
-                <form onSubmit={handleLogin}>
-                    <input type="password" value={passwordInput} onChange={(e) => setPasswordInput(e.target.value)} className="w-full px-5 py-4 rounded-xl bg-gray-50 border-2 font-bold text-center text-lg mb-6 outline-none focus:border-violet-600" placeholder="Пароль" autoFocus />
-                    <button className="w-full bg-violet-600 text-white py-4 rounded-xl font-bold hover:bg-violet-800 transition">Увійти</button>
-                </form>
-            </div>
-        </div>
-      )}
-
-      {isCartOpen && !isAdminMode && (
-        <div className="fixed inset-0 z-50 flex justify-end">
-            <div className="absolute inset-0 bg-gray-900/50 backdrop-blur-sm" onClick={() => setIsCartOpen(false)}></div>
-            <div className="w-full max-w-md bg-[#f8fafc] h-full shadow-2xl flex flex-col relative animate-fade-in ml-auto z-50">
-                <div className="px-6 py-5 border-b border-purple-100 flex justify-between items-center bg-white">
-                    <h2 className="text-xl font-bold flex gap-2 items-center"><ShoppingCart className="text-violet-600"/> Кошик <span className="text-xs bg-gray-100 px-2 py-1 rounded text-gray-500 font-normal">Анонімна упаковка</span></h2>
-                    <button onClick={() => setIsCartOpen(false)} className="p-2 hover:bg-gray-100 rounded-full transition"><X size={20}/></button>
-                </div>
-                <div className="flex-1 overflow-auto p-4">
-                    {cart.length === 0 ? <div className="text-center text-gray-500 mt-10">Кошик порожній...</div> : (
-                        <>
-                        <div className="space-y-4 mb-8">
-                            {cart.map(item => (
-                                <div key={item.id} className="bg-white p-4 rounded-2xl shadow-sm border border-purple-50 flex gap-4">
-                                    <img src={item.image} className="w-16 h-16 object-contain bg-gray-50 rounded-lg" alt={item.name}/>
-                                    <div className="flex-1">
-                                        <div className="flex justify-between items-start"><div className="font-bold text-sm text-gray-800 line-clamp-1">{item.name}</div><button onClick={() => removeFromCart(item.id)} className="text-gray-300 hover:text-red-500"><Trash2 size={16}/></button></div>
-                                        <div className="flex justify-between items-end mt-2">
-                                            <div className="font-bold text-violet-600">{item.price} грн</div>
-                                            <div className="flex items-center gap-1 bg-gray-50 rounded-lg border p-0.5">
-                                                <button onClick={() => updateQty(item.id, -1)} className="p-1 hover:bg-white rounded"><Minus size={16}/></button>
-                                                <span className="font-bold min-w-[20px] text-center text-sm">{item.quantity}</span>
-                                                <button onClick={() => updateQty(item.id, 1)} className="p-1 hover:bg-white rounded"><Plus size={16}/></button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                        <div className="bg-white p-6 rounded-3xl shadow-sm border border-purple-100 space-y-4">
-                            <h3 className="font-bold mb-4 flex gap-2"><Edit2 className="text-violet-600" size={16}/> Оформлення (Анонімно)</h3>
-                            <form onSubmit={sendOrder} className="space-y-3">
-                                <input required value={customerName} onChange={e => setCustomerName(e.target.value)} className="w-full px-4 py-3 rounded-xl bg-gray-50 border focus:border-violet-600 outline-none" placeholder="ПІБ"/>
-                                <input required type="tel" value={customerPhone} onChange={e => setCustomerPhone(e.target.value)} className="w-full px-4 py-3 rounded-xl bg-gray-50 border focus:border-violet-600 outline-none" placeholder="Телефон"/>
-                                <div className="bg-gray-50 p-3 rounded-xl border border-gray-200">
-                                    <div className="text-xs font-bold text-red-600 mb-2 flex gap-1"><Truck size={12}/> Нова Пошта</div>
-                                    <input list="cities" required value={customerCity} onChange={e => setCustomerCity(e.target.value)} className="w-full px-3 py-2 rounded-lg border mb-2 text-sm focus:border-red-500 outline-none" placeholder="Місто"/>
-                                    <datalist id="cities">{POPULAR_CITIES.map(c => <option key={c} value={c}/>)}</datalist>
-                                    <input required value={customerBranch} onChange={e => setCustomerBranch(e.target.value)} className="w-full px-3 py-2 rounded-lg border text-sm focus:border-red-500 outline-none" placeholder="Відділення №"/>
-                                </div>
-                                <div className="bg-gray-50 p-3 rounded-xl border border-gray-200">
-                                    <div className="text-xs font-bold text-green-600 mb-2 flex gap-1"><CreditCard size={12}/> Оплата</div>
-                                    <label className="flex items-center gap-2 p-2 hover:bg-white cursor-pointer"><input type="radio" name="pay" checked={paymentMethod==='cod'} onChange={()=>setPaymentMethod('cod')} className="text-violet-600 focus:ring-violet-600"/><span className="text-sm">Накладний</span></label>
-                                    <label className="flex items-center gap-2 p-2 hover:bg-white cursor-pointer"><input type="radio" name="pay" checked={paymentMethod==='card'} onChange={()=>setPaymentMethod('card')} className="text-violet-600 focus:ring-violet-600"/><span className="text-sm">На карту</span></label>
-                                </div>
-                                <div className="pt-4 mt-4 border-t border-dashed flex justify-between items-center">
-                                    <div className="text-xl font-black">Сума: <span className="text-violet-600">{totalAmount} грн</span></div>
-                                    <button disabled={isOrderSending} className="bg-violet-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-violet-800 transition flex items-center gap-2 shadow-lg shadow-purple-200 active:scale-95">{isOrderSending ? '...' : <><Send size={18}/> Замовити</>}</button>
-                                </div>
-                            </form>
-                        </div>
-                        </>
-                    )}
-                </div>
-            </div>
-        </div>
-      )}
     </div>
   );
 };
