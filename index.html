@@ -16,6 +16,7 @@
     <style>
         body { font-family: 'Montserrat', sans-serif; }
         .animate-fade-in { animation: fadeIn 0.5s ease-out; }
+        .animate-fade-fast { animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
@@ -47,13 +48,16 @@
             ArrowLeft: (p) => <IconBase {...p}><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></IconBase>,
             Settings: (p) => <IconBase {...p}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.47a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></IconBase>,
             ChevronRight: (p) => <IconBase {...p}><path d="m9 18 6-6-6-6"/></IconBase>,
+            ChevronLeft: (p) => <IconBase {...p}><path d="m15 18-6-6 6-6"/></IconBase>,
             Truck: (p) => <IconBase {...p}><path d="M10 17h4V5H2v12h3"/><path d="M20 17h2v-3.34a4 4 0 0 0-1.17-2.83L19 9h-5"/><path d="M14 17h1"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></IconBase>,
             ShieldCheck: (p) => <IconBase {...p}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/></IconBase>,
             Flame: (p) => <IconBase {...p}><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.1.2-2.2.6-3.3.7.3 1.9.9 2.9 1.8Z"/></IconBase>,
             LogOut: (p) => <IconBase {...p}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></IconBase>,
             Image: (p) => <IconBase {...p}><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></IconBase>,
             Upload: (p) => <IconBase {...p}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></IconBase>,
-            Check: (p) => <IconBase {...p}><polyline points="20 6 9 17 4 12"/></IconBase>
+            Check: (p) => <IconBase {...p}><polyline points="20 6 9 17 4 12"/></IconBase>,
+            Video: (p) => <IconBase {...p}><path d="m22 8-6 4 6 4V8Z"/><rect width="14" height="12" x="2" y="6" rx="2" ry="2"/></IconBase>,
+            Link: (p) => <IconBase {...p}><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></IconBase>
         };
 
         const BrandLogo = () => (
@@ -88,6 +92,12 @@
             { name: "Масажери", icon: "💆" }
         ];
 
+        // --- УТИЛІТИ ---
+        const isVideo = (url) => {
+            if (!url) return false;
+            return url.toLowerCase().endsWith('.mp4') || url.toLowerCase().endsWith('.webm');
+        };
+
         // ==========================================
         // COMPONENTS
         // ==========================================
@@ -121,7 +131,16 @@
         const ProductCard = ({ product, navigateToProduct, addToCart }) => (
             <div className="group bg-slate-800 rounded-2xl border border-white/5 overflow-hidden hover:border-violet-500/50 transition-all duration-300 hover:shadow-2xl cursor-pointer flex flex-col h-full relative" onClick={() => navigateToProduct(product.id)}>
                 <div className="relative aspect-[4/5] bg-slate-700 overflow-hidden">
-                    <img src={product.images && product.images.length > 0 ? product.images[0] : 'https://via.placeholder.com/300'} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"/>
+                    {product.images && product.images.length > 0 ? (
+                        isVideo(product.images[0]) ? (
+                            <video src={product.images[0]} muted loop autoPlay playsInline className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                        ) : (
+                            <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"/>
+                        )
+                    ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-slate-800 text-gray-500"><Icons.Image size={40}/></div>
+                    )}
+                    
                     {product.isHit && <div className="absolute top-3 left-3 bg-fuchsia-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg z-10 flex items-center gap-1"><Icons.Flame size={12}/> HIT</div>}
                 </div>
                 <div className="p-5 flex-1 flex flex-col">
@@ -129,41 +148,75 @@
                     <h3 className="text-lg font-bold text-white mb-1 group-hover:text-violet-300 transition-colors line-clamp-1">{product.name}</h3>
                     <p className="text-sm text-gray-400 mb-4 line-clamp-2">{product.shortDesc}</p>
                     <div className="mt-auto flex items-center justify-between">
-                        <div><span className="text-2xl font-bold text-white">{product.price} ₴</span>{product.oldPrice && <span className="text-sm text-gray-500 line-through ml-2">{product.oldPrice} ₴</span>}</div>
+                        <div><span className="text-2xl font-bold text-white">{product.price} ₴</span>{product.oldPrice > 0 && <span className="text-sm text-gray-500 line-through ml-2">{product.oldPrice} ₴</span>}</div>
                         <AddToCartBtn product={product} addToCart={addToCart} />
                     </div>
                 </div>
             </div>
         );
 
-        const ProductPage = ({ product, goHome, addToCart }) => {
+        const ProductPage = ({ product, goBack, addToCart }) => {
             const [currentImg, setCurrentImg] = useState(0);
             
             if (!product) return (
                 <div className="min-h-screen bg-slate-900 pt-20 flex items-center justify-center">
                     <div className="text-center">
                         <h2 className="text-2xl font-bold text-white mb-2">Товар не знайдено</h2>
-                        <button onClick={goHome} className="text-violet-400 hover:text-white font-bold">На головну</button>
+                        <button onClick={goBack} className="text-violet-400 hover:text-white font-bold">Повернутись</button>
                     </div>
                 </div>
             );
 
             const images = product.images || [];
 
+            const nextImage = () => {
+                setCurrentImg((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+            };
+
+            const prevImage = () => {
+                setCurrentImg((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+            };
+
             return (
                 <div className="min-h-screen bg-slate-900 pb-20 pt-10 animate-fade-in">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <button onClick={goHome} className="flex items-center text-gray-400 hover:text-white mb-8 gap-2"><Icons.ArrowLeft size={20}/> Назад</button>
+                        <button onClick={goBack} className="flex items-center text-gray-400 hover:text-white mb-8 gap-2"><Icons.ArrowLeft size={20}/> Назад</button>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                            <div className="space-y-4">
-                                <div className="aspect-square rounded-3xl overflow-hidden bg-slate-800 border border-white/10 shadow-2xl relative">
-                                    <img src={images[currentImg] || 'https://via.placeholder.com/500'} className="w-full h-full object-cover animate-fade-in" />
+                            <div className="space-y-4 select-none">
+                                <div className="aspect-square rounded-3xl overflow-hidden bg-slate-800 border border-white/10 shadow-2xl relative group">
+                                    {images.length > 0 ? (
+                                        <div key={currentImg} className="w-full h-full animate-fade-fast">
+                                            {isVideo(images[currentImg]) ? (
+                                                <video src={images[currentImg]} controls className="w-full h-full object-contain bg-black" />
+                                            ) : (
+                                                <img src={images[currentImg]} className="w-full h-full object-cover" />
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center text-gray-600"><Icons.Image size={64}/></div>
+                                    )}
+
+                                    {images.length > 1 && (
+                                        <>
+                                            <button onClick={prevImage} className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 text-white hover:bg-violet-600 transition opacity-0 group-hover:opacity-100">
+                                                <Icons.ChevronLeft size={24}/>
+                                            </button>
+                                            <button onClick={nextImage} className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 text-white hover:bg-violet-600 transition opacity-0 group-hover:opacity-100">
+                                                <Icons.ChevronRight size={24}/>
+                                            </button>
+                                        </>
+                                    )}
                                 </div>
+                                
                                 {images.length > 1 && (
-                                    <div className="flex gap-4 overflow-x-auto pb-2">
+                                    <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
                                         {images.map((img, idx) => (
-                                            <button key={idx} onClick={() => setCurrentImg(idx)} className={`w-20 h-20 rounded-xl overflow-hidden border-2 flex-shrink-0 ${currentImg === idx ? 'border-violet-500' : 'border-transparent'}`}>
-                                                <img src={img} className="w-full h-full object-cover"/>
+                                            <button key={idx} onClick={() => setCurrentImg(idx)} className={`w-20 h-20 rounded-xl overflow-hidden border-2 flex-shrink-0 transition-all ${currentImg === idx ? 'border-violet-500 scale-105' : 'border-transparent opacity-70 hover:opacity-100'}`}>
+                                                {isVideo(img) ? (
+                                                    <div className="w-full h-full bg-black flex items-center justify-center"><Icons.Video size={24} className="text-white"/></div>
+                                                ) : (
+                                                    <img src={img} className="w-full h-full object-cover"/>
+                                                )}
                                             </button>
                                         ))}
                                     </div>
@@ -177,7 +230,7 @@
                                 <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-4">{product.name}</h1>
                                 <div className="flex items-end gap-4 mb-8">
                                     <span className="text-4xl font-bold text-white">{product.price} ₴</span>
-                                    {product.oldPrice && <span className="text-xl text-gray-500 line-through mb-1">{product.oldPrice} ₴</span>}
+                                    {product.oldPrice > 0 && <span className="text-xl text-gray-500 line-through mb-1">{product.oldPrice} ₴</span>}
                                 </div>
                                 <p className="text-lg text-gray-300 leading-relaxed mb-10">{product.description}</p>
                                 
@@ -202,11 +255,43 @@
             );
         };
 
-        const CartView = ({ cart, updateQty, removeFromCart, goHome, cartTotal }) => {
-            const [isCheckout, setIsCheckout] = useState(false);
-            const [isSending, setIsSending] = useState(false);
+        const CartView = ({ cart, updateQty, removeFromCart, goBack, cartTotal, changeRoute }) => {
             const [form, setForm] = useState({ name: '', phone: '', city: '', branch: '' });
+            const [isSending, setIsSending] = useState(false);
+            // Перевіряємо, чи ми в режимі оформлення (через URL/History або локально)
+            // Для спрощення тут: якщо корзина пуста - показуємо пусту, якщо ні - список.
+            // Оформлення зробимо окремим "роутом" 'checkout'
             
+            return (
+                <div className="min-h-screen bg-slate-900 py-12 px-4 animate-fade-in">
+                    <div className="max-w-3xl mx-auto">
+                        <h1 className="text-3xl font-bold text-white mb-8">Кошик</h1>
+                        {cart.length === 0 ? (
+                            <div className="text-center py-20 bg-slate-800 rounded-2xl border border-white/10"><Icons.ShoppingBag size={64} className="mx-auto text-gray-600 mb-4"/><p className="text-gray-400">Кошик порожній</p><button onClick={() => changeRoute('home')} className="mt-4 text-violet-400 font-bold">До покупок</button></div>
+                        ) : (
+                            <div className="space-y-6">
+                                <div className="bg-slate-800 rounded-2xl border border-white/10 overflow-hidden">
+                                    {cart.map(item => (
+                                        <div key={item.id} className="p-4 flex gap-4 border-b border-white/5 items-center">
+                                            <img src={item.images?.[0] || 'https://via.placeholder.com/100'} className="w-16 h-16 rounded object-cover"/>
+                                            <div className="flex-1"><h3 className="font-bold">{item.name}</h3><p className="text-sm text-gray-400">{item.price} ₴</p></div>
+                                            <div className="flex items-center gap-3 bg-slate-900 rounded p-1"><button onClick={()=>updateQty(item.id, -1)} className="p-1 text-gray-400 hover:text-white"><Icons.Minus size={14}/></button><span className="text-sm font-bold w-4 text-center">{item.qty}</span><button onClick={()=>updateQty(item.id, 1)} className="p-1 text-gray-400 hover:text-white"><Icons.Plus size={14}/></button></div>
+                                            <button onClick={()=>removeFromCart(item.id)} className="text-gray-500 hover:text-red-500"><Icons.Trash2 size={18}/></button>
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className="flex justify-between items-center"><span className="text-gray-400">Разом:</span><span className="text-2xl font-bold text-violet-400">{cartTotal} ₴</span></div>
+                                <button onClick={() => changeRoute('checkout')} className="w-full bg-violet-600 hover:bg-violet-700 text-white font-bold py-4 rounded-xl">Оформити</button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        const CheckoutView = ({ cart, cartTotal, goBack, clearCart, changeRoute }) => {
+            const [form, setForm] = useState({ name: '', phone: '', city: '', branch: '' });
+            const [isSending, setIsSending] = useState(false);
             const TELEGRAM_BOT_TOKEN = "8490403071:AAFZvriLL_vzQq-ziMVTfiHAu8DmtH84Fjk";
             const TELEGRAM_CHAT_ID = "7085928669";
 
@@ -221,42 +306,24 @@
                         body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: msg, parse_mode: 'HTML' })
                     });
                     alert("Дякуємо! Замовлення прийнято."); 
-                    goHome(); 
+                    clearCart();
+                    changeRoute('home');
                 } catch (e) { alert("Помилка."); } finally { setIsSending(false); }
             };
 
             return (
                 <div className="min-h-screen bg-slate-900 py-12 px-4 animate-fade-in">
                     <div className="max-w-3xl mx-auto">
-                        <h1 className="text-3xl font-bold text-white mb-8">{isCheckout ? 'Оформлення' : 'Кошик'}</h1>
-                        {cart.length === 0 ? (
-                            <div className="text-center py-20 bg-slate-800 rounded-2xl border border-white/10"><Icons.ShoppingBag size={64} className="mx-auto text-gray-600 mb-4"/><p className="text-gray-400">Кошик порожній</p><button onClick={goHome} className="mt-4 text-violet-400 font-bold">До покупок</button></div>
-                        ) : !isCheckout ? (
-                            <div className="space-y-6">
-                                <div className="bg-slate-800 rounded-2xl border border-white/10 overflow-hidden">
-                                    {cart.map(item => (
-                                        <div key={item.id} className="p-4 flex gap-4 border-b border-white/5 items-center">
-                                            <img src={item.images?.[0] || 'https://via.placeholder.com/100'} className="w-16 h-16 rounded object-cover"/>
-                                            <div className="flex-1"><h3 className="font-bold">{item.name}</h3><p className="text-sm text-gray-400">{item.price} ₴</p></div>
-                                            <div className="flex items-center gap-3 bg-slate-900 rounded p-1"><button onClick={()=>updateQty(item.id, -1)} className="p-1 text-gray-400 hover:text-white"><Icons.Minus size={14}/></button><span className="text-sm font-bold w-4 text-center">{item.qty}</span><button onClick={()=>updateQty(item.id, 1)} className="p-1 text-gray-400 hover:text-white"><Icons.Plus size={14}/></button></div>
-                                            <button onClick={()=>removeFromCart(item.id)} className="text-gray-500 hover:text-red-500"><Icons.Trash2 size={18}/></button>
-                                        </div>
-                                    ))}
-                                </div>
-                                <div className="flex justify-between items-center"><span className="text-gray-400">Разом:</span><span className="text-2xl font-bold text-violet-400">{cartTotal} ₴</span></div>
-                                <button onClick={()=>setIsCheckout(true)} className="w-full bg-violet-600 hover:bg-violet-700 text-white font-bold py-4 rounded-xl">Оформити</button>
-                            </div>
-                        ) : (
-                            <div className="bg-slate-800 rounded-2xl p-8 border border-white/10">
-                                <button onClick={()=>setIsCheckout(false)} className="mb-6 flex items-center gap-2 text-gray-400 hover:text-white"><Icons.ArrowLeft size={16}/> Назад</button>
-                                <form onSubmit={submitOrder} className="space-y-4">
-                                    <input required placeholder="Ім'я" className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-violet-500" value={form.name} onChange={e=>setForm({...form, name:e.target.value})} />
-                                    <input required placeholder="Телефон" className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-violet-500" value={form.phone} onChange={e=>setForm({...form, phone:e.target.value})} />
-                                    <div className="pt-4 border-t border-white/5"><h3 className="font-bold mb-4 flex gap-2"><Icons.Truck className="text-violet-500"/> Доставка</h3><div className="grid md:grid-cols-2 gap-4"><input required placeholder="Місто" list="cities" className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-violet-500" value={form.city} onChange={e=>setForm({...form, city:e.target.value})} /><datalist id="cities">{POPULAR_CITIES.map(c=><option key={c} value={c}/>)}</datalist><input required placeholder="Відділення №" className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-violet-500" value={form.branch} onChange={e=>setForm({...form, branch:e.target.value})} /></div></div>
-                                    <button disabled={isSending} className="w-full bg-violet-600 hover:bg-violet-700 text-white font-bold py-4 rounded-xl mt-6">{isSending ? 'Відправка...' : `Підтвердити (${cartTotal} ₴)`}</button>
-                                </form>
-                            </div>
-                        )}
+                        <h1 className="text-3xl font-bold text-white mb-8">Оформлення</h1>
+                        <div className="bg-slate-800 rounded-2xl p-8 border border-white/10">
+                            <button onClick={goBack} className="mb-6 flex items-center gap-2 text-gray-400 hover:text-white"><Icons.ArrowLeft size={16}/> Назад</button>
+                            <form onSubmit={submitOrder} className="space-y-4">
+                                <input required placeholder="Ім'я" className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-violet-500" value={form.name} onChange={e=>setForm({...form, name:e.target.value})} />
+                                <input required placeholder="Телефон" className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-violet-500" value={form.phone} onChange={e=>setForm({...form, phone:e.target.value})} />
+                                <div className="pt-4 border-t border-white/5"><h3 className="font-bold mb-4 flex gap-2"><Icons.Truck className="text-violet-500"/> Доставка</h3><div className="grid md:grid-cols-2 gap-4"><input required placeholder="Місто" list="cities" className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-violet-500" value={form.city} onChange={e=>setForm({...form, city:e.target.value})} /><datalist id="cities">{POPULAR_CITIES.map(c=><option key={c} value={c}/>)}</datalist><input required placeholder="Відділення №" className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-violet-500" value={form.branch} onChange={e=>setForm({...form, branch:e.target.value})} /></div></div>
+                                <button disabled={isSending} className="w-full bg-violet-600 hover:bg-violet-700 text-white font-bold py-4 rounded-xl mt-6">{isSending ? 'Відправка...' : `Підтвердити (${cartTotal} ₴)`}</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             );
@@ -265,6 +332,7 @@
         const AdminPanel = ({ products, setProducts, setEditId }) => {
             const [localEditId, setLocalEditId] = useState(null);
             const [formData, setFormData] = useState(null);
+            const [urlInput, setUrlInput] = useState("");
 
             const handleCreateNew = () => {
                 const newProduct = { id: Date.now(), name: "Новий товар", price: 0, category: "Іграшки", images: [], rating: 0, specs: [], isHit: false };
@@ -292,6 +360,13 @@
                 });
             };
 
+            const handleAddUrl = () => {
+                if(urlInput) {
+                    setFormData(p => ({...p, images: [...p.images, urlInput]}));
+                    setUrlInput("");
+                }
+            };
+
             const removeImage = (index) => {
                 setFormData(prev => ({...prev, images: prev.images.filter((_, i) => i !== index)}));
             };
@@ -314,18 +389,27 @@
                                     <div><label className="block text-sm font-bold text-gray-400 mb-2">Назва</label><input value={formData.name} onChange={e=>setFormData({...formData, name:e.target.value})} className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-violet-500" /></div>
                                     <div><label className="block text-sm font-bold text-gray-400 mb-2">Ціна</label><input type="number" value={formData.price} onChange={e=>setFormData({...formData, price:Number(e.target.value)})} className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-violet-500" /></div>
                                     <div><label className="block text-sm font-bold text-gray-400 mb-2">Категорія</label><select value={formData.category} onChange={e=>setFormData({...formData, category:e.target.value})} className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-violet-500">{CATEGORIES.map(c=><option key={c.name} value={c.name}>{c.name}</option>)}<option value="Інше">Інше</option></select></div>
+                                    <div><label className="block text-sm font-bold text-gray-400 mb-2">Стара ціна (необов'язково)</label><input type="number" value={formData.oldPrice || ''} onChange={e=>setFormData({...formData, oldPrice:Number(e.target.value)})} className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-violet-500" placeholder="0" /></div>
                                 </div>
                                 
                                 <div>
-                                    <label className="block text-sm font-bold text-gray-400 mb-2">Фото</label>
+                                    <label className="block text-sm font-bold text-gray-400 mb-2">Медіа (Фото/Відео)</label>
                                     <div className="flex flex-wrap gap-4 mb-4">
                                         {formData.images?.map((img, i) => (
-                                            <div key={i} className="relative w-24 h-24 rounded-lg overflow-hidden border border-white/20 group">
-                                                <img src={img} className="w-full h-full object-cover"/>
+                                            <div key={i} className="relative w-24 h-24 rounded-lg overflow-hidden border border-white/20 group bg-black">
+                                                {isVideo(img) ? <video src={img} className="w-full h-full object-cover"/> : <img src={img} className="w-full h-full object-cover"/>}
                                                 <button type="button" onClick={() => removeImage(i)} className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition text-red-500"><Icons.Trash2/></button>
                                             </div>
                                         ))}
-                                        <label className="w-24 h-24 rounded-lg border-2 border-dashed border-white/20 flex flex-col items-center justify-center text-gray-400 cursor-pointer hover:border-violet-500"><Icons.Upload size={24}/><input type="file" multiple className="hidden" onChange={handleImageUpload}/></label>
+                                        <label className="w-24 h-24 rounded-lg border-2 border-dashed border-white/20 flex flex-col items-center justify-center text-gray-400 cursor-pointer hover:border-violet-500 hover:text-violet-500 transition">
+                                            <Icons.Upload size={24}/>
+                                            <span className="text-xs mt-1">Файл</span>
+                                            <input type="file" multiple className="hidden" onChange={handleImageUpload}/>
+                                        </label>
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <input value={urlInput} onChange={e => setUrlInput(e.target.value)} placeholder="Вставте посилання на фото або .mp4 відео" className="flex-1 bg-slate-900 border border-white/10 rounded-xl px-4 py-2 text-white outline-none focus:border-violet-500 text-sm"/>
+                                        <button type="button" onClick={handleAddUrl} className="bg-slate-700 hover:bg-violet-600 text-white px-4 rounded-xl text-sm font-bold">Додати URL</button>
                                     </div>
                                 </div>
 
@@ -359,7 +443,7 @@
             );
         };
 
-        const Header = ({ goHome, setActiveView, cart, isMobileMenuOpen, setIsMobileMenuOpen, isAdminMode, setIsAdminMode }) => (
+        const Header = ({ goHome, changeRoute, cart, isMobileMenuOpen, setIsMobileMenuOpen, isAdminMode, setIsAdminMode }) => (
             <nav className="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-white/10 shadow-lg">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center h-20">
@@ -369,11 +453,11 @@
                         </div>
                         <div className="hidden md:flex items-center space-x-8 text-sm font-medium text-gray-300">
                             <button onClick={goHome} className="hover:text-white transition-colors">Головна</button>
-                            <button onClick={() => { setActiveView('home'); setTimeout(() => document.getElementById('categories')?.scrollIntoView({behavior:'smooth'}), 100)}} className="hover:text-white transition-colors">Категорії</button>
+                            <button onClick={() => { changeRoute('home'); setTimeout(() => document.getElementById('categories')?.scrollIntoView({behavior:'smooth'}), 100)}} className="hover:text-white transition-colors">Категорії</button>
                         </div>
                         <div className="flex items-center gap-4">
                             {isAdminMode && <button onClick={() => setIsAdminMode(false)} className="flex items-center gap-2 px-3 py-2 rounded-full bg-red-600 text-white text-xs font-bold uppercase"><Icons.LogOut size={16} /> Вихід</button>}
-                            <button onClick={() => { setActiveView('cart'); setIsMobileMenuOpen(false); }} className="relative p-2 text-gray-400 hover:text-white transition-colors">
+                            <button onClick={() => { changeRoute('cart'); setIsMobileMenuOpen(false); }} className="relative p-2 text-gray-400 hover:text-white transition-colors">
                                 <Icons.ShoppingBag size={24} />
                                 {cart.length > 0 && <span className="absolute -top-1 -right-1 bg-fuchsia-600 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full animate-bounce">{cart.reduce((a,b) => a + b.qty, 0)}</span>}
                             </button>
@@ -384,7 +468,7 @@
                 {isMobileMenuOpen && (
                     <div className="md:hidden bg-slate-900 border-b border-white/10 animate-fade-in p-4 space-y-2">
                         <button onClick={goHome} className="block w-full text-left px-3 py-3 text-white hover:bg-white/5 rounded-lg">Головна</button>
-                        <button onClick={() => { setActiveView('cart'); setIsMobileMenuOpen(false); }} className="block w-full text-left px-3 py-3 text-white hover:bg-white/5 rounded-lg">Кошик</button>
+                        <button onClick={() => { changeRoute('cart'); setIsMobileMenuOpen(false); }} className="block w-full text-left px-3 py-3 text-white hover:bg-white/5 rounded-lg">Кошик</button>
                     </div>
                 )}
             </nav>
@@ -403,28 +487,63 @@
             const [adminPassInput, setAdminPassInput] = useState("");
             const [filterCategory, setFilterCategory] = useState(null);
 
+            // --- HISTORY API HANDLING ---
             useEffect(() => {
-                // Використовуємо новий ключ, щоб скинути перевірку для вас і ви побачили вікно
                 const verified = localStorage.getItem('ageVerified_v2');
                 if (verified === 'true') setIsAgeVerified(true);
+
+                // Initial state replacement
+                window.history.replaceState({ view: 'home' }, '');
+
+                const handlePopState = (event) => {
+                    const state = event.state;
+                    if (state) {
+                        const { view, productId, category } = state;
+                        setActiveView(view);
+                        if (productId) setSelectedProductId(productId);
+                        if (category !== undefined) setFilterCategory(category);
+                        setIsMobileMenuOpen(false);
+                        setShowAdminLogin(false);
+                    } else {
+                        // Fallback
+                        setActiveView('home');
+                        setFilterCategory(null);
+                        setSelectedProductId(null);
+                    }
+                };
+
+                window.addEventListener('popstate', handlePopState);
+                return () => window.removeEventListener('popstate', handlePopState);
             }, []);
+
+            const changeRoute = (view, params = {}) => {
+                const newState = { view, ...params };
+                window.history.pushState(newState, '');
+                
+                setActiveView(view);
+                if (params.productId) setSelectedProductId(params.productId);
+                if (params.category !== undefined) setFilterCategory(params.category);
+                
+                setIsMobileMenuOpen(false);
+                window.scrollTo(0, 0);
+            };
+
+            const goBack = () => {
+                window.history.back();
+            };
+
+            // Helpers wrappers for History API
+            const navigateToProduct = (id) => changeRoute('product', { productId: id });
+            const goHome = () => changeRoute('home', { category: null, productId: null });
+            const goToCategory = (cat) => {
+                changeRoute('home', { category: cat });
+                // Need a small timeout to scroll because rendering happens async
+                setTimeout(() => document.getElementById('products-grid')?.scrollIntoView({behavior:'smooth'}), 100);
+            };
 
             const confirmAge = () => {
                 localStorage.setItem('ageVerified_v2', 'true');
                 setIsAgeVerified(true);
-            };
-
-            const navigateToProduct = (id) => {
-                setSelectedProductId(id);
-                setActiveView('product');
-                window.scrollTo(0, 0);
-            };
-
-            const goHome = () => {
-                setActiveView('home');
-                setFilterCategory(null);
-                setSelectedProductId(null);
-                window.scrollTo(0, 0);
             };
 
             const addToCart = (product) => {
@@ -438,6 +557,7 @@
 
             const updateQty = (id, delta) => setCart(cart.map(item => item.id === id ? { ...item, qty: Math.max(1, item.qty + delta) } : item));
             const removeFromCart = (id) => setCart(cart.filter(item => item.id !== id));
+            const clearCart = () => setCart([]);
             const cartTotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
 
             const displayedProducts = filterCategory ? products.filter(p => p.category === filterCategory) : products;
@@ -464,12 +584,13 @@
                         </div>
                     )}
                     
-                    <Header goHome={goHome} setActiveView={setActiveView} cart={cart} isMobileMenuOpen={isMobileMenuOpen} setIsMobileMenuOpen={setIsMobileMenuOpen} isAdminMode={isAdminMode} setIsAdminMode={setIsAdminMode} />
+                    <Header goHome={goHome} changeRoute={changeRoute} cart={cart} isMobileMenuOpen={isMobileMenuOpen} setIsMobileMenuOpen={setIsMobileMenuOpen} isAdminMode={isAdminMode} setIsAdminMode={setIsAdminMode} />
                     
                     <main>
                         {isAdminMode ? <AdminPanel products={products} setProducts={setProducts} setEditId={setSelectedProductId} /> : 
-                         activeView === 'product' ? <ProductPage product={products.find(p => p.id === selectedProductId)} goHome={goHome} addToCart={addToCart} /> : 
-                         activeView === 'cart' ? <CartView cart={cart} updateQty={updateQty} removeFromCart={removeFromCart} goHome={goHome} cartTotal={cartTotal} /> : 
+                         activeView === 'product' ? <ProductPage product={products.find(p => p.id === selectedProductId)} goBack={goBack} addToCart={addToCart} goHome={goHome} /> : 
+                         activeView === 'cart' ? <CartView cart={cart} updateQty={updateQty} removeFromCart={removeFromCart} goHome={goHome} cartTotal={cartTotal} changeRoute={changeRoute} /> : 
+                         activeView === 'checkout' ? <CheckoutView cart={cart} cartTotal={cartTotal} goBack={goBack} clearCart={clearCart} changeRoute={changeRoute} /> :
                          (
                             <>
                                 <div className="relative overflow-hidden bg-slate-900 py-16 sm:py-24 text-center">
@@ -479,7 +600,7 @@
                                 <div id="categories" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                                     <h2 className="text-2xl font-bold text-white mb-6">Популярні категорії</h2>
                                     <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                                        {CATEGORIES.map(cat => <button key={cat.name} onClick={() => {setFilterCategory(cat.name); setActiveView('home'); window.scrollTo({ top: document.getElementById('products-grid')?.offsetTop - 100, behavior: 'smooth' });}} className={`p-4 rounded-2xl border border-white/10 bg-slate-800 hover:bg-slate-700 transition flex flex-col items-center gap-2 ${filterCategory === cat.name ? 'ring-2 ring-violet-500 bg-slate-700' : ''}`}><span className="text-3xl">{cat.icon}</span><span className="text-sm font-bold">{cat.name}</span></button>)}
+                                        {CATEGORIES.map(cat => <button key={cat.name} onClick={() => goToCategory(cat.name)} className={`p-4 rounded-2xl border border-white/10 bg-slate-800 hover:bg-slate-700 transition flex flex-col items-center gap-2 ${filterCategory === cat.name ? 'ring-2 ring-violet-500 bg-slate-700' : ''}`}><span className="text-3xl">{cat.icon}</span><span className="text-sm font-bold">{cat.name}</span></button>)}
                                     </div>
                                 </div>
                                 <div id="products-grid" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-20">
