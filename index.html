@@ -27,7 +27,7 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect } = React;
+        const { useState, useEffect, useRef } = React;
 
         // --- ІКОНКИ ---
         const IconBase = ({ children, size = 24, className = "" }) => (
@@ -70,12 +70,14 @@
             </svg>
         );
 
+        const POPULAR_CITIES = ["Київ", "Харків", "Одеса", "Дніпро", "Львів", "Запоріжжя", "Вінниця", "Хмельницький", "Житомир", "Чернівці", "Рівне", "Івано-Франківськ", "Тернопіль", "Луцьк", "Ужгород", "Біла Церква", "Кропивницький", "Миколаїв", "Полтава", "Суми", "Черкаси", "Чернігів"];
+
         // --- ДАНІ ---
         const INITIAL_PRODUCTS = [
-            { id: 1, name: "Rose Pleasure Deluxe", shortDesc: "Вакуумний стимулятор", description: "Інноваційний стимулятор у формі троянди. Поєднує в собі елегантний дизайн та потужні технології задоволення.", price: 2499, oldPrice: 3200, category: "Іграшки", images: ["https://images.unsplash.com/photo-1595475207225-428b62bda831?auto=format&fit=crop&q=80&w=600"], rating: 5.0, specs: ["Матеріал: Медичний силікон", "Живлення: USB"], isHit: true },
-            { id: 2, name: "Midnight Wand Pro", shortDesc: "Потужний масажер", description: "Легендарний Magic Wand у бездротовому форматі.", price: 1899, oldPrice: null, category: "Масажери", images: ["https://images.unsplash.com/photo-1616423640778-28d1b53229bd?auto=format&fit=crop&q=80&w=600"], rating: 4.9, specs: ["Матеріал: ABS + Силікон"], isHit: false },
-            { id: 3, name: "Silk Touch Oil", shortDesc: "Масажна олія з феромонами", description: "Розкішна олія з ароматом чорної орхідеї та ванілі.", price: 450, oldPrice: 600, category: "Косметика", images: ["https://images.unsplash.com/photo-1608248597279-f99d160bfbc8?auto=format&fit=crop&q=80&w=600"], rating: 4.8, specs: ["Об'єм: 100 мл"], isHit: true },
-            { id: 4, name: "Lace Fantasy Set", shortDesc: "Комплект білизни", description: "Вишуканий комплект мереживної білизни чорного кольору.", price: 1299, oldPrice: 1500, category: "Білизна", images: ["https://images.unsplash.com/photo-1562572159-4efc207f5aff?auto=format&fit=crop&q=80&w=600"], rating: 5.0, specs: ["Колір: Чорний"], isHit: false }
+            { id: 1, name: "Rose Pleasure Deluxe", shortDesc: "Вакуумний стимулятор", description: "Інноваційний стимулятор у формі троянди. Поєднує в собі елегантний дизайн та потужні технології задоволення. Має 10 режимів вакуумної стимуляції та повністю водонепроникний корпус.", price: 2499, oldPrice: 3200, category: "Іграшки", images: ["https://images.unsplash.com/photo-1595475207225-428b62bda831?auto=format&fit=crop&q=80&w=600", "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&q=80&w=600"], rating: 5.0, specs: ["Матеріал: Медичний силікон", "Живлення: USB", "Водонепроникність: IPX7"], isHit: true },
+            { id: 2, name: "Midnight Wand Pro", shortDesc: "Потужний масажер", description: "Легендарний Magic Wand у бездротовому форматі. Глибока вібрація, що знімає напругу з м'язів та дарує вибухове задоволення.", price: 1899, oldPrice: null, category: "Масажери", images: ["https://images.unsplash.com/photo-1616423640778-28d1b53229bd?auto=format&fit=crop&q=80&w=600"], rating: 4.9, specs: ["Матеріал: ABS + Силікон", "Режими: 20 патернів"], isHit: false },
+            { id: 3, name: "Silk Touch Oil", shortDesc: "Масажна олія", description: "Розкішна олія з ароматом чорної орхідеї та ванілі. Не залишає липких слідів.", price: 450, oldPrice: 600, category: "Косметика", images: ["https://images.unsplash.com/photo-1608248597279-f99d160bfbc8?auto=format&fit=crop&q=80&w=600"], rating: 4.8, specs: ["Об'єм: 100 мл", "Основа: Натуральні олії"], isHit: true },
+            { id: 4, name: "Lace Fantasy Set", shortDesc: "Комплект білизни", description: "Вишуканий комплект мереживної білизни чорного кольору. Підкреслює фігуру.", price: 1299, oldPrice: 1500, category: "Білизна", images: ["https://images.unsplash.com/photo-1562572159-4efc207f5aff?auto=format&fit=crop&q=80&w=600"], rating: 5.0, specs: ["Колір: Чорний", "Матеріал: Мереживо"], isHit: false }
         ];
 
         const CATEGORIES = [
@@ -86,10 +88,8 @@
             { name: "Масажери", icon: "💆" }
         ];
 
-        const POPULAR_CITIES = ["Київ", "Харків", "Одеса", "Дніпро", "Львів", "Запоріжжя", "Вінниця", "Хмельницький", "Житомир", "Чернівці", "Рівне", "Івано-Франківськ", "Тернопіль", "Луцьк", "Ужгород", "Біла Церква", "Кропивницький", "Миколаїв", "Полтава", "Суми", "Черкаси", "Чернігів"];
-
         // ==========================================
-        // COMPONENTS (Defined OUTSIDE App to prevent remounting bugs)
+        // COMPONENTS
         // ==========================================
 
         const AddToCartBtn = ({ product, addToCart, variant = 'icon' }) => {
@@ -207,7 +207,6 @@
             const [isSending, setIsSending] = useState(false);
             const [form, setForm] = useState({ name: '', phone: '', city: '', branch: '' });
             
-            // Замініть на свої токени
             const TELEGRAM_BOT_TOKEN = "8490403071:AAFZvriLL_vzQq-ziMVTfiHAu8DmtH84Fjk";
             const TELEGRAM_CHAT_ID = "7085928669";
 
@@ -222,7 +221,7 @@
                         body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: msg, parse_mode: 'HTML' })
                     });
                     alert("Дякуємо! Замовлення прийнято."); 
-                    goHome(); // Повертаємось на головну (тут варто було б очистити кошик, але він в App)
+                    goHome(); 
                 } catch (e) { alert("Помилка."); } finally { setIsSending(false); }
             };
 
@@ -293,6 +292,18 @@
                 });
             };
 
+            const removeImage = (index) => {
+                setFormData(prev => ({...prev, images: prev.images.filter((_, i) => i !== index)}));
+            };
+
+            const addSpec = () => setFormData({...formData, specs: [...(formData.specs || []), ""]});
+            const updateSpec = (i, val) => {
+                const newSpecs = [...(formData.specs || [])];
+                newSpecs[i] = val;
+                setFormData({...formData, specs: newSpecs});
+            };
+            const removeSpec = (i) => setFormData({...formData, specs: formData.specs.filter((_, idx) => idx !== i)});
+
             if (localEditId && formData) {
                 return (
                     <div className="min-h-screen bg-slate-900 py-12 px-4 animate-fade-in">
@@ -302,15 +313,33 @@
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div><label className="block text-sm font-bold text-gray-400 mb-2">Назва</label><input value={formData.name} onChange={e=>setFormData({...formData, name:e.target.value})} className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-violet-500" /></div>
                                     <div><label className="block text-sm font-bold text-gray-400 mb-2">Ціна</label><input type="number" value={formData.price} onChange={e=>setFormData({...formData, price:Number(e.target.value)})} className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-violet-500" /></div>
+                                    <div><label className="block text-sm font-bold text-gray-400 mb-2">Категорія</label><select value={formData.category} onChange={e=>setFormData({...formData, category:e.target.value})} className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-violet-500">{CATEGORIES.map(c=><option key={c.name} value={c.name}>{c.name}</option>)}<option value="Інше">Інше</option></select></div>
                                 </div>
+                                
                                 <div>
                                     <label className="block text-sm font-bold text-gray-400 mb-2">Фото</label>
                                     <div className="flex flex-wrap gap-4 mb-4">
-                                        {formData.images?.map((img, i) => <div key={i} className="w-24 h-24 rounded-lg overflow-hidden border border-white/20"><img src={img} className="w-full h-full object-cover"/></div>)}
+                                        {formData.images?.map((img, i) => (
+                                            <div key={i} className="relative w-24 h-24 rounded-lg overflow-hidden border border-white/20 group">
+                                                <img src={img} className="w-full h-full object-cover"/>
+                                                <button type="button" onClick={() => removeImage(i)} className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition text-red-500"><Icons.Trash2/></button>
+                                            </div>
+                                        ))}
                                         <label className="w-24 h-24 rounded-lg border-2 border-dashed border-white/20 flex flex-col items-center justify-center text-gray-400 cursor-pointer hover:border-violet-500"><Icons.Upload size={24}/><input type="file" multiple className="hidden" onChange={handleImageUpload}/></label>
                                     </div>
                                 </div>
+
                                 <div><label className="block text-sm font-bold text-gray-400 mb-2">Опис</label><textarea rows={4} value={formData.description} onChange={e=>setFormData({...formData, description:e.target.value})} className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-violet-500" /></div>
+                                
+                                <div className="bg-slate-900 p-4 rounded-xl border border-white/10">
+                                    <div className="flex justify-between items-center mb-4"><label className="block text-sm font-bold text-gray-400">Характеристики</label><button type="button" onClick={addSpec} className="text-xs bg-violet-600 px-3 py-1 rounded text-white">Додати</button></div>
+                                    <div className="space-y-2">
+                                        {formData.specs?.map((spec, i) => (
+                                            <div key={i} className="flex gap-2"><input value={spec} onChange={e => updateSpec(i, e.target.value)} className="flex-1 bg-slate-800 border border-white/10 rounded px-3 py-2 text-white outline-none" /><button type="button" onClick={() => removeSpec(i)} className="text-red-500 hover:text-red-400"><Icons.Trash2 size={18}/></button></div>
+                                        ))}
+                                    </div>
+                                </div>
+
                                 <button className="bg-violet-600 text-white font-bold py-3 px-8 rounded-xl">Зберегти</button>
                             </form>
                         </div>
@@ -375,9 +404,15 @@
             const [filterCategory, setFilterCategory] = useState(null);
 
             useEffect(() => {
-                const verified = localStorage.getItem('ageVerified');
+                // Використовуємо новий ключ, щоб скинути перевірку для вас і ви побачили вікно
+                const verified = localStorage.getItem('ageVerified_v2');
                 if (verified === 'true') setIsAgeVerified(true);
             }, []);
+
+            const confirmAge = () => {
+                localStorage.setItem('ageVerified_v2', 'true');
+                setIsAgeVerified(true);
+            };
 
             const navigateToProduct = (id) => {
                 setSelectedProductId(id);
@@ -412,7 +447,7 @@
                     <div className="bg-slate-800 p-8 rounded-3xl max-w-md w-full text-center border border-purple-500/30 shadow-2xl">
                         <div className="mb-6 inline-block p-4 bg-purple-600/20 rounded-full text-purple-400"><Icons.ShieldCheck size={48} /></div>
                         <h2 className="text-2xl font-bold text-white mb-4">Вам виповнилося 18 років?</h2>
-                        <div className="flex gap-4"><button onClick={() => window.location.href = 'https://google.com'} className="flex-1 py-3 px-4 rounded-xl border border-gray-600 text-gray-300">Ні</button><button onClick={() => {localStorage.setItem('ageVerified', 'true'); setIsAgeVerified(true);}} className="flex-1 py-3 px-4 rounded-xl bg-purple-600 text-white font-bold">Так, мені 18+</button></div>
+                        <div className="flex gap-4"><button onClick={() => window.location.href = 'https://google.com'} className="flex-1 py-3 px-4 rounded-xl border border-gray-600 text-gray-300">Ні</button><button onClick={confirmAge} className="flex-1 py-3 px-4 rounded-xl bg-purple-600 text-white font-bold">Так, мені 18+</button></div>
                     </div>
                 </div>
             );
@@ -432,7 +467,7 @@
                     <Header goHome={goHome} setActiveView={setActiveView} cart={cart} isMobileMenuOpen={isMobileMenuOpen} setIsMobileMenuOpen={setIsMobileMenuOpen} isAdminMode={isAdminMode} setIsAdminMode={setIsAdminMode} />
                     
                     <main>
-                        {isAdminMode ? <AdminPanel products={products} setProducts={setProducts} /> : 
+                        {isAdminMode ? <AdminPanel products={products} setProducts={setProducts} setEditId={setSelectedProductId} /> : 
                          activeView === 'product' ? <ProductPage product={products.find(p => p.id === selectedProductId)} goHome={goHome} addToCart={addToCart} /> : 
                          activeView === 'cart' ? <CartView cart={cart} updateQty={updateQty} removeFromCart={removeFromCart} goHome={goHome} cartTotal={cartTotal} /> : 
                          (
