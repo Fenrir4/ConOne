@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
   ShoppingBag, X, Star, Lock, Trash2, Plus, Edit2, 
   Menu, ArrowLeft, Heart, Search, Settings, 
@@ -71,25 +71,6 @@ const App = () => {
   const [cart, setCart] = useState([]);
   const [isAdminMode, setIsAdminMode] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  // --- STYLE INJECTION ---
-  useEffect(() => {
-    // Inject Tailwind
-    if (!document.getElementById('tailwind-cdn')) {
-      const script = document.createElement('script');
-      script.id = 'tailwind-cdn';
-      script.src = "https://cdn.tailwindcss.com";
-      document.head.appendChild(script);
-    }
-    // Inject Fonts
-    if (!document.getElementById('google-fonts')) {
-      const link = document.createElement('link');
-      link.id = 'google-fonts';
-      link.href = "https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap";
-      link.rel = "stylesheet";
-      document.head.appendChild(link);
-    }
-  }, []);
 
   // --- NAVIGATION HELPERS ---
   const navigateToProduct = (id) => {
@@ -498,6 +479,7 @@ const App = () => {
     <div className="min-h-screen bg-slate-900 text-gray-100 font-sans selection:bg-violet-600 selection:text-white">
       {/* CSS Injection Styles */}
       <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap');
         .font-sans { font-family: 'Montserrat', sans-serif; }
         .animate-fade-in { animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
