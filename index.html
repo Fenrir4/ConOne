@@ -7,11 +7,19 @@
     
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔥</text></svg>">
 
+    <!-- 1. React -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- 2. Babel -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- 3. Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 4. Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- 5. FIREBASE (Compat версія для роботи прямо в браузері) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
     <style>
         body { font-family: 'Montserrat', sans-serif; }
@@ -30,11 +38,29 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
+        // --- FIREBASE CONFIG ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyAu47cciZnYXyEPMTHeH7a1bmX-kCYtGQA",
+            authDomain: "conone-757e4.firebaseapp.com",
+            projectId: "conone-757e4",
+            storageBucket: "conone-757e4.firebasestorage.app",
+            messagingSenderId: "960208791384",
+            appId: "1:960208791384:web:9e9e109b9df3c1bd95a72d",
+            measurementId: "G-B1T6D9BNWN"
+        };
+
+        // Ініціалізація Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.firestore();
+
         // --- ІКОНКИ ---
         const IconBase = ({ children, size = 24, className = "" }) => (
             <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>{children}</svg>
         );
 
+        // ... (Тут той самий набір іконок, що і раніше) ...
         const Icons = {
             ShoppingBag: (p) => <IconBase {...p}><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></IconBase>,
             X: (p) => <IconBase {...p}><path d="M18 6 6 18"/><path d="m6 6 12 12"/></IconBase>,
@@ -69,127 +95,19 @@
                 <circle cx="20" cy="20" r="20" fill="url(#paint0_linear)" />
                 <path d="M26 12C26 12 22 14 22 20C22 26 26 28 26 28C22.5 30 18 29 15 26C12 23 12 17 15 14C18 11 22.5 10 26 12Z" fill="white"/>
                 <path d="M29 16L30.5 19L33.5 19.5L31.5 21.5L32 24.5L29 23L26 24.5L26.5 21.5L24.5 19.5L27.5 19L29 16Z" fill="#FDE047"/>
-                <defs>
-                    <linearGradient id="paint0_linear" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
-                        <stop stopColor="#7C3AED"/>
-                        <stop offset="1" stopColor="#DB2777"/>
-                    </linearGradient>
-                </defs>
+                <defs><linearGradient id="paint0_linear" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse"><stop stopColor="#7C3AED"/><stop offset="1" stopColor="#DB2777"/></linearGradient></defs>
             </svg>
         );
 
-        // --- ІНФО СТОРІНКИ (SMM ТЕКСТИ) ---
         const INFO_PAGES = {
-            about: {
-                title: "Про нас",
-                content: (
-                    <div className="space-y-6 text-gray-300 leading-relaxed">
-                        <p className="text-lg font-medium text-white">Привіт, ми Night Secret! 👋</p>
-                        <p>Ми не просто магазин, ми — твій провідник у світ, де задоволення стоїть на першому місці. Ми віримо, що сексуальне здоров'я та щастя — це не табу, а норма життя.</p>
-                        <p>Наша місія — зробити твої ночі (і дні 😉) яскравішими, емоційнішими та чуттєвішими. Ми ретельно відбираємо кожен девайс, тестуємо якість і гарантуємо, що ти отримаєш лише найкраще.</p>
-                        <div className="bg-slate-800 p-6 rounded-2xl border border-violet-500/20 my-6">
-                            <h3 className="text-white font-bold mb-2">Чому ми?</h3>
-                            <ul className="list-disc list-inside space-y-2 text-sm">
-                                <li><strong>Анонімність 80 lvl:</strong> Ніхто, навіть кур'єр, не знає, що всередині.</li>
-                                <li><strong>Тільки оригінали:</strong> Ніяких дешевих підробок, тільки сертифіковані бренди.</li>
-                                <li><strong>Швидкість ракети:</strong> Відправляємо в день замовлення.</li>
-                            </ul>
-                        </div>
-                        <p>Розслабся, обирай і пам'ятай: твоя таємниця в безпеці з нами. 🤫💜</p>
-                    </div>
-                )
-            },
-            delivery: {
-                title: "Оплата та доставка",
-                content: (
-                    <div className="space-y-6 text-gray-300 leading-relaxed">
-                        <div className="flex items-start gap-4 p-4 bg-slate-800 rounded-xl">
-                            <Icons.Truck size={32} className="text-violet-500 flex-shrink-0" />
-                            <div>
-                                <h3 className="text-white font-bold text-lg mb-2">Доставка Новою Поштою</h3>
-                                <p>Відправляємо щодня. Якщо замовиш до 18:00 — поїде сьогодні! 🚀</p>
-                                <p className="mt-2 text-sm text-gray-400">Вартість доставки — за тарифами перевізника. При замовленні від 2000 грн — <strong>доставка безкоштовна!</strong></p>
-                            </div>
-                        </div>
-                        
-                        <div className="flex items-start gap-4 p-4 bg-slate-800 rounded-xl">
-                            <Icons.ShieldCheck size={32} className="text-green-500 flex-shrink-0" />
-                            <div>
-                                <h3 className="text-white font-bold text-lg mb-2">100% Анонімність</h3>
-                                <p>Ми пакуємо замовлення у непрозорі чорні пакети або коробки без будь-яких логотипів чи написів "секс-шоп".</p>
-                                <p className="mt-2 text-sm text-gray-400">В описі посилки вказуємо нейтральне: "Косметика" або "Сувеніри". Ніякого незручного моменту на пошті! 😎</p>
-                            </div>
-                        </div>
-
-                        <h3 className="text-white font-bold text-xl mt-8 mb-4">Способи оплати</h3>
-                        <ul className="space-y-4">
-                            <li className="flex items-center gap-3"><span className="w-2 h-2 bg-violet-500 rounded-full"></span><span><strong>Накладений платіж:</strong> Оплачуй при отриманні, після огляду посилки. (Комісія НП: 20 грн + 2%)</span></li>
-                            <li className="flex items-center gap-3"><span className="w-2 h-2 bg-violet-500 rounded-full"></span><span><strong>На карту (Mono/Privat):</strong> Без зайвих комісій. Реквізити надішлемо після підтвердження.</span></li>
-                        </ul>
-                    </div>
-                )
-            },
-            returns: {
-                title: "Повернення та обмін",
-                content: (
-                    <div className="space-y-6 text-gray-300 leading-relaxed">
-                        <div className="bg-red-500/10 border border-red-500/50 p-6 rounded-2xl text-center">
-                            <h3 className="text-red-400 font-bold text-xl mb-2">🚫 Гігієна — це закон!</h3>
-                            <p>І це найкраща новина для тебе!</p>
-                        </div>
-                        
-                        <p>Давай чесно. Ти б хотів купити вібратор, який хтось вже "приміряв", але потім передумав і повернув? 🤢 Точно ні.</p>
-                        <p>Саме тому, згідно з <strong>Постановою Кабінету Міністрів України №172</strong>, товари інтимного призначення, натільна білизна, панчішно-шкарпеткові вироби та парфумерно-косметичні засоби <strong>НЕ підлягають поверненню та обміну</strong>.</p>
-                        
-                        <div className="bg-slate-800 p-6 rounded-2xl border-l-4 border-violet-500 my-6">
-                            <h4 className="text-white font-bold mb-2">Що це означає для тебе?</h4>
-                            <p className="text-sm">Це твоя 100% гарантія того, що товар, який ти отримуєш, є <strong>абсолютно новим, чистим та стерильним</strong>. Ніхто до тебе його не відкривав і не використовував. Ми дбаємо про твоє здоров'я понад усе.</p>
-                        </div>
-
-                        <h3 className="text-white font-bold text-lg">А якщо брак? 🤔</h3>
-                        <p>Ми перевіряємо кожен девайс перед відправкою (так-так, вмикаємо і дивимось, чи дзижчить!). Але техніка є техніка.</p>
-                        <p>Якщо ти виявив заводський брак <strong>при отриманні на пошті</strong> — склади акт огляду та відмовся від посилки. Ми надішлемо новий товар або повернемо гроші.</p>
-                        <p className="text-xs text-gray-500 mt-4">*Перевіряйте товар одразу у відділенні Нової Пошти. Після того, як ви забрали посилку додому, претензії не приймаються з міркувань гігієни.</p>
-                    </div>
-                )
-            },
-            privacy: {
-                title: "Політика конфіденційності",
-                content: (
-                    <div className="space-y-4 text-gray-300 text-sm leading-relaxed">
-                        <p>Ми в Night Secret ставимося до твоїх даних як до швейцарського банківського рахунку — суворо конфіденційно. 🔒</p>
-                        <p>1. <strong>Які дані ми збираємо:</strong> Лише те, що потрібно для доставки: ім'я, телефон, місто та відділення пошти. Ми не питаємо зайвого.</p>
-                        <p>2. <strong>Як ми їх використовуємо:</strong> Тільки для обробки твого замовлення та відправки СМС з ТТН. Жодного спаму "купи слона".</p>
-                        <p>3. <strong>Кому передаємо:</strong> Лише службі доставки (Нова Пошта), щоб вони знали, куди везти твоє щастя.</p>
-                        <p>4. <strong>Безпека:</strong> Наш сайт використовує захищене з'єднання. Твої дані не потраплять до рук третіх осіб, колишніх або мами.</p>
-                        <p className="italic mt-4">Оформлюючи замовлення, ти погоджуєшся з обробкою персональних даних згідно з Законом України "Про захист персональних даних".</p>
-                    </div>
-                )
-            },
-            offer: {
-                title: "Договір оферти",
-                content: (
-                    <div className="space-y-4 text-gray-400 text-xs leading-relaxed">
-                        <p>Цей текст є публічною офертою (пропозицією) інтернет-магазину Night Secret укласти договір купівлі-продажу товарів.</p>
-                        <p><strong>1. Загальні положення</strong><br/>1.1. Цей Договір є публічним договором згідно зі ст. 633 Цивільного кодексу України.<br/>1.2. Оформлення замовлення на Сайті підтверджує повну згоду Покупця з умовами цієї Оферти.</p>
-                        <p><strong>2. Предмет договору</strong><br/>2.1. Продавець зобов'язується передати товар у власність Покупця, а Покупець зобов'язується оплатити і прийняти товар.</p>
-                        <p><strong>3. Ціна товару</strong><br/>3.1. Ціни на товари вказані на сайті в гривнях. Продавець залишає за собою право змінювати ціни в односторонньому порядку.</p>
-                        <p><strong>4. Відповідальність</strong><br/>4.1. Продавець не несе відповідальності за неналежне використання товарів Покупцем.</p>
-                        <p className="mt-8">ФОП "Night Secret"<br/>ЄДРПОУ 12345678<br/>м. Київ, вул. Насолоди, 69</p>
-                    </div>
-                )
-            }
+            about: { title: "Про нас", content: <div className="space-y-6 text-gray-300 leading-relaxed"><p className="text-lg font-medium text-white">Привіт, ми Night Secret! 👋</p><p>Ми не просто магазин, ми — твій провідник у світ задоволення.</p><p>Наша місія — зробити твої ночі яскравішими. Ми ретельно відбираємо кожен девайс.</p><div className="bg-slate-800 p-6 rounded-2xl border border-violet-500/20 my-6"><h3 className="text-white font-bold mb-2">Чому ми?</h3><ul className="list-disc list-inside space-y-2 text-sm"><li><strong>Анонімність 80 lvl</strong></li><li><strong>Тільки оригінали</strong></li><li><strong>Швидка доставка</strong></li></ul></div></div> },
+            delivery: { title: "Оплата та доставка", content: <div className="space-y-6 text-gray-300 leading-relaxed"><div className="flex items-start gap-4 p-4 bg-slate-800 rounded-xl"><Icons.Truck size={32} className="text-violet-500 flex-shrink-0" /><div><h3 className="text-white font-bold text-lg mb-2">Доставка Новою Поштою</h3><p>Відправляємо щодня.</p></div></div><div className="flex items-start gap-4 p-4 bg-slate-800 rounded-xl"><Icons.ShieldCheck size={32} className="text-green-500 flex-shrink-0" /><div><h3 className="text-white font-bold text-lg mb-2">100% Анонімність</h3><p>Нейтральна упаковка "Косметика".</p></div></div></div> },
+            returns: { title: "Повернення та обмін", content: <div className="space-y-6 text-gray-300 leading-relaxed"><p>Згідно з Постановою КМУ №172, товари інтимного призначення не підлягають поверненню. Це гарантує, що ви отримуєте абсолютно новий товар.</p></div> },
+            privacy: { title: "Політика конфіденційності", content: <div className="space-y-4 text-gray-300 text-sm leading-relaxed"><p>Ми суворо зберігаємо ваші дані і передаємо їх лише Новій Пошті для доставки.</p></div> },
+            offer: { title: "Договір оферти", content: <div className="space-y-4 text-gray-400 text-xs leading-relaxed"><p>Публічна оферта інтернет-магазину Night Secret.</p></div> }
         };
 
         const POPULAR_CITIES = ["Київ", "Харків", "Одеса", "Дніпро", "Львів", "Запоріжжя", "Вінниця", "Хмельницький", "Житомир", "Чернівці", "Рівне", "Івано-Франківськ", "Тернопіль", "Луцьк", "Ужгород", "Біла Церква", "Кропивницький", "Миколаїв", "Полтава", "Суми", "Черкаси", "Чернігів"];
-
-        // --- ДАНІ ---
-        const INITIAL_PRODUCTS = [
-            { id: 1, name: "Rose Pleasure Deluxe", shortDesc: "Вакуумний стимулятор", description: "Інноваційний стимулятор у формі троянди. Поєднує в собі елегантний дизайн та потужні технології задоволення. Має 10 режимів вакуумної стимуляції та повністю водонепроникний корпус.", price: 2499, oldPrice: 3200, category: "Іграшки", images: ["https://images.unsplash.com/photo-1595475207225-428b62bda831?auto=format&fit=crop&q=80&w=600", "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&q=80&w=600"], rating: 5.0, specs: ["Матеріал: Медичний силікон", "Живлення: USB", "Водонепроникність: IPX7"], isHit: true },
-            { id: 2, name: "Midnight Wand Pro", shortDesc: "Потужний масажер", description: "Легендарний Magic Wand у бездротовому форматі. Глибока вібрація, що знімає напругу з м'язів та дарує вибухове задоволення.", price: 1899, oldPrice: null, category: "Масажери", images: ["https://images.unsplash.com/photo-1616423640778-28d1b53229bd?auto=format&fit=crop&q=80&w=600"], rating: 4.9, specs: ["Матеріал: ABS + Силікон", "Режими: 20 патернів"], isHit: false },
-            { id: 3, name: "Silk Touch Oil", shortDesc: "Масажна олія", description: "Розкішна олія з ароматом чорної орхідеї та ванілі. Не залишає липких слідів.", price: 450, oldPrice: 600, category: "Косметика", images: ["https://images.unsplash.com/photo-1608248597279-f99d160bfbc8?auto=format&fit=crop&q=80&w=600"], rating: 4.8, specs: ["Об'єм: 100 мл", "Основа: Натуральні олії"], isHit: true },
-            { id: 4, name: "Lace Fantasy Set", shortDesc: "Комплект білизни", description: "Вишуканий комплект мереживної білизни чорного кольору. Підкреслює фігуру.", price: 1299, oldPrice: 1500, category: "Білизна", images: ["https://images.unsplash.com/photo-1562572159-4efc207f5aff?auto=format&fit=crop&q=80&w=600"], rating: 5.0, specs: ["Колір: Чорний", "Матеріал: Мереживо"], isHit: false }
-        ];
 
         const CATEGORIES = [
             { name: "Презервативи", icon: "🛡️" },
@@ -199,55 +117,29 @@
             { name: "Масажери", icon: "💆" }
         ];
 
-        // --- УТИЛІТИ ---
-        const isVideo = (url) => {
-            if (!url) return false;
-            return url.toLowerCase().endsWith('.mp4') || url.toLowerCase().endsWith('.webm');
-        };
+        // --- SEED DATA (Стартові товари, якщо база пуста) ---
+        const INITIAL_PRODUCTS_SEED = [
+            { id: 1, name: "Rose Pleasure Deluxe", shortDesc: "Вакуумний стимулятор", description: "Інноваційний стимулятор у формі троянди. Поєднує в собі елегантний дизайн та потужні технології задоволення. Має 10 режимів вакуумної стимуляції.", price: 2499, oldPrice: 3200, category: "Іграшки", images: ["https://images.unsplash.com/photo-1595475207225-428b62bda831?auto=format&fit=crop&q=80&w=600", "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&q=80&w=600"], rating: 5.0, specs: ["Матеріал: Медичний силікон", "Живлення: USB", "Водонепроникність: IPX7"], isHit: true },
+            { id: 2, name: "Midnight Wand Pro", shortDesc: "Потужний масажер", description: "Легендарний Magic Wand у бездротовому форматі. Глибока вібрація.", price: 1899, oldPrice: null, category: "Масажери", images: ["https://images.unsplash.com/photo-1616423640778-28d1b53229bd?auto=format&fit=crop&q=80&w=600"], rating: 4.9, specs: ["Матеріал: ABS + Силікон", "Режими: 20 патернів"], isHit: false },
+            { id: 3, name: "Silk Touch Oil", shortDesc: "Масажна олія", description: "Розкішна олія з ароматом чорної орхідеї та ванілі.", price: 450, oldPrice: 600, category: "Косметика", images: ["https://images.unsplash.com/photo-1608248597279-f99d160bfbc8?auto=format&fit=crop&q=80&w=600"], rating: 4.8, specs: ["Об'єм: 100 мл", "Основа: Натуральні олії"], isHit: true },
+            { id: 4, name: "Lace Fantasy Set", shortDesc: "Комплект білизни", description: "Вишуканий комплект мереживної білизни чорного кольору.", price: 1299, oldPrice: 1500, category: "Білизна", images: ["https://images.unsplash.com/photo-1562572159-4efc207f5aff?auto=format&fit=crop&q=80&w=600"], rating: 5.0, specs: ["Колір: Чорний", "Матеріал: Мереживо"], isHit: false }
+        ];
 
-        // ==========================================
-        // COMPONENTS
-        // ==========================================
+        const isVideo = (url) => url && (url.toLowerCase().endsWith('.mp4') || url.toLowerCase().endsWith('.webm'));
+
+        // --- COMPONENTS ---
 
         const AddToCartBtn = ({ product, addToCart, variant = 'icon' }) => {
             const [added, setAdded] = useState(false);
-            
-            const handleClick = (e) => {
-                e.stopPropagation();
-                addToCart(product);
-                setAdded(true);
-                setTimeout(() => setAdded(false), 2000);
-            };
-
-            if (variant === 'icon') {
-                return (
-                    <button onClick={handleClick} className={`p-3 rounded-xl transition-all duration-300 z-20 ${added ? 'bg-green-500 text-white shadow-green-500/50 shadow-lg' : 'bg-white/10 hover:bg-violet-600 text-white'}`} title={added ? "Додано" : "В кошик"}>
-                        {added ? <Icons.Check size={20}/> : <Icons.ShoppingBag size={20}/>}
-                    </button>
-                );
-            }
-            
-            return (
-                <button onClick={handleClick} className={`flex-1 font-bold py-5 px-8 rounded-2xl shadow-lg flex items-center justify-center gap-3 transition-all duration-300 active:scale-95 ${added ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-violet-600 hover:bg-violet-700 text-white'}`}>
-                    {added ? <Icons.Check size={24}/> : <Icons.ShoppingBag size={24}/>}
-                    {added ? 'Додано!' : 'Додати в кошик'}
-                </button>
-            );
+            const handleClick = (e) => { e.stopPropagation(); addToCart(product); setAdded(true); setTimeout(() => setAdded(false), 2000); };
+            if (variant === 'icon') return (<button onClick={handleClick} className={`p-3 rounded-xl transition-all duration-300 z-20 ${added ? 'bg-green-500 text-white shadow-green-500/50 shadow-lg' : 'bg-white/10 hover:bg-violet-600 text-white'}`} title={added ? "Додано" : "В кошик"}>{added ? <Icons.Check size={20}/> : <Icons.ShoppingBag size={20}/>}</button>);
+            return (<button onClick={handleClick} className={`flex-1 font-bold py-5 px-8 rounded-2xl shadow-lg flex items-center justify-center gap-3 transition-all duration-300 active:scale-95 ${added ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-violet-600 hover:bg-violet-700 text-white'}`}>{added ? <Icons.Check size={24}/> : <Icons.ShoppingBag size={24}/>}{added ? 'Додано!' : 'Додати в кошик'}</button>);
         };
 
         const ProductCard = ({ product, navigateToProduct, addToCart }) => (
             <div className="group bg-slate-800 rounded-2xl border border-white/5 overflow-hidden hover:border-violet-500/50 transition-all duration-300 hover:shadow-2xl cursor-pointer flex flex-col h-full relative" onClick={() => navigateToProduct(product.id)}>
                 <div className="relative aspect-[4/5] bg-slate-700 overflow-hidden">
-                    {product.images && product.images.length > 0 ? (
-                        isVideo(product.images[0]) ? (
-                            <video src={product.images[0]} muted loop autoPlay playsInline className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                        ) : (
-                            <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"/>
-                        )
-                    ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-slate-800 text-gray-500"><Icons.Image size={40}/></div>
-                    )}
-                    
+                    {product.images && product.images.length > 0 ? (isVideo(product.images[0]) ? <video src={product.images[0]} muted loop autoPlay playsInline className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" /> : <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"/>) : <div className="w-full h-full flex items-center justify-center bg-slate-800 text-gray-500"><Icons.Image size={40}/></div>}
                     {product.isHit && <div className="absolute top-3 left-3 bg-fuchsia-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg z-10 flex items-center gap-1"><Icons.Flame size={12}/> HIT</div>}
                 </div>
                 <div className="p-5 flex-1 flex flex-col">
@@ -262,20 +154,16 @@
             </div>
         );
 
-        // --- НОВИЙ КОМПОНЕНТ: Інфо Сторінка ---
         const InfoPage = ({ page, goBack }) => {
             const data = INFO_PAGES[page];
             if (!data) return null;
-
             return (
                 <div className="min-h-screen bg-slate-900 pb-20 pt-10 animate-fade-in">
                     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                         <button onClick={goBack} className="flex items-center text-gray-400 hover:text-white mb-8 gap-2"><Icons.ArrowLeft size={20}/> Назад</button>
                         <div className="bg-slate-800 rounded-3xl p-8 md:p-12 border border-white/10 shadow-2xl">
                             <h1 className="text-3xl md:text-4xl font-extrabold text-white mb-8 border-b border-white/10 pb-6">{data.title}</h1>
-                            <div className="prose prose-invert max-w-none">
-                                {data.content}
-                            </div>
+                            <div className="prose prose-invert max-w-none">{data.content}</div>
                         </div>
                     </div>
                 </div>
@@ -284,25 +172,10 @@
 
         const ProductPage = ({ product, goBack, addToCart }) => {
             const [currentImg, setCurrentImg] = useState(0);
-            
-            if (!product) return (
-                <div className="min-h-screen bg-slate-900 pt-20 flex items-center justify-center">
-                    <div className="text-center">
-                        <h2 className="text-2xl font-bold text-white mb-2">Товар не знайдено</h2>
-                        <button onClick={goBack} className="text-violet-400 hover:text-white font-bold">Повернутись</button>
-                    </div>
-                </div>
-            );
-
+            if (!product) return <div className="min-h-screen bg-slate-900 pt-20 flex items-center justify-center text-center"><h2 className="text-2xl font-bold text-white mb-2">Товар не знайдено</h2><button onClick={goBack} className="text-violet-400 hover:text-white font-bold">Повернутись</button></div>;
             const images = product.images || [];
-
-            const nextImage = () => {
-                setCurrentImg((prev) => (prev === images.length - 1 ? 0 : prev + 1));
-            };
-
-            const prevImage = () => {
-                setCurrentImg((prev) => (prev === 0 ? images.length - 1 : prev - 1));
-            };
+            const nextImage = () => setCurrentImg((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+            const prevImage = () => setCurrentImg((prev) => (prev === 0 ? images.length - 1 : prev - 1));
 
             return (
                 <div className="min-h-screen bg-slate-900 pb-20 pt-10 animate-fade-in">
@@ -313,68 +186,20 @@
                                 <div className="aspect-square rounded-3xl overflow-hidden bg-slate-800 border border-white/10 shadow-2xl relative group">
                                     {images.length > 0 ? (
                                         <div key={currentImg} className="w-full h-full animate-fade-fast">
-                                            {isVideo(images[currentImg]) ? (
-                                                <video src={images[currentImg]} controls className="w-full h-full object-contain bg-black" />
-                                            ) : (
-                                                <img src={images[currentImg]} className="w-full h-full object-cover" />
-                                            )}
+                                            {isVideo(images[currentImg]) ? <video src={images[currentImg]} controls className="w-full h-full object-contain bg-black" /> : <img src={images[currentImg]} className="w-full h-full object-cover" />}
                                         </div>
-                                    ) : (
-                                        <div className="w-full h-full flex items-center justify-center text-gray-600"><Icons.Image size={64}/></div>
-                                    )}
-
-                                    {images.length > 1 && (
-                                        <>
-                                            <button onClick={prevImage} className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 text-white hover:bg-violet-600 transition opacity-0 group-hover:opacity-100">
-                                                <Icons.ChevronLeft size={24}/>
-                                            </button>
-                                            <button onClick={nextImage} className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 text-white hover:bg-violet-600 transition opacity-0 group-hover:opacity-100">
-                                                <Icons.ChevronRight size={24}/>
-                                            </button>
-                                        </>
-                                    )}
+                                    ) : (<div className="w-full h-full flex items-center justify-center text-gray-600"><Icons.Image size={64}/></div>)}
+                                    {images.length > 1 && (<><button onClick={prevImage} className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 text-white hover:bg-violet-600 transition opacity-0 group-hover:opacity-100"><Icons.ChevronLeft size={24}/></button><button onClick={nextImage} className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 text-white hover:bg-violet-600 transition opacity-0 group-hover:opacity-100"><Icons.ChevronRight size={24}/></button></>)}
                                 </div>
-                                
-                                {images.length > 1 && (
-                                    <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
-                                        {images.map((img, idx) => (
-                                            <button key={idx} onClick={() => setCurrentImg(idx)} className={`w-20 h-20 rounded-xl overflow-hidden border-2 flex-shrink-0 transition-all ${currentImg === idx ? 'border-violet-500 scale-105' : 'border-transparent opacity-70 hover:opacity-100'}`}>
-                                                {isVideo(img) ? (
-                                                    <div className="w-full h-full bg-black flex items-center justify-center"><Icons.Video size={24} className="text-white"/></div>
-                                                ) : (
-                                                    <img src={img} className="w-full h-full object-cover"/>
-                                                )}
-                                            </button>
-                                        ))}
-                                    </div>
-                                )}
+                                {images.length > 1 && (<div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">{images.map((img, idx) => (<button key={idx} onClick={() => setCurrentImg(idx)} className={`w-20 h-20 rounded-xl overflow-hidden border-2 flex-shrink-0 transition-all ${currentImg === idx ? 'border-violet-500 scale-105' : 'border-transparent opacity-70 hover:opacity-100'}`}>{isVideo(img) ? <div className="w-full h-full bg-black flex items-center justify-center"><Icons.Video size={24} className="text-white"/></div> : <img src={img} className="w-full h-full object-cover"/>}</button>))}</div>)}
                             </div>
                             <div>
-                                <div className="flex items-center gap-4 mb-4">
-                                    <span className="px-3 py-1 rounded-full bg-violet-900/50 text-violet-300 text-sm font-bold">{product.category}</span>
-                                    {product.isHit && <span className="flex items-center gap-1 text-yellow-400 text-sm font-bold"><Icons.Star fill="currentColor" size={16}/> 4.9</span>}
-                                </div>
+                                <div className="flex items-center gap-4 mb-4"><span className="px-3 py-1 rounded-full bg-violet-900/50 text-violet-300 text-sm font-bold">{product.category}</span>{product.isHit && <span className="flex items-center gap-1 text-yellow-400 text-sm font-bold"><Icons.Star fill="currentColor" size={16}/> 4.9</span>}</div>
                                 <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-4">{product.name}</h1>
-                                <div className="flex items-end gap-4 mb-8">
-                                    <span className="text-4xl font-bold text-white">{product.price} ₴</span>
-                                    {product.oldPrice > 0 && <span className="text-xl text-gray-500 line-through mb-1">{product.oldPrice} ₴</span>}
-                                </div>
+                                <div className="flex items-end gap-4 mb-8"><span className="text-4xl font-bold text-white">{product.price} ₴</span>{product.oldPrice > 0 && <span className="text-xl text-gray-500 line-through mb-1">{product.oldPrice} ₴</span>}</div>
                                 <p className="text-lg text-gray-300 leading-relaxed mb-10">{product.description}</p>
-                                
-                                {product.specs && product.specs.length > 0 && (
-                                    <div className="bg-slate-800/50 rounded-2xl p-6 mb-10 border border-white/5">
-                                        <h3 className="font-bold text-white mb-4">Характеристики</h3>
-                                        <ul className="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-8">
-                                            {product.specs.map((spec, idx) => (
-                                                <li key={idx} className="flex items-center text-gray-400 text-sm"><span className="w-1.5 h-1.5 rounded-full bg-violet-500 mr-3"></span>{spec}</li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                )}
-
-                                <div className="flex gap-4">
-                                    <AddToCartBtn product={product} addToCart={addToCart} variant="full" />
-                                </div>
+                                {product.specs && product.specs.length > 0 && (<div className="bg-slate-800/50 rounded-2xl p-6 mb-10 border border-white/5"><h3 className="font-bold text-white mb-4">Характеристики</h3><ul className="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-8">{product.specs.map((spec, idx) => (<li key={idx} className="flex items-center text-gray-400 text-sm"><span className="w-1.5 h-1.5 rounded-full bg-violet-500 mr-3"></span>{spec}</li>))}</ul></div>)}
+                                <div className="flex gap-4"><AddToCartBtn product={product} addToCart={addToCart} variant="full" /></div>
                             </div>
                         </div>
                     </div>
@@ -382,42 +207,34 @@
             );
         };
 
-        const CartView = ({ cart, updateQty, removeFromCart, goBack, cartTotal, changeRoute }) => {
-            const [form, setForm] = useState({ name: '', phone: '', city: '', branch: '' });
-            const [isSending, setIsSending] = useState(false);
-            // Перевіряємо, чи ми в режимі оформлення (через URL/History або локально)
-            // Для спрощення тут: якщо корзина пуста - показуємо пусту, якщо ні - список.
-            // Оформлення зробимо окремим "роутом" 'checkout'
-            
-            return (
-                <div className="min-h-screen bg-slate-900 py-12 px-4 animate-fade-in">
-                    <div className="max-w-3xl mx-auto">
-                        <h1 className="text-3xl font-bold text-white mb-8">Кошик</h1>
-                        {cart.length === 0 ? (
-                            <div className="text-center py-20 bg-slate-800 rounded-2xl border border-white/10"><Icons.ShoppingBag size={64} className="mx-auto text-gray-600 mb-4"/><p className="text-gray-400">Кошик порожній</p><button onClick={() => changeRoute('home')} className="mt-4 text-violet-400 font-bold">До покупок</button></div>
-                        ) : (
-                            <div className="space-y-6">
-                                <div className="bg-slate-800 rounded-2xl border border-white/10 overflow-hidden">
-                                    {cart.map(item => (
-                                        <div key={item.id} className="p-4 flex gap-4 border-b border-white/5 items-center">
-                                            <img src={item.images?.[0] || 'https://via.placeholder.com/100'} className="w-16 h-16 rounded object-cover"/>
-                                            <div className="flex-1"><h3 className="font-bold">{item.name}</h3><p className="text-sm text-gray-400">{item.price} ₴</p></div>
-                                            <div className="flex items-center gap-3 bg-slate-900 rounded p-1"><button onClick={()=>updateQty(item.id, -1)} className="p-1 text-gray-400 hover:text-white"><Icons.Minus size={14}/></button><span className="text-sm font-bold w-4 text-center">{item.qty}</span><button onClick={()=>updateQty(item.id, 1)} className="p-1 text-gray-400 hover:text-white"><Icons.Plus size={14}/></button></div>
-                                            <button onClick={()=>removeFromCart(item.id)} className="text-gray-500 hover:text-red-500"><Icons.Trash2 size={18}/></button>
-                                        </div>
-                                    ))}
-                                </div>
-                                <div className="flex justify-between items-center"><span className="text-gray-400">Разом:</span><span className="text-2xl font-bold text-violet-400">{cartTotal} ₴</span></div>
-                                <button onClick={() => changeRoute('checkout')} className="w-full bg-violet-600 hover:bg-violet-700 text-white font-bold py-4 rounded-xl">Оформити</button>
+        const CartView = ({ cart, updateQty, removeFromCart, goHome, cartTotal, changeRoute }) => (
+            <div className="min-h-screen bg-slate-900 py-12 px-4 animate-fade-in">
+                <div className="max-w-3xl mx-auto">
+                    <h1 className="text-3xl font-bold text-white mb-8">Кошик</h1>
+                    {cart.length === 0 ? (
+                        <div className="text-center py-20 bg-slate-800 rounded-2xl border border-white/10"><Icons.ShoppingBag size={64} className="mx-auto text-gray-600 mb-4"/><p className="text-gray-400">Кошик порожній</p><button onClick={() => changeRoute('home')} className="mt-4 text-violet-400 font-bold">До покупок</button></div>
+                    ) : (
+                        <div className="space-y-6">
+                            <div className="bg-slate-800 rounded-2xl border border-white/10 overflow-hidden">
+                                {cart.map(item => (
+                                    <div key={item.id} className="p-4 flex gap-4 border-b border-white/5 items-center">
+                                        <img src={item.images?.[0] || 'https://via.placeholder.com/100'} className="w-16 h-16 rounded object-cover"/>
+                                        <div className="flex-1"><h3 className="font-bold">{item.name}</h3><p className="text-sm text-gray-400">{item.price} ₴</p></div>
+                                        <div className="flex items-center gap-3 bg-slate-900 rounded p-1"><button onClick={()=>updateQty(item.id, -1)} className="p-1 text-gray-400 hover:text-white"><Icons.Minus size={14}/></button><span className="text-sm font-bold w-4 text-center">{item.qty}</span><button onClick={()=>updateQty(item.id, 1)} className="p-1 text-gray-400 hover:text-white"><Icons.Plus size={14}/></button></div>
+                                        <button onClick={()=>removeFromCart(item.id)} className="text-gray-500 hover:text-red-500"><Icons.Trash2 size={18}/></button>
+                                    </div>
+                                ))}
                             </div>
-                        )}
-                    </div>
+                            <div className="flex justify-between items-center"><span className="text-gray-400">Разом:</span><span className="text-2xl font-bold text-violet-400">{cartTotal} ₴</span></div>
+                            <button onClick={() => changeRoute('checkout')} className="w-full bg-violet-600 hover:bg-violet-700 text-white font-bold py-4 rounded-xl">Оформити</button>
+                        </div>
+                    )}
                 </div>
-            );
-        };
+            </div>
+        );
 
         const CheckoutView = ({ cart, cartTotal, goBack, clearCart, changeRoute }) => {
-            const [form, setForm] = useState({ name: '', phone: '', city: '', branch: '' });
+            const [form, setForm] = useState({ firstName: '', lastName: '', phone: '', city: '', branch: '' });
             const [paymentMethod, setPaymentMethod] = useState('cod');
             const [isSending, setIsSending] = useState(false);
             const TELEGRAM_BOT_TOKEN = "8490403071:AAFZvriLL_vzQq-ziMVTfiHAu8DmtH84Fjk";
@@ -428,27 +245,12 @@
                 setIsSending(true);
                 const list = cart.map(i => `${i.name} (${i.qty} шт) - ${i.price * i.qty} грн`).join('\n');
                 const payText = paymentMethod === 'card' ? '💳 Карта (Очікує оплати)' : '📦 Накладний платіж';
-                const msg = `<b>🔥 ЗАМОВЛЕННЯ!</b>\n\n👤 ${form.name}\n📞 ${form.phone}\n🏙 ${form.city}\n📦 ${form.branch}\n\n💰 <b>Метод оплати:</b> ${payText}\n\n🛒:\n${list}\n\n💵 <b>СУМА: ${cartTotal} грн</b>`;
-                
-                // Імітація процесу оплати
-                if (paymentMethod === 'card') {
-                    await new Promise(resolve => setTimeout(resolve, 1500)); // Імітація
-                }
-
+                const msg = `<b>🔥 ЗАМОВЛЕННЯ!</b>\n\n👤 <b>${form.firstName} ${form.lastName}</b>\n📞 ${form.phone}\n🏙 ${form.city}\n📦 ${form.branch}\n\n💰 <b>Метод оплати:</b> ${payText}\n\n🛒:\n${list}\n\n💵 <b>СУМА: ${cartTotal} грн</b>`;
+                if (paymentMethod === 'card') await new Promise(resolve => setTimeout(resolve, 1500));
                 try {
-                    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-                        method: 'POST', headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: msg, parse_mode: 'HTML' })
-                    });
-                    
-                    if (paymentMethod === 'card') {
-                        alert("Замовлення прийнято! Менеджер надішле реквізити для оплати.");
-                    } else {
-                        alert("Дякуємо! Замовлення прийнято."); 
-                    }
-                    
-                    clearCart();
-                    changeRoute('home');
+                    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: msg, parse_mode: 'HTML' }) });
+                    if (paymentMethod === 'card') alert("Замовлення прийнято! Менеджер надішле реквізити для оплати."); else alert("Дякуємо! Замовлення прийнято.");
+                    clearCart(); changeRoute('home');
                 } catch (e) { alert("Помилка."); } finally { setIsSending(false); }
             };
 
@@ -459,39 +261,14 @@
                         <div className="bg-slate-800 rounded-2xl p-8 border border-white/10">
                             <button onClick={goBack} className="mb-6 flex items-center gap-2 text-gray-400 hover:text-white"><Icons.ArrowLeft size={16}/> Назад</button>
                             <form onSubmit={submitOrder} className="space-y-6">
-                                <div className="space-y-4">
-                                    <input required placeholder="Ім'я" className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-violet-500" value={form.name} onChange={e=>setForm({...form, name:e.target.value})} />
-                                    <input required placeholder="Телефон" className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-violet-500" value={form.phone} onChange={e=>setForm({...form, phone:e.target.value})} />
-                                    <div className="pt-4 border-t border-white/5"><h3 className="font-bold mb-4 flex gap-2"><Icons.Truck className="text-violet-500"/> Доставка</h3><div className="grid md:grid-cols-2 gap-4"><input required placeholder="Місто" list="cities" className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-violet-500" value={form.city} onChange={e=>setForm({...form, city:e.target.value})} /><datalist id="cities">{POPULAR_CITIES.map(c=><option key={c} value={c}/>)}</datalist><input required placeholder="Відділення №" className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-violet-500" value={form.branch} onChange={e=>setForm({...form, branch:e.target.value})} /></div></div>
-                                    
-                                    <div className="pt-4 border-t border-white/5">
-                                        <h3 className="font-bold mb-4 flex gap-2"><Icons.CreditCard className="text-violet-500"/> Оплата</h3>
-                                        <div className="flex flex-col gap-3">
-                                            <label className={`flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition ${paymentMethod === 'cod' ? 'border-violet-500 bg-violet-500/10' : 'border-white/10 bg-slate-900 hover:bg-slate-700'}`}>
-                                                <input type="radio" name="payment" className="hidden" checked={paymentMethod === 'cod'} onChange={() => setPaymentMethod('cod')} />
-                                                <div className="w-5 h-5 rounded-full border-2 border-gray-400 flex items-center justify-center">
-                                                    {paymentMethod === 'cod' && <div className="w-2.5 h-2.5 rounded-full bg-violet-500"></div>}
-                                                </div>
-                                                <span>Накладений платіж (при отриманні)</span>
-                                            </label>
-                                            <label className={`flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition ${paymentMethod === 'card' ? 'border-violet-500 bg-violet-500/10' : 'border-white/10 bg-slate-900 hover:bg-slate-700'}`}>
-                                                <input type="radio" name="payment" className="hidden" checked={paymentMethod === 'card'} onChange={() => setPaymentMethod('card')} />
-                                                <div className="w-5 h-5 rounded-full border-2 border-gray-400 flex items-center justify-center">
-                                                    {paymentMethod === 'card' && <div className="w-2.5 h-2.5 rounded-full bg-violet-500"></div>}
-                                                </div>
-                                                <span>Оплата карткою (Visa/Mastercard/Apple Pay)</span>
-                                            </label>
-                                        </div>
-                                    </div>
+                                <div className="grid md:grid-cols-2 gap-4">
+                                    <div><label className="block text-sm font-bold text-gray-400 mb-2">Ім'я</label><input required className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-violet-500" value={form.firstName} onChange={e=>setForm({...form, firstName:e.target.value})} /></div>
+                                    <div><label className="block text-sm font-bold text-gray-400 mb-2">Прізвище</label><input required className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-violet-500" value={form.lastName} onChange={e=>setForm({...form, lastName:e.target.value})} /></div>
                                 </div>
-
-                                <button disabled={isSending} className="w-full bg-violet-600 hover:bg-violet-700 text-white font-bold py-4 rounded-xl mt-6 transition-all shadow-lg flex items-center justify-center gap-2">
-                                    {isSending ? (
-                                        'Обробка...'
-                                    ) : (
-                                        paymentMethod === 'card' ? `Оплатити ${cartTotal} ₴` : `Підтвердити замовлення`
-                                    )}
-                                </button>
+                                <input required placeholder="Телефон" className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-violet-500" value={form.phone} onChange={e=>setForm({...form, phone:e.target.value})} />
+                                <div className="pt-4 border-t border-white/5"><h3 className="font-bold mb-4 flex gap-2"><Icons.Truck className="text-violet-500"/> Доставка</h3><div className="grid md:grid-cols-2 gap-4"><input required placeholder="Місто" list="cities" className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-violet-500" value={form.city} onChange={e=>setForm({...form, city:e.target.value})} /><datalist id="cities">{POPULAR_CITIES.map(c=><option key={c} value={c}/>)}</datalist><input required placeholder="Відділення №" className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-violet-500" value={form.branch} onChange={e=>setForm({...form, branch:e.target.value})} /></div></div>
+                                <div className="pt-4 border-t border-white/5"><h3 className="font-bold mb-4 flex gap-2"><Icons.CreditCard className="text-violet-500"/> Оплата</h3><div className="flex flex-col gap-3"><label className={`flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition ${paymentMethod === 'cod' ? 'border-violet-500 bg-violet-500/10' : 'border-white/10 bg-slate-900 hover:bg-slate-700'}`}><input type="radio" name="payment" className="hidden" checked={paymentMethod === 'cod'} onChange={() => setPaymentMethod('cod')} /><div className="w-5 h-5 rounded-full border-2 border-gray-400 flex items-center justify-center">{paymentMethod === 'cod' && <div className="w-2.5 h-2.5 rounded-full bg-violet-500"></div>}</div><span>Накладений платіж</span></label><label className={`flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition ${paymentMethod === 'card' ? 'border-violet-500 bg-violet-500/10' : 'border-white/10 bg-slate-900 hover:bg-slate-700'}`}><input type="radio" name="payment" className="hidden" checked={paymentMethod === 'card'} onChange={() => setPaymentMethod('card')} /><div className="w-5 h-5 rounded-full border-2 border-gray-400 flex items-center justify-center">{paymentMethod === 'card' && <div className="w-2.5 h-2.5 rounded-full bg-violet-500"></div>}</div><span>Оплата карткою</span></label></div></div>
+                                <button disabled={isSending} className="w-full bg-violet-600 hover:bg-violet-700 text-white font-bold py-4 rounded-xl mt-6 transition-all shadow-lg flex items-center justify-center gap-2">{isSending ? 'Обробка...' : paymentMethod === 'card' ? `Оплатити ${cartTotal} ₴` : `Підтвердити замовлення`}</button>
                             </form>
                         </div>
                     </div>
@@ -505,10 +282,25 @@
             const [urlInput, setUrlInput] = useState("");
 
             const handleCreateNew = () => {
-                const newProduct = { id: Date.now(), name: "Новий товар", price: 0, category: "Іграшки", images: [], rating: 0, specs: [], isHit: false };
-                setProducts([newProduct, ...products]);
-                setLocalEditId(newProduct.id);
-                setFormData(newProduct);
+                // Створюємо новий документ в Firestore
+                db.collection("products").add({
+                    name: "Новий товар",
+                    price: 0,
+                    category: "Іграшки",
+                    images: [],
+                    rating: 0,
+                    specs: [],
+                    isHit: false,
+                    shortDesc: "",
+                    description: "",
+                    oldPrice: 0,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                }).then((docRef) => {
+                    // Після створення відкриваємо редагування
+                    const newProduct = { id: docRef.id, name: "Новий товар", price: 0, category: "Іграшки", images: [], rating: 0, specs: [], isHit: false };
+                    setLocalEditId(docRef.id);
+                    setFormData(newProduct);
+                });
             };
 
             const handleEdit = (product) => {
@@ -516,10 +308,19 @@
                 setFormData({...product});
             };
 
-            const handleSave = (e) => {
+            const handleSave = async (e) => {
                 e.preventDefault();
-                setProducts(products.map(p => p.id === formData.id ? formData : p));
+                if (!formData) return;
+                
+                // Зберігаємо зміни у Firestore
+                await db.collection("products").doc(formData.id).set(formData);
                 setLocalEditId(null);
+            };
+
+            const handleDelete = async (id) => {
+                if (window.confirm("Видалити цей товар?")) {
+                    await db.collection("products").doc(id).delete();
+                }
             };
 
             const handleImageUpload = (e) => {
@@ -530,23 +331,10 @@
                 });
             };
 
-            const handleAddUrl = () => {
-                if(urlInput) {
-                    setFormData(p => ({...p, images: [...p.images, urlInput]}));
-                    setUrlInput("");
-                }
-            };
-
-            const removeImage = (index) => {
-                setFormData(prev => ({...prev, images: prev.images.filter((_, i) => i !== index)}));
-            };
-
+            const handleAddUrl = () => { if(urlInput) { setFormData(p => ({...p, images: [...p.images, urlInput]})); setUrlInput(""); } };
+            const removeImage = (index) => setFormData(prev => ({...prev, images: prev.images.filter((_, i) => i !== index)}));
             const addSpec = () => setFormData({...formData, specs: [...(formData.specs || []), ""]});
-            const updateSpec = (i, val) => {
-                const newSpecs = [...(formData.specs || [])];
-                newSpecs[i] = val;
-                setFormData({...formData, specs: newSpecs});
-            };
+            const updateSpec = (i, val) => { const newSpecs = [...(formData.specs || [])]; newSpecs[i] = val; setFormData({...formData, specs: newSpecs}); };
             const removeSpec = (i) => setFormData({...formData, specs: formData.specs.filter((_, idx) => idx !== i)});
 
             if (localEditId && formData) {
@@ -606,7 +394,10 @@
                     <div className="max-w-6xl mx-auto">
                         <div className="flex justify-between items-center mb-8"><h1 className="text-3xl font-bold text-white flex items-center gap-3"><Icons.Settings className="text-violet-500" /> Адміністрування</h1><button onClick={handleCreateNew} className="flex items-center gap-2 bg-violet-600 text-white px-4 py-2 rounded-lg hover:bg-violet-700 transition font-bold"><Icons.Plus size={18}/> Новий товар</button></div>
                         <div className="bg-slate-800 rounded-2xl border border-white/10 overflow-hidden">
-                            <table className="w-full text-left"><tbody className="divide-y divide-white/5">{products.map(p=><tr key={p.id} className="hover:bg-white/5 transition"><td className="p-4 font-bold text-white">{p.name}</td><td className="p-4 text-white">{p.price} ₴</td><td className="p-4 text-right"><button onClick={()=>handleEdit(p)} className="bg-slate-700 hover:bg-violet-600 text-white p-2 rounded-lg transition"><Icons.Edit2 size={16}/></button></td></tr>)}</tbody></table>
+                            <table className="w-full text-left"><tbody className="divide-y divide-white/5">{products.map(p=><tr key={p.id} className="hover:bg-white/5 transition"><td className="p-4 font-bold text-white">{p.name}</td><td className="p-4 text-white">{p.price} ₴</td><td className="p-4 text-right">
+                                <button onClick={()=>handleEdit(p)} className="bg-slate-700 hover:bg-violet-600 text-white p-2 rounded-lg transition mr-2"><Icons.Edit2 size={16}/></button>
+                                <button onClick={()=>handleDelete(p.id)} className="bg-slate-700 hover:bg-red-600 text-white p-2 rounded-lg transition"><Icons.Trash2 size={16}/></button>
+                            </td></tr>)}</tbody></table>
                         </div>
                     </div>
                 </div>
@@ -647,7 +438,7 @@
         // --- MAIN APP COMPONENT ---
         const App = () => {
             const [activeView, setActiveView] = useState('home'); 
-            const [products, setProducts] = useState(INITIAL_PRODUCTS);
+            const [products, setProducts] = useState([]); // Починаємо з порожнього масиву
             const [selectedProductId, setSelectedProductId] = useState(null);
             const [selectedInfoPage, setSelectedInfoPage] = useState(null);
             const [cart, setCart] = useState([]);
@@ -658,13 +449,23 @@
             const [adminPassInput, setAdminPassInput] = useState("");
             const [filterCategory, setFilterCategory] = useState(null);
 
-            // --- HISTORY API HANDLING ---
+            // --- INIT ---
             useEffect(() => {
                 const verified = localStorage.getItem('ageVerified_v2');
                 if (verified === 'true') setIsAgeVerified(true);
 
-                window.history.replaceState({ view: 'home' }, '');
+                // --- FIREBASE SYNC ---
+                const unsubscribe = db.collection("products").onSnapshot((snapshot) => {
+                    if (snapshot.empty) {
+                        // Seed database if empty
+                        INITIAL_PRODUCTS_SEED.forEach(p => db.collection("products").doc(String(p.id)).set(p));
+                    } else {
+                        const loadedProducts = snapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
+                        setProducts(loadedProducts);
+                    }
+                });
 
+                window.history.replaceState({ view: 'home' }, '');
                 const handlePopState = (event) => {
                     const state = event.state;
                     if (state) {
@@ -682,53 +483,40 @@
                         setSelectedInfoPage(null);
                     }
                 };
-
                 window.addEventListener('popstate', handlePopState);
-                return () => window.removeEventListener('popstate', handlePopState);
+                
+                return () => {
+                    unsubscribe();
+                    window.removeEventListener('popstate', handlePopState);
+                };
             }, []);
 
             const changeRoute = (view, params = {}) => {
                 const newState = { view, ...params };
                 window.history.pushState(newState, '');
-                
                 setActiveView(view);
                 if (params.productId) setSelectedProductId(params.productId);
                 if (params.category !== undefined) setFilterCategory(params.category);
                 if (params.infoPage) setSelectedInfoPage(params.infoPage);
-                
                 setIsMobileMenuOpen(false);
                 window.scrollTo(0, 0);
             };
 
             const goBack = () => window.history.back();
-
             const navigateToProduct = (id) => changeRoute('product', { productId: id });
             const navigateToInfo = (page) => changeRoute('info', { infoPage: page });
             const goHome = () => changeRoute('home', { category: null, productId: null, infoPage: null });
-            const goToCategory = (cat) => {
-                changeRoute('home', { category: cat });
-                setTimeout(() => document.getElementById('products-grid')?.scrollIntoView({behavior:'smooth'}), 100);
-            };
-
-            const confirmAge = () => {
-                localStorage.setItem('ageVerified_v2', 'true');
-                setIsAgeVerified(true);
-            };
-
+            const goToCategory = (cat) => { changeRoute('home', { category: cat }); setTimeout(() => document.getElementById('products-grid')?.scrollIntoView({behavior:'smooth'}), 100); };
+            const confirmAge = () => { localStorage.setItem('ageVerified_v2', 'true'); setIsAgeVerified(true); };
             const addToCart = (product) => {
                 const existing = cart.find(item => item.id === product.id);
-                if (existing) {
-                    setCart(cart.map(item => item.id === product.id ? {...item, qty: item.qty + 1} : item));
-                } else {
-                    setCart([...cart, {...product, qty: 1}]);
-                }
+                if (existing) { setCart(cart.map(item => item.id === product.id ? {...item, qty: item.qty + 1} : item)); } 
+                else { setCart([...cart, {...product, qty: 1}]); }
             };
-
             const updateQty = (id, delta) => setCart(cart.map(item => item.id === id ? { ...item, qty: Math.max(1, item.qty + delta) } : item));
             const removeFromCart = (id) => setCart(cart.filter(item => item.id !== id));
             const clearCart = () => setCart([]);
             const cartTotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
-
             const displayedProducts = filterCategory ? products.filter(p => p.category === filterCategory) : products;
 
             if (!isAgeVerified) return (
