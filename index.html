@@ -97,7 +97,8 @@
             EyeOff: (p) => <IconBase {...p}><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></IconBase>,
             Copy: (p) => <IconBase {...p}><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></IconBase>,
             PackageX: (p) => <IconBase {...p}><path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14"/><path d="m7.5 4.27 9 5.15"/><polyline points="3.29 7 12 12 20.71 7"/><line x1="12" x2="12" y1="22" y2="12"/><path d="m17 13 5 5m-5 0 5-5"/></IconBase>,
-            PackageCheck: (p) => <IconBase {...p}><path d="m16 16 2 2 4-4"/><path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14"/><path d="m7.5 4.27 9 5.15"/><polyline points="3.29 7 12 12 20.71 7"/><line x1="12" x2="12" y1="22" y2="12"/></IconBase>
+            PackageCheck: (p) => <IconBase {...p}><path d="m16 16 2 2 4-4"/><path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14"/><path d="m7.5 4.27 9 5.15"/><polyline points="3.29 7 12 12 20.71 7"/><line x1="12" x2="12" y1="22" y2="12"/></IconBase>,
+            RefreshCw: (p) => <IconBase {...p}><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></IconBase>
         };
 
         const BrandLogo = () => (
@@ -365,6 +366,30 @@
                 }
             };
 
+            const handleReset = async () => {
+                if (!window.confirm("Це видалить всі поточні товари і відновить стандартний набір. Продовжити?")) return;
+                
+                if (db) {
+                    const snapshot = await db.collection("products").get();
+                    const batch = db.batch();
+                    snapshot.docs.forEach((doc) => {
+                        batch.delete(doc.ref);
+                    });
+                    await batch.commit();
+                    
+                    const batchAdd = db.batch();
+                    INITIAL_PRODUCTS_SEED.forEach((p, index) => {
+                        const docRef = db.collection("products").doc(String(p.id));
+                        batchAdd.set(docRef, { ...p, orderIndex: index, inStock: true, isVisible: true });
+                    });
+                    await batchAdd.commit();
+                    alert("Товари відновлено!");
+                } else {
+                    setProducts(INITIAL_PRODUCTS_SEED);
+                    alert("Товари скинуто (локально)!");
+                }
+            };
+
             const handleEdit = (product) => {
                 setLocalEditId(product.id);
                 setFormData({...product});
@@ -487,7 +512,13 @@
             return (
                 <div className="min-h-screen bg-slate-900 py-12 px-4 animate-fade-in">
                     <div className="max-w-7xl mx-auto">
-                        <div className="flex justify-between items-center mb-8"><h1 className="text-3xl font-bold text-white flex items-center gap-3"><Icons.Settings className="text-violet-500" /> Адміністрування</h1><button onClick={handleCreateNew} className="flex items-center gap-2 bg-violet-600 text-white px-4 py-2 rounded-lg hover:bg-violet-700 transition font-bold"><Icons.Plus size={18}/> Новий товар</button></div>
+                        <div className="flex justify-between items-center mb-8">
+                            <h1 className="text-3xl font-bold text-white flex items-center gap-3"><Icons.Settings className="text-violet-500" /> Адміністрування</h1>
+                            <div className="flex gap-2">
+                                <button onClick={handleReset} className="flex items-center gap-2 bg-red-600/20 text-red-400 px-4 py-2 rounded-lg hover:bg-red-600 hover:text-white transition font-bold border border-red-600/50"><Icons.RefreshCw size={18}/> Скинути та відновити</button>
+                                <button onClick={handleCreateNew} className="flex items-center gap-2 bg-violet-600 text-white px-4 py-2 rounded-lg hover:bg-violet-700 transition font-bold"><Icons.Plus size={18}/> Новий товар</button>
+                            </div>
+                        </div>
                         <div className="bg-slate-800 rounded-2xl border border-white/10 overflow-hidden">
                             <table className="w-full text-left">
                                 <thead className="bg-slate-900/50 text-gray-400 text-xs uppercase">
