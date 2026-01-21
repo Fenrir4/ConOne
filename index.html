@@ -17,9 +17,9 @@
     <!-- 4. Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- 5. FIREBASE (Compat версія для роботи прямо в браузері) -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <!-- 5. FIREBASE (Оновлена версія 10.8.0 Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
     <style>
         body { font-family: 'Montserrat', sans-serif; }
@@ -38,7 +38,7 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
-        // --- FIREBASE CONFIG ---
+        // --- FIREBASE SETUP ---
         const firebaseConfig = {
             apiKey: "AIzaSyAu47cciZnYXyEPMTHeH7a1bmX-kCYtGQA",
             authDomain: "conone-757e4.firebaseapp.com",
@@ -49,18 +49,27 @@
             measurementId: "G-B1T6D9BNWN"
         };
 
-        // Ініціалізація Firebase
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
+        // Безпечна ініціалізація Firebase
+        let db = null;
+        try {
+            if (window.firebase) {
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
+                }
+                db = firebase.firestore();
+                console.log("Firebase підключено успішно");
+            } else {
+                console.warn("Firebase SDK не завантажився. Працюємо в офлайн режимі.");
+            }
+        } catch (error) {
+            console.error("Помилка ініціалізації Firebase:", error);
         }
-        const db = firebase.firestore();
 
         // --- ІКОНКИ ---
         const IconBase = ({ children, size = 24, className = "" }) => (
             <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>{children}</svg>
         );
 
-        // ... (Тут той самий набір іконок, що і раніше) ...
         const Icons = {
             ShoppingBag: (p) => <IconBase {...p}><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></IconBase>,
             X: (p) => <IconBase {...p}><path d="M18 6 6 18"/><path d="m6 6 12 12"/></IconBase>,
@@ -87,7 +96,8 @@
             Phone: (p) => <IconBase {...p}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></IconBase>,
             Instagram: (p) => <IconBase {...p}><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></IconBase>,
             Send: (p) => <IconBase {...p}><line x1="22" x2="11" y1="2" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></IconBase>,
-            CreditCard: (p) => <IconBase {...p}><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></IconBase>
+            CreditCard: (p) => <IconBase {...p}><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></IconBase>,
+            Eye: (p) => <IconBase {...p}><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></IconBase>
         };
 
         const BrandLogo = () => (
@@ -95,19 +105,31 @@
                 <circle cx="20" cy="20" r="20" fill="url(#paint0_linear)" />
                 <path d="M26 12C26 12 22 14 22 20C22 26 26 28 26 28C22.5 30 18 29 15 26C12 23 12 17 15 14C18 11 22.5 10 26 12Z" fill="white"/>
                 <path d="M29 16L30.5 19L33.5 19.5L31.5 21.5L32 24.5L29 23L26 24.5L26.5 21.5L24.5 19.5L27.5 19L29 16Z" fill="#FDE047"/>
-                <defs><linearGradient id="paint0_linear" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse"><stop stopColor="#7C3AED"/><stop offset="1" stopColor="#DB2777"/></linearGradient></defs>
+                <defs>
+                    <linearGradient id="paint0_linear" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+                        <stop stopColor="#7C3AED"/>
+                        <stop offset="1" stopColor="#DB2777"/>
+                    </linearGradient>
+                </defs>
             </svg>
         );
 
         const INFO_PAGES = {
-            about: { title: "Про нас", content: <div className="space-y-6 text-gray-300 leading-relaxed"><p className="text-lg font-medium text-white">Привіт, ми Night Secret! 👋</p><p>Ми не просто магазин, ми — твій провідник у світ задоволення.</p><p>Наша місія — зробити твої ночі яскравішими. Ми ретельно відбираємо кожен девайс.</p><div className="bg-slate-800 p-6 rounded-2xl border border-violet-500/20 my-6"><h3 className="text-white font-bold mb-2">Чому ми?</h3><ul className="list-disc list-inside space-y-2 text-sm"><li><strong>Анонімність 80 lvl</strong></li><li><strong>Тільки оригінали</strong></li><li><strong>Швидка доставка</strong></li></ul></div></div> },
+            about: { title: "Про нас", content: <div className="space-y-6 text-gray-300 leading-relaxed"><p className="text-lg font-medium text-white">Привіт, ми Night Secret! 👋</p><p>Ми не просто магазин, ми — твій провідник у світ задоволення.</p><div className="bg-slate-800 p-6 rounded-2xl border border-violet-500/20 my-6"><h3 className="text-white font-bold mb-2">Чому ми?</h3><ul className="list-disc list-inside space-y-2 text-sm"><li><strong>Анонімність 80 lvl</strong></li><li><strong>Тільки оригінали</strong></li><li><strong>Швидкість ракети</strong></li></ul></div></div> },
             delivery: { title: "Оплата та доставка", content: <div className="space-y-6 text-gray-300 leading-relaxed"><div className="flex items-start gap-4 p-4 bg-slate-800 rounded-xl"><Icons.Truck size={32} className="text-violet-500 flex-shrink-0" /><div><h3 className="text-white font-bold text-lg mb-2">Доставка Новою Поштою</h3><p>Відправляємо щодня.</p></div></div><div className="flex items-start gap-4 p-4 bg-slate-800 rounded-xl"><Icons.ShieldCheck size={32} className="text-green-500 flex-shrink-0" /><div><h3 className="text-white font-bold text-lg mb-2">100% Анонімність</h3><p>Нейтральна упаковка "Косметика".</p></div></div></div> },
             returns: { title: "Повернення та обмін", content: <div className="space-y-6 text-gray-300 leading-relaxed"><p>Згідно з Постановою КМУ №172, товари інтимного призначення не підлягають поверненню. Це гарантує, що ви отримуєте абсолютно новий товар.</p></div> },
-            privacy: { title: "Політика конфіденційності", content: <div className="space-y-4 text-gray-300 text-sm leading-relaxed"><p>Ми суворо зберігаємо ваші дані і передаємо їх лише Новій Пошті для доставки.</p></div> },
+            privacy: { title: "Політика конфіденційності", content: <div className="space-y-4 text-gray-300 text-sm leading-relaxed"><p>Ми суворо зберігаємо ваші дані.</p></div> },
             offer: { title: "Договір оферти", content: <div className="space-y-4 text-gray-400 text-xs leading-relaxed"><p>Публічна оферта інтернет-магазину Night Secret.</p></div> }
         };
 
         const POPULAR_CITIES = ["Київ", "Харків", "Одеса", "Дніпро", "Львів", "Запоріжжя", "Вінниця", "Хмельницький", "Житомир", "Чернівці", "Рівне", "Івано-Франківськ", "Тернопіль", "Луцьк", "Ужгород", "Біла Церква", "Кропивницький", "Миколаїв", "Полтава", "Суми", "Черкаси", "Чернігів"];
+
+        // SEED DATA (Стартові дані, якщо база пуста)
+        const INITIAL_PRODUCTS_SEED = [
+            { id: 1, name: "Rose Pleasure Deluxe", shortDesc: "Вакуумний стимулятор", description: "Інноваційний стимулятор.", price: 2499, oldPrice: 3200, category: "Іграшки", images: ["https://images.unsplash.com/photo-1595475207225-428b62bda831?auto=format&fit=crop&q=80&w=600"], rating: 5.0, specs: ["Матеріал: Медичний силікон"], isHit: true },
+            { id: 2, name: "Midnight Wand Pro", shortDesc: "Потужний масажер", description: "Легендарний Magic Wand.", price: 1899, oldPrice: null, category: "Масажери", images: ["https://images.unsplash.com/photo-1616423640778-28d1b53229bd?auto=format&fit=crop&q=80&w=600"], rating: 4.9, specs: ["Матеріал: ABS + Силікон"], isHit: false },
+            { id: 3, name: "Silk Touch Oil", shortDesc: "Масажна олія", description: "Розкішна олія з ароматом ванілі.", price: 450, oldPrice: 600, category: "Косметика", images: ["https://images.unsplash.com/photo-1608248597279-f99d160bfbc8?auto=format&fit=crop&q=80&w=600"], rating: 4.8, specs: ["Об'єм: 100 мл"], isHit: true }
+        ];
 
         const CATEGORIES = [
             { name: "Презервативи", icon: "🛡️" },
@@ -115,14 +137,6 @@
             { name: "Іграшки", icon: "🧸" },
             { name: "Білизна", icon: "👙" },
             { name: "Масажери", icon: "💆" }
-        ];
-
-        // --- SEED DATA (Стартові товари, якщо база пуста) ---
-        const INITIAL_PRODUCTS_SEED = [
-            { id: 1, name: "Rose Pleasure Deluxe", shortDesc: "Вакуумний стимулятор", description: "Інноваційний стимулятор у формі троянди. Поєднує в собі елегантний дизайн та потужні технології задоволення. Має 10 режимів вакуумної стимуляції.", price: 2499, oldPrice: 3200, category: "Іграшки", images: ["https://images.unsplash.com/photo-1595475207225-428b62bda831?auto=format&fit=crop&q=80&w=600", "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&q=80&w=600"], rating: 5.0, specs: ["Матеріал: Медичний силікон", "Живлення: USB", "Водонепроникність: IPX7"], isHit: true },
-            { id: 2, name: "Midnight Wand Pro", shortDesc: "Потужний масажер", description: "Легендарний Magic Wand у бездротовому форматі. Глибока вібрація.", price: 1899, oldPrice: null, category: "Масажери", images: ["https://images.unsplash.com/photo-1616423640778-28d1b53229bd?auto=format&fit=crop&q=80&w=600"], rating: 4.9, specs: ["Матеріал: ABS + Силікон", "Режими: 20 патернів"], isHit: false },
-            { id: 3, name: "Silk Touch Oil", shortDesc: "Масажна олія", description: "Розкішна олія з ароматом чорної орхідеї та ванілі.", price: 450, oldPrice: 600, category: "Косметика", images: ["https://images.unsplash.com/photo-1608248597279-f99d160bfbc8?auto=format&fit=crop&q=80&w=600"], rating: 4.8, specs: ["Об'єм: 100 мл", "Основа: Натуральні олії"], isHit: true },
-            { id: 4, name: "Lace Fantasy Set", shortDesc: "Комплект білизни", description: "Вишуканий комплект мереживної білизни чорного кольору.", price: 1299, oldPrice: 1500, category: "Білизна", images: ["https://images.unsplash.com/photo-1562572159-4efc207f5aff?auto=format&fit=crop&q=80&w=600"], rating: 5.0, specs: ["Колір: Чорний", "Матеріал: Мереживо"], isHit: false }
         ];
 
         const isVideo = (url) => url && (url.toLowerCase().endsWith('.mp4') || url.toLowerCase().endsWith('.webm'));
@@ -140,12 +154,24 @@
             <div className="group bg-slate-800 rounded-2xl border border-white/5 overflow-hidden hover:border-violet-500/50 transition-all duration-300 hover:shadow-2xl cursor-pointer flex flex-col h-full relative" onClick={() => navigateToProduct(product.id)}>
                 <div className="relative aspect-[4/5] bg-slate-700 overflow-hidden">
                     {product.images && product.images.length > 0 ? (isVideo(product.images[0]) ? <video src={product.images[0]} muted loop autoPlay playsInline className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" /> : <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"/>) : <div className="w-full h-full flex items-center justify-center bg-slate-800 text-gray-500"><Icons.Image size={40}/></div>}
+                    
+                    {/* OVERLAY HINT */}
+                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <span className="bg-white/20 backdrop-blur-md text-white px-4 py-2 rounded-full text-sm font-bold border border-white/30 flex items-center gap-2">
+                            <Icons.Eye size={16} /> Переглянути
+                        </span>
+                    </div>
+
                     {product.isHit && <div className="absolute top-3 left-3 bg-fuchsia-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg z-10 flex items-center gap-1"><Icons.Flame size={12}/> HIT</div>}
                 </div>
                 <div className="p-5 flex-1 flex flex-col">
                     <div className="text-xs font-bold text-violet-400 uppercase tracking-wider mb-2">{product.category}</div>
                     <h3 className="text-lg font-bold text-white mb-1 group-hover:text-violet-300 transition-colors line-clamp-1">{product.name}</h3>
-                    <p className="text-sm text-gray-400 mb-4 line-clamp-2">{product.shortDesc}</p>
+                    <p className="text-sm text-gray-400 mb-2 line-clamp-2">{product.shortDesc}</p>
+                    
+                    {/* TEXT HINT */}
+                    <div className="text-violet-400 text-xs font-bold mb-4 flex items-center gap-1 group-hover:text-violet-300 transition-colors">Детальніше <Icons.ChevronRight size={12}/></div>
+
                     <div className="mt-auto flex items-center justify-between">
                         <div><span className="text-2xl font-bold text-white">{product.price} ₴</span>{product.oldPrice > 0 && <span className="text-sm text-gray-500 line-through ml-2">{product.oldPrice} ₴</span>}</div>
                         <AddToCartBtn product={product} addToCart={addToCart} />
@@ -282,8 +308,7 @@
             const [urlInput, setUrlInput] = useState("");
 
             const handleCreateNew = () => {
-                // Створюємо новий документ в Firestore
-                db.collection("products").add({
+                const newProduct = {
                     name: "Новий товар",
                     price: 0,
                     category: "Іграшки",
@@ -295,11 +320,10 @@
                     description: "",
                     oldPrice: 0,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                }).then((docRef) => {
-                    // Після створення відкриваємо редагування
-                    const newProduct = { id: docRef.id, name: "Новий товар", price: 0, category: "Іграшки", images: [], rating: 0, specs: [], isHit: false };
+                };
+                db.collection("products").add(newProduct).then((docRef) => {
                     setLocalEditId(docRef.id);
-                    setFormData(newProduct);
+                    setFormData({ id: docRef.id, ...newProduct });
                 });
             };
 
@@ -311,8 +335,6 @@
             const handleSave = async (e) => {
                 e.preventDefault();
                 if (!formData) return;
-                
-                // Зберігаємо зміни у Firestore
                 await db.collection("products").doc(formData.id).set(formData);
                 setLocalEditId(null);
             };
@@ -349,39 +371,9 @@
                                     <div><label className="block text-sm font-bold text-gray-400 mb-2">Категорія</label><select value={formData.category} onChange={e=>setFormData({...formData, category:e.target.value})} className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-violet-500">{CATEGORIES.map(c=><option key={c.name} value={c.name}>{c.name}</option>)}<option value="Інше">Інше</option></select></div>
                                     <div><label className="block text-sm font-bold text-gray-400 mb-2">Стара ціна (необов'язково)</label><input type="number" value={formData.oldPrice || ''} onChange={e=>setFormData({...formData, oldPrice:Number(e.target.value)})} className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-violet-500" placeholder="0" /></div>
                                 </div>
-                                
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-400 mb-2">Медіа (Фото/Відео)</label>
-                                    <div className="flex flex-wrap gap-4 mb-4">
-                                        {formData.images?.map((img, i) => (
-                                            <div key={i} className="relative w-24 h-24 rounded-lg overflow-hidden border border-white/20 group bg-black">
-                                                {isVideo(img) ? <video src={img} className="w-full h-full object-cover"/> : <img src={img} className="w-full h-full object-cover"/>}
-                                                <button type="button" onClick={() => removeImage(i)} className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition text-red-500"><Icons.Trash2/></button>
-                                            </div>
-                                        ))}
-                                        <label className="w-24 h-24 rounded-lg border-2 border-dashed border-white/20 flex flex-col items-center justify-center text-gray-400 cursor-pointer hover:border-violet-500 hover:text-violet-500 transition">
-                                            <Icons.Upload size={24}/>
-                                            <span className="text-xs mt-1">Файл</span>
-                                            <input type="file" multiple className="hidden" onChange={handleImageUpload}/>
-                                        </label>
-                                    </div>
-                                    <div className="flex gap-2">
-                                        <input value={urlInput} onChange={e => setUrlInput(e.target.value)} placeholder="Вставте посилання на фото або .mp4 відео" className="flex-1 bg-slate-900 border border-white/10 rounded-xl px-4 py-2 text-white outline-none focus:border-violet-500 text-sm"/>
-                                        <button type="button" onClick={handleAddUrl} className="bg-slate-700 hover:bg-violet-600 text-white px-4 rounded-xl text-sm font-bold">Додати URL</button>
-                                    </div>
-                                </div>
-
+                                <div><label className="block text-sm font-bold text-gray-400 mb-2">Медіа</label><div className="flex flex-wrap gap-4 mb-4">{formData.images?.map((img, i) => <div key={i} className="relative w-24 h-24 rounded-lg overflow-hidden border border-white/20 group bg-black">{isVideo(img) ? <video src={img} className="w-full h-full object-cover"/> : <img src={img} className="w-full h-full object-cover"/>}<button type="button" onClick={() => removeImage(i)} className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition text-red-500"><Icons.Trash2/></button></div>)}<label className="w-24 h-24 rounded-lg border-2 border-dashed border-white/20 flex flex-col items-center justify-center text-gray-400 cursor-pointer hover:border-violet-500"><Icons.Upload size={24}/><input type="file" multiple className="hidden" onChange={handleImageUpload}/></label></div><div className="flex gap-2"><input value={urlInput} onChange={e => setUrlInput(e.target.value)} placeholder="Вставте посилання на фото або .mp4 відео" className="flex-1 bg-slate-900 border border-white/10 rounded-xl px-4 py-2 text-white outline-none focus:border-violet-500 text-sm"/><button type="button" onClick={handleAddUrl} className="bg-slate-700 hover:bg-violet-600 text-white px-4 rounded-xl text-sm font-bold">Додати URL</button></div></div>
                                 <div><label className="block text-sm font-bold text-gray-400 mb-2">Опис</label><textarea rows={4} value={formData.description} onChange={e=>setFormData({...formData, description:e.target.value})} className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-violet-500" /></div>
-                                
-                                <div className="bg-slate-900 p-4 rounded-xl border border-white/10">
-                                    <div className="flex justify-between items-center mb-4"><label className="block text-sm font-bold text-gray-400">Характеристики</label><button type="button" onClick={addSpec} className="text-xs bg-violet-600 px-3 py-1 rounded text-white">Додати</button></div>
-                                    <div className="space-y-2">
-                                        {formData.specs?.map((spec, i) => (
-                                            <div key={i} className="flex gap-2"><input value={spec} onChange={e => updateSpec(i, e.target.value)} className="flex-1 bg-slate-800 border border-white/10 rounded px-3 py-2 text-white outline-none" /><button type="button" onClick={() => removeSpec(i)} className="text-red-500 hover:text-red-400"><Icons.Trash2 size={18}/></button></div>
-                                        ))}
-                                    </div>
-                                </div>
-
+                                <div className="bg-slate-900 p-4 rounded-xl border border-white/10"><div className="flex justify-between items-center mb-4"><label className="block text-sm font-bold text-gray-400">Характеристики</label><button type="button" onClick={addSpec} className="text-xs bg-violet-600 px-3 py-1 rounded text-white">Додати</button></div><div className="space-y-2">{formData.specs?.map((spec, i) => (<div key={i} className="flex gap-2"><input value={spec} onChange={e => updateSpec(i, e.target.value)} className="flex-1 bg-slate-800 border border-white/10 rounded px-3 py-2 text-white outline-none" /><button type="button" onClick={() => removeSpec(i)} className="text-red-500 hover:text-red-400"><Icons.Trash2 size={18}/></button></div>))}</div></div>
                                 <button className="bg-violet-600 text-white font-bold py-3 px-8 rounded-xl">Зберегти</button>
                             </form>
                         </div>
@@ -455,15 +447,23 @@
                 if (verified === 'true') setIsAgeVerified(true);
 
                 // --- FIREBASE SYNC ---
-                const unsubscribe = db.collection("products").onSnapshot((snapshot) => {
-                    if (snapshot.empty) {
-                        // Seed database if empty
-                        INITIAL_PRODUCTS_SEED.forEach(p => db.collection("products").doc(String(p.id)).set(p));
-                    } else {
-                        const loadedProducts = snapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
-                        setProducts(loadedProducts);
-                    }
-                });
+                let unsubscribe = () => {};
+                if (db) {
+                     unsubscribe = db.collection("products").onSnapshot((snapshot) => {
+                        if (snapshot.empty) {
+                            // Seed database if empty
+                            INITIAL_PRODUCTS_SEED.forEach(p => db.collection("products").doc(String(p.id)).set(p));
+                        } else {
+                            const loadedProducts = snapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
+                            setProducts(loadedProducts);
+                        }
+                    });
+                } else {
+                    // Fallback if firebase failed
+                    const saved = localStorage.getItem('products');
+                    if (saved) setProducts(JSON.parse(saved));
+                    else setProducts(INITIAL_PRODUCTS_SEED);
+                }
 
                 window.history.replaceState({ view: 'home' }, '');
                 const handlePopState = (event) => {
@@ -490,6 +490,13 @@
                     window.removeEventListener('popstate', handlePopState);
                 };
             }, []);
+
+            // Backup save to local storage
+            useEffect(() => {
+                if (products.length > 0) {
+                    localStorage.setItem('products', JSON.stringify(products));
+                }
+            }, [products]);
 
             const changeRoute = (view, params = {}) => {
                 const newState = { view, ...params };
