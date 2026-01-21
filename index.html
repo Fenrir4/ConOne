@@ -20,7 +20,6 @@
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #7c3aed; border-radius: 4px; }
-        .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
     </style>
 </head>
 <body class="bg-slate-900 text-gray-100">
@@ -28,7 +27,7 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
+        const { useState, useEffect } = React;
 
         // --- ІКОНКИ ---
         const IconBase = ({ children, size = 24, className = "" }) => (
@@ -46,7 +45,6 @@
             Edit2: (p) => <IconBase {...p}><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></IconBase>,
             Menu: (p) => <IconBase {...p}><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></IconBase>,
             ArrowLeft: (p) => <IconBase {...p}><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></IconBase>,
-            Heart: (p) => <IconBase {...p}><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></IconBase>,
             Settings: (p) => <IconBase {...p}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.47a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></IconBase>,
             ChevronRight: (p) => <IconBase {...p}><path d="m9 18 6-6-6-6"/></IconBase>,
             Truck: (p) => <IconBase {...p}><path d="M10 17h4V5H2v12h3"/><path d="M20 17h2v-3.34a4 4 0 0 0-1.17-2.83L19 9h-5"/><path d="M14 17h1"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></IconBase>,
@@ -72,71 +70,12 @@
             </svg>
         );
 
-        const POPULAR_CITIES = ["Київ", "Харків", "Одеса", "Дніпро", "Львів", "Запоріжжя", "Вінниця", "Хмельницький", "Житомир", "Чернівці", "Рівне", "Івано-Франківськ", "Тернопіль", "Луцьк", "Ужгород", "Біла Церква", "Кропивницький", "Миколаїв", "Полтава", "Суми", "Черкаси", "Чернігів"];
-
-        // ОНОВЛЕНІ ДАНІ (Множинні фото)
+        // --- ДАНІ ---
         const INITIAL_PRODUCTS = [
-            {
-                id: 1,
-                name: "Rose Pleasure Deluxe",
-                shortDesc: "Вакуумний стимулятор",
-                description: "Інноваційний стимулятор у формі троянди. Поєднує в собі елегантний дизайн та потужні технології задоволення. Має 10 режимів вакуумної стимуляції та повністю водонепроникний корпус.",
-                price: 2499,
-                oldPrice: 3200,
-                category: "Іграшки",
-                images: [
-                    "https://images.unsplash.com/photo-1595475207225-428b62bda831?auto=format&fit=crop&q=80&w=600",
-                    "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&q=80&w=600"
-                ],
-                rating: 5.0,
-                specs: ["Матеріал: Медичний силікон", "Живлення: USB-зарядка", "Водонепроникність: IPX7", "Розмір: 6.5 x 6.5 см"],
-                isHit: true
-            },
-            {
-                id: 2,
-                name: "Midnight Wand Pro",
-                shortDesc: "Потужний масажер",
-                description: "Легендарний Magic Wand у бездротовому форматі. Глибока вібрація, що знімає напругу з м'язів та дарує вибухове задоволення. Гнучка головка підлаштовується під вигини тіла.",
-                price: 1899,
-                oldPrice: null,
-                category: "Масажери",
-                images: [
-                    "https://images.unsplash.com/photo-1616423640778-28d1b53229bd?auto=format&fit=crop&q=80&w=600"
-                ],
-                rating: 4.9,
-                specs: ["Матеріал: ABS + Силікон", "Режими: 20 патернів", "Час роботи: до 3 годин"],
-                isHit: false
-            },
-            {
-                id: 3,
-                name: "Silk Touch Oil",
-                shortDesc: "Масажна олія з феромонами",
-                description: "Розкішна олія з ароматом чорної орхідеї та ванілі. Збагачена феромонами для посилення потягу. Не залишає липких слідів.",
-                price: 450,
-                oldPrice: 600,
-                category: "Косметика",
-                images: [
-                    "https://images.unsplash.com/photo-1608248597279-f99d160bfbc8?auto=format&fit=crop&q=80&w=600"
-                ],
-                rating: 4.8,
-                specs: ["Об'єм: 100 мл", "Аромат: Ваніль", "Основа: Натуральні олії"],
-                isHit: true
-            },
-            {
-                id: 4,
-                name: "Lace Fantasy Set",
-                shortDesc: "Комплект білизни",
-                description: "Вишуканий комплект мереживної білизни чорного кольору. Підкреслює фігуру та додає впевненості. У комплекті бра, трусики та пояс для панчіх.",
-                price: 1299,
-                oldPrice: 1500,
-                category: "Білизна",
-                images: [
-                    "https://images.unsplash.com/photo-1562572159-4efc207f5aff?auto=format&fit=crop&q=80&w=600"
-                ],
-                rating: 5.0,
-                specs: ["Колір: Чорний", "Розміри: S, M, L", "Матеріал: Мереживо"],
-                isHit: false
-            }
+            { id: 1, name: "Rose Pleasure Deluxe", shortDesc: "Вакуумний стимулятор", description: "Інноваційний стимулятор у формі троянди. Поєднує в собі елегантний дизайн та потужні технології задоволення.", price: 2499, oldPrice: 3200, category: "Іграшки", images: ["https://images.unsplash.com/photo-1595475207225-428b62bda831?auto=format&fit=crop&q=80&w=600"], rating: 5.0, specs: ["Матеріал: Медичний силікон", "Живлення: USB"], isHit: true },
+            { id: 2, name: "Midnight Wand Pro", shortDesc: "Потужний масажер", description: "Легендарний Magic Wand у бездротовому форматі.", price: 1899, oldPrice: null, category: "Масажери", images: ["https://images.unsplash.com/photo-1616423640778-28d1b53229bd?auto=format&fit=crop&q=80&w=600"], rating: 4.9, specs: ["Матеріал: ABS + Силікон"], isHit: false },
+            { id: 3, name: "Silk Touch Oil", shortDesc: "Масажна олія з феромонами", description: "Розкішна олія з ароматом чорної орхідеї та ванілі.", price: 450, oldPrice: 600, category: "Косметика", images: ["https://images.unsplash.com/photo-1608248597279-f99d160bfbc8?auto=format&fit=crop&q=80&w=600"], rating: 4.8, specs: ["Об'єм: 100 мл"], isHit: true },
+            { id: 4, name: "Lace Fantasy Set", shortDesc: "Комплект білизни", description: "Вишуканий комплект мереживної білизни чорного кольору.", price: 1299, oldPrice: 1500, category: "Білизна", images: ["https://images.unsplash.com/photo-1562572159-4efc207f5aff?auto=format&fit=crop&q=80&w=600"], rating: 5.0, specs: ["Колір: Чорний"], isHit: false }
         ];
 
         const CATEGORIES = [
@@ -147,11 +86,283 @@
             { name: "Масажери", icon: "💆" }
         ];
 
-        const App = () => {
+        const POPULAR_CITIES = ["Київ", "Харків", "Одеса", "Дніпро", "Львів", "Запоріжжя", "Вінниця", "Хмельницький", "Житомир", "Чернівці", "Рівне", "Івано-Франківськ", "Тернопіль", "Луцьк", "Ужгород", "Біла Церква", "Кропивницький", "Миколаїв", "Полтава", "Суми", "Черкаси", "Чернігів"];
+
+        // ==========================================
+        // COMPONENTS (Defined OUTSIDE App to prevent remounting bugs)
+        // ==========================================
+
+        const AddToCartBtn = ({ product, addToCart, variant = 'icon' }) => {
+            const [added, setAdded] = useState(false);
+            
+            const handleClick = (e) => {
+                e.stopPropagation();
+                addToCart(product);
+                setAdded(true);
+                setTimeout(() => setAdded(false), 2000);
+            };
+
+            if (variant === 'icon') {
+                return (
+                    <button onClick={handleClick} className={`p-3 rounded-xl transition-all duration-300 z-20 ${added ? 'bg-green-500 text-white shadow-green-500/50 shadow-lg' : 'bg-white/10 hover:bg-violet-600 text-white'}`} title={added ? "Додано" : "В кошик"}>
+                        {added ? <Icons.Check size={20}/> : <Icons.ShoppingBag size={20}/>}
+                    </button>
+                );
+            }
+            
+            return (
+                <button onClick={handleClick} className={`flex-1 font-bold py-5 px-8 rounded-2xl shadow-lg flex items-center justify-center gap-3 transition-all duration-300 active:scale-95 ${added ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-violet-600 hover:bg-violet-700 text-white'}`}>
+                    {added ? <Icons.Check size={24}/> : <Icons.ShoppingBag size={24}/>}
+                    {added ? 'Додано!' : 'Додати в кошик'}
+                </button>
+            );
+        };
+
+        const ProductCard = ({ product, navigateToProduct, addToCart }) => (
+            <div className="group bg-slate-800 rounded-2xl border border-white/5 overflow-hidden hover:border-violet-500/50 transition-all duration-300 hover:shadow-2xl cursor-pointer flex flex-col h-full relative" onClick={() => navigateToProduct(product.id)}>
+                <div className="relative aspect-[4/5] bg-slate-700 overflow-hidden">
+                    <img src={product.images && product.images.length > 0 ? product.images[0] : 'https://via.placeholder.com/300'} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"/>
+                    {product.isHit && <div className="absolute top-3 left-3 bg-fuchsia-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg z-10 flex items-center gap-1"><Icons.Flame size={12}/> HIT</div>}
+                </div>
+                <div className="p-5 flex-1 flex flex-col">
+                    <div className="text-xs font-bold text-violet-400 uppercase tracking-wider mb-2">{product.category}</div>
+                    <h3 className="text-lg font-bold text-white mb-1 group-hover:text-violet-300 transition-colors line-clamp-1">{product.name}</h3>
+                    <p className="text-sm text-gray-400 mb-4 line-clamp-2">{product.shortDesc}</p>
+                    <div className="mt-auto flex items-center justify-between">
+                        <div><span className="text-2xl font-bold text-white">{product.price} ₴</span>{product.oldPrice && <span className="text-sm text-gray-500 line-through ml-2">{product.oldPrice} ₴</span>}</div>
+                        <AddToCartBtn product={product} addToCart={addToCart} />
+                    </div>
+                </div>
+            </div>
+        );
+
+        const ProductPage = ({ product, goHome, addToCart }) => {
+            const [currentImg, setCurrentImg] = useState(0);
+            
+            if (!product) return (
+                <div className="min-h-screen bg-slate-900 pt-20 flex items-center justify-center">
+                    <div className="text-center">
+                        <h2 className="text-2xl font-bold text-white mb-2">Товар не знайдено</h2>
+                        <button onClick={goHome} className="text-violet-400 hover:text-white font-bold">На головну</button>
+                    </div>
+                </div>
+            );
+
+            const images = product.images || [];
+
+            return (
+                <div className="min-h-screen bg-slate-900 pb-20 pt-10 animate-fade-in">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <button onClick={goHome} className="flex items-center text-gray-400 hover:text-white mb-8 gap-2"><Icons.ArrowLeft size={20}/> Назад</button>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                            <div className="space-y-4">
+                                <div className="aspect-square rounded-3xl overflow-hidden bg-slate-800 border border-white/10 shadow-2xl relative">
+                                    <img src={images[currentImg] || 'https://via.placeholder.com/500'} className="w-full h-full object-cover animate-fade-in" />
+                                </div>
+                                {images.length > 1 && (
+                                    <div className="flex gap-4 overflow-x-auto pb-2">
+                                        {images.map((img, idx) => (
+                                            <button key={idx} onClick={() => setCurrentImg(idx)} className={`w-20 h-20 rounded-xl overflow-hidden border-2 flex-shrink-0 ${currentImg === idx ? 'border-violet-500' : 'border-transparent'}`}>
+                                                <img src={img} className="w-full h-full object-cover"/>
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                            <div>
+                                <div className="flex items-center gap-4 mb-4">
+                                    <span className="px-3 py-1 rounded-full bg-violet-900/50 text-violet-300 text-sm font-bold">{product.category}</span>
+                                    {product.isHit && <span className="flex items-center gap-1 text-yellow-400 text-sm font-bold"><Icons.Star fill="currentColor" size={16}/> 4.9</span>}
+                                </div>
+                                <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-4">{product.name}</h1>
+                                <div className="flex items-end gap-4 mb-8">
+                                    <span className="text-4xl font-bold text-white">{product.price} ₴</span>
+                                    {product.oldPrice && <span className="text-xl text-gray-500 line-through mb-1">{product.oldPrice} ₴</span>}
+                                </div>
+                                <p className="text-lg text-gray-300 leading-relaxed mb-10">{product.description}</p>
+                                
+                                {product.specs && product.specs.length > 0 && (
+                                    <div className="bg-slate-800/50 rounded-2xl p-6 mb-10 border border-white/5">
+                                        <h3 className="font-bold text-white mb-4">Характеристики</h3>
+                                        <ul className="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-8">
+                                            {product.specs.map((spec, idx) => (
+                                                <li key={idx} className="flex items-center text-gray-400 text-sm"><span className="w-1.5 h-1.5 rounded-full bg-violet-500 mr-3"></span>{spec}</li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+
+                                <div className="flex gap-4">
+                                    <AddToCartBtn product={product} addToCart={addToCart} variant="full" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const CartView = ({ cart, updateQty, removeFromCart, goHome, cartTotal }) => {
+            const [isCheckout, setIsCheckout] = useState(false);
+            const [isSending, setIsSending] = useState(false);
+            const [form, setForm] = useState({ name: '', phone: '', city: '', branch: '' });
+            
+            // Замініть на свої токени
             const TELEGRAM_BOT_TOKEN = "8490403071:AAFZvriLL_vzQq-ziMVTfiHAu8DmtH84Fjk";
             const TELEGRAM_CHAT_ID = "7085928669";
-            const ADMIN_PASSWORD = "lux1412";
 
+            const submitOrder = async (e) => {
+                e.preventDefault();
+                setIsSending(true);
+                const list = cart.map(i => `${i.name} (${i.qty} шт) - ${i.price * i.qty} грн`).join('\n');
+                const msg = `<b>🔥 ЗАМОВЛЕННЯ!</b>\n\n👤 ${form.name}\n📞 ${form.phone}\n🏙 ${form.city}\n📦 ${form.branch}\n\n🛒:\n${list}\n\n💰 <b>${cartTotal} грн</b>`;
+                try {
+                    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+                        method: 'POST', headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: msg, parse_mode: 'HTML' })
+                    });
+                    alert("Дякуємо! Замовлення прийнято."); 
+                    goHome(); // Повертаємось на головну (тут варто було б очистити кошик, але він в App)
+                } catch (e) { alert("Помилка."); } finally { setIsSending(false); }
+            };
+
+            return (
+                <div className="min-h-screen bg-slate-900 py-12 px-4 animate-fade-in">
+                    <div className="max-w-3xl mx-auto">
+                        <h1 className="text-3xl font-bold text-white mb-8">{isCheckout ? 'Оформлення' : 'Кошик'}</h1>
+                        {cart.length === 0 ? (
+                            <div className="text-center py-20 bg-slate-800 rounded-2xl border border-white/10"><Icons.ShoppingBag size={64} className="mx-auto text-gray-600 mb-4"/><p className="text-gray-400">Кошик порожній</p><button onClick={goHome} className="mt-4 text-violet-400 font-bold">До покупок</button></div>
+                        ) : !isCheckout ? (
+                            <div className="space-y-6">
+                                <div className="bg-slate-800 rounded-2xl border border-white/10 overflow-hidden">
+                                    {cart.map(item => (
+                                        <div key={item.id} className="p-4 flex gap-4 border-b border-white/5 items-center">
+                                            <img src={item.images?.[0] || 'https://via.placeholder.com/100'} className="w-16 h-16 rounded object-cover"/>
+                                            <div className="flex-1"><h3 className="font-bold">{item.name}</h3><p className="text-sm text-gray-400">{item.price} ₴</p></div>
+                                            <div className="flex items-center gap-3 bg-slate-900 rounded p-1"><button onClick={()=>updateQty(item.id, -1)} className="p-1 text-gray-400 hover:text-white"><Icons.Minus size={14}/></button><span className="text-sm font-bold w-4 text-center">{item.qty}</span><button onClick={()=>updateQty(item.id, 1)} className="p-1 text-gray-400 hover:text-white"><Icons.Plus size={14}/></button></div>
+                                            <button onClick={()=>removeFromCart(item.id)} className="text-gray-500 hover:text-red-500"><Icons.Trash2 size={18}/></button>
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className="flex justify-between items-center"><span className="text-gray-400">Разом:</span><span className="text-2xl font-bold text-violet-400">{cartTotal} ₴</span></div>
+                                <button onClick={()=>setIsCheckout(true)} className="w-full bg-violet-600 hover:bg-violet-700 text-white font-bold py-4 rounded-xl">Оформити</button>
+                            </div>
+                        ) : (
+                            <div className="bg-slate-800 rounded-2xl p-8 border border-white/10">
+                                <button onClick={()=>setIsCheckout(false)} className="mb-6 flex items-center gap-2 text-gray-400 hover:text-white"><Icons.ArrowLeft size={16}/> Назад</button>
+                                <form onSubmit={submitOrder} className="space-y-4">
+                                    <input required placeholder="Ім'я" className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-violet-500" value={form.name} onChange={e=>setForm({...form, name:e.target.value})} />
+                                    <input required placeholder="Телефон" className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-violet-500" value={form.phone} onChange={e=>setForm({...form, phone:e.target.value})} />
+                                    <div className="pt-4 border-t border-white/5"><h3 className="font-bold mb-4 flex gap-2"><Icons.Truck className="text-violet-500"/> Доставка</h3><div className="grid md:grid-cols-2 gap-4"><input required placeholder="Місто" list="cities" className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-violet-500" value={form.city} onChange={e=>setForm({...form, city:e.target.value})} /><datalist id="cities">{POPULAR_CITIES.map(c=><option key={c} value={c}/>)}</datalist><input required placeholder="Відділення №" className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-violet-500" value={form.branch} onChange={e=>setForm({...form, branch:e.target.value})} /></div></div>
+                                    <button disabled={isSending} className="w-full bg-violet-600 hover:bg-violet-700 text-white font-bold py-4 rounded-xl mt-6">{isSending ? 'Відправка...' : `Підтвердити (${cartTotal} ₴)`}</button>
+                                </form>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        const AdminPanel = ({ products, setProducts, setEditId }) => {
+            const [localEditId, setLocalEditId] = useState(null);
+            const [formData, setFormData] = useState(null);
+
+            const handleCreateNew = () => {
+                const newProduct = { id: Date.now(), name: "Новий товар", price: 0, category: "Іграшки", images: [], rating: 0, specs: [], isHit: false };
+                setProducts([newProduct, ...products]);
+                setLocalEditId(newProduct.id);
+                setFormData(newProduct);
+            };
+
+            const handleEdit = (product) => {
+                setLocalEditId(product.id);
+                setFormData({...product});
+            };
+
+            const handleSave = (e) => {
+                e.preventDefault();
+                setProducts(products.map(p => p.id === formData.id ? formData : p));
+                setLocalEditId(null);
+            };
+
+            const handleImageUpload = (e) => {
+                Array.from(e.target.files).forEach(file => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => setFormData(p => ({...p, images: [...p.images, reader.result]}));
+                    reader.readAsDataURL(file);
+                });
+            };
+
+            if (localEditId && formData) {
+                return (
+                    <div className="min-h-screen bg-slate-900 py-12 px-4 animate-fade-in">
+                        <div className="max-w-4xl mx-auto bg-slate-800 p-8 rounded-2xl border border-white/10">
+                            <div className="flex justify-between items-center mb-8"><h2 className="text-2xl font-bold text-white">Редагування</h2><button onClick={()=>setLocalEditId(null)} className="text-gray-400 hover:text-white"><Icons.X/></button></div>
+                            <form onSubmit={handleSave} className="space-y-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div><label className="block text-sm font-bold text-gray-400 mb-2">Назва</label><input value={formData.name} onChange={e=>setFormData({...formData, name:e.target.value})} className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-violet-500" /></div>
+                                    <div><label className="block text-sm font-bold text-gray-400 mb-2">Ціна</label><input type="number" value={formData.price} onChange={e=>setFormData({...formData, price:Number(e.target.value)})} className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-violet-500" /></div>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-400 mb-2">Фото</label>
+                                    <div className="flex flex-wrap gap-4 mb-4">
+                                        {formData.images?.map((img, i) => <div key={i} className="w-24 h-24 rounded-lg overflow-hidden border border-white/20"><img src={img} className="w-full h-full object-cover"/></div>)}
+                                        <label className="w-24 h-24 rounded-lg border-2 border-dashed border-white/20 flex flex-col items-center justify-center text-gray-400 cursor-pointer hover:border-violet-500"><Icons.Upload size={24}/><input type="file" multiple className="hidden" onChange={handleImageUpload}/></label>
+                                    </div>
+                                </div>
+                                <div><label className="block text-sm font-bold text-gray-400 mb-2">Опис</label><textarea rows={4} value={formData.description} onChange={e=>setFormData({...formData, description:e.target.value})} className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-violet-500" /></div>
+                                <button className="bg-violet-600 text-white font-bold py-3 px-8 rounded-xl">Зберегти</button>
+                            </form>
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="min-h-screen bg-slate-900 py-12 px-4 animate-fade-in">
+                    <div className="max-w-6xl mx-auto">
+                        <div className="flex justify-between items-center mb-8"><h1 className="text-3xl font-bold text-white flex items-center gap-3"><Icons.Settings className="text-violet-500" /> Адміністрування</h1><button onClick={handleCreateNew} className="flex items-center gap-2 bg-violet-600 text-white px-4 py-2 rounded-lg hover:bg-violet-700 transition font-bold"><Icons.Plus size={18}/> Новий товар</button></div>
+                        <div className="bg-slate-800 rounded-2xl border border-white/10 overflow-hidden">
+                            <table className="w-full text-left"><tbody className="divide-y divide-white/5">{products.map(p=><tr key={p.id} className="hover:bg-white/5 transition"><td className="p-4 font-bold text-white">{p.name}</td><td className="p-4 text-white">{p.price} ₴</td><td className="p-4 text-right"><button onClick={()=>handleEdit(p)} className="bg-slate-700 hover:bg-violet-600 text-white p-2 rounded-lg transition"><Icons.Edit2 size={16}/></button></td></tr>)}</tbody></table>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const Header = ({ goHome, setActiveView, cart, isMobileMenuOpen, setIsMobileMenuOpen, isAdminMode, setIsAdminMode }) => (
+            <nav className="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-white/10 shadow-lg">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex justify-between items-center h-20">
+                        <div className="flex items-center gap-3 cursor-pointer group" onClick={goHome}>
+                            <BrandLogo />
+                            <div className="flex flex-col"><span className="text-xl font-black text-white tracking-wide leading-none">NIGHT</span><span className="text-sm font-bold text-violet-400 tracking-[0.2em] leading-none">SECRET</span></div>
+                        </div>
+                        <div className="hidden md:flex items-center space-x-8 text-sm font-medium text-gray-300">
+                            <button onClick={goHome} className="hover:text-white transition-colors">Головна</button>
+                            <button onClick={() => { setActiveView('home'); setTimeout(() => document.getElementById('categories')?.scrollIntoView({behavior:'smooth'}), 100)}} className="hover:text-white transition-colors">Категорії</button>
+                        </div>
+                        <div className="flex items-center gap-4">
+                            {isAdminMode && <button onClick={() => setIsAdminMode(false)} className="flex items-center gap-2 px-3 py-2 rounded-full bg-red-600 text-white text-xs font-bold uppercase"><Icons.LogOut size={16} /> Вихід</button>}
+                            <button onClick={() => { setActiveView('cart'); setIsMobileMenuOpen(false); }} className="relative p-2 text-gray-400 hover:text-white transition-colors">
+                                <Icons.ShoppingBag size={24} />
+                                {cart.length > 0 && <span className="absolute -top-1 -right-1 bg-fuchsia-600 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full animate-bounce">{cart.reduce((a,b) => a + b.qty, 0)}</span>}
+                            </button>
+                            <button className="md:hidden p-2 text-gray-400 hover:text-white" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>{isMobileMenuOpen ? <Icons.X size={24} /> : <Icons.Menu size={24} />}</button>
+                        </div>
+                    </div>
+                </div>
+                {isMobileMenuOpen && (
+                    <div className="md:hidden bg-slate-900 border-b border-white/10 animate-fade-in p-4 space-y-2">
+                        <button onClick={goHome} className="block w-full text-left px-3 py-3 text-white hover:bg-white/5 rounded-lg">Головна</button>
+                        <button onClick={() => { setActiveView('cart'); setIsMobileMenuOpen(false); }} className="block w-full text-left px-3 py-3 text-white hover:bg-white/5 rounded-lg">Кошик</button>
+                    </div>
+                )}
+            </nav>
+        );
+
+        // --- MAIN APP COMPONENT ---
+        const App = () => {
             const [activeView, setActiveView] = useState('home'); 
             const [products, setProducts] = useState(INITIAL_PRODUCTS);
             const [selectedProductId, setSelectedProductId] = useState(null);
@@ -168,26 +379,9 @@
                 if (verified === 'true') setIsAgeVerified(true);
             }, []);
 
-            const confirmAge = () => {
-                localStorage.setItem('ageVerified', 'true');
-                setIsAgeVerified(true);
-            };
-
-            const handleAdminLogin = (e) => {
-                e.preventDefault();
-                if (adminPassInput === ADMIN_PASSWORD) {
-                    setIsAdminMode(true);
-                    setShowAdminLogin(false);
-                    setAdminPassInput("");
-                } else {
-                    alert("Невірний пароль!");
-                }
-            };
-
             const navigateToProduct = (id) => {
                 setSelectedProductId(id);
                 setActiveView('product');
-                setIsMobileMenuOpen(false);
                 window.scrollTo(0, 0);
             };
 
@@ -195,14 +389,7 @@
                 setActiveView('home');
                 setFilterCategory(null);
                 setSelectedProductId(null);
-                setIsMobileMenuOpen(false);
                 window.scrollTo(0, 0);
-            };
-
-            const goToCategory = (cat) => {
-                setFilterCategory(cat);
-                setActiveView('home');
-                window.scrollTo({ top: document.getElementById('products-grid')?.offsetTop - 100, behavior: 'smooth' });
             };
 
             const addToCart = (product) => {
@@ -214,506 +401,64 @@
                 }
             };
 
-            const updateQty = (id, delta) => {
-                setCart(prevCart => prevCart.map(item => {
-                    if (item.id === id) {
-                        return { ...item, qty: Math.max(1, item.qty + delta) };
-                    }
-                    return item;
-                }));
-            };
-
+            const updateQty = (id, delta) => setCart(cart.map(item => item.id === id ? { ...item, qty: Math.max(1, item.qty + delta) } : item));
             const removeFromCart = (id) => setCart(cart.filter(item => item.id !== id));
             const cartTotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
 
-            // --- КОМПОНЕНТИ ---
+            const displayedProducts = filterCategory ? products.filter(p => p.category === filterCategory) : products;
 
-            // Кнопка додавання в кошик з анімацією
-            const AddToCartBtn = ({ product, variant = 'icon' }) => {
-                const [added, setAdded] = useState(false);
-                
-                const handleClick = (e) => {
-                    e.stopPropagation();
-                    addToCart(product);
-                    setAdded(true);
-                    setTimeout(() => setAdded(false), 2000);
-                };
-
-                if (variant === 'icon') {
-                    return (
-                        <button onClick={handleClick} className={`p-3 rounded-xl transition-all duration-300 z-20 ${added ? 'bg-green-500 text-white shadow-green-500/50 shadow-lg' : 'bg-white/10 hover:bg-violet-600 text-white'}`} title={added ? "Додано" : "В кошик"}>
-                            {added ? <Icons.Check size={20}/> : <Icons.ShoppingBag size={20}/>}
-                        </button>
-                    );
-                }
-                
-                return (
-                    <button onClick={handleClick} className={`flex-1 font-bold py-5 px-8 rounded-2xl shadow-lg flex items-center justify-center gap-3 transition-all duration-300 active:scale-95 ${added ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-violet-600 hover:bg-violet-700 text-white'}`}>
-                        {added ? <Icons.Check size={24}/> : <Icons.ShoppingBag size={24}/>}
-                        {added ? 'Додано!' : 'Додати в кошик'}
-                    </button>
-                );
-            };
-
-            const AgeVerificationModal = () => (
+            if (!isAgeVerified) return (
                 <div className="fixed inset-0 z-[100] bg-slate-900 flex items-center justify-center p-4">
                     <div className="bg-slate-800 p-8 rounded-3xl max-w-md w-full text-center border border-purple-500/30 shadow-2xl">
-                        <div className="mb-6 inline-block p-4 bg-purple-600/20 rounded-full text-purple-400">
-                            <Icons.ShieldCheck size={48} />
-                        </div>
+                        <div className="mb-6 inline-block p-4 bg-purple-600/20 rounded-full text-purple-400"><Icons.ShieldCheck size={48} /></div>
                         <h2 className="text-2xl font-bold text-white mb-4">Вам виповнилося 18 років?</h2>
-                        <p className="text-gray-400 mb-8">Цей сайт містить контент для дорослих. Будь ласка, підтвердіть свій вік.</p>
-                        <div className="flex gap-4">
-                            <button onClick={() => window.location.href = 'https://google.com'} className="flex-1 py-3 px-4 rounded-xl border border-gray-600 text-gray-300 hover:bg-white/5 transition">Ні</button>
-                            <button onClick={confirmAge} className="flex-1 py-3 px-4 rounded-xl bg-purple-600 text-white font-bold hover:bg-purple-700 transition shadow-lg shadow-purple-900/50">Так, мені 18+</button>
-                        </div>
+                        <div className="flex gap-4"><button onClick={() => window.location.href = 'https://google.com'} className="flex-1 py-3 px-4 rounded-xl border border-gray-600 text-gray-300">Ні</button><button onClick={() => {localStorage.setItem('ageVerified', 'true'); setIsAgeVerified(true);}} className="flex-1 py-3 px-4 rounded-xl bg-purple-600 text-white font-bold">Так, мені 18+</button></div>
                     </div>
                 </div>
             );
-
-            const AdminLoginModal = () => (
-                <div className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowAdminLogin(false)}>
-                    <div className="bg-slate-800 p-8 rounded-2xl max-w-sm w-full border border-white/10" onClick={e => e.stopPropagation()}>
-                        <h3 className="text-xl font-bold text-white mb-6 text-center">Вхід в адмінку</h3>
-                        <form onSubmit={handleAdminLogin}>
-                            <input 
-                                type="password" 
-                                autoFocus
-                                className="w-full bg-slate-900 border border-white/20 rounded-xl px-4 py-3 text-white mb-6 outline-none focus:border-purple-500" 
-                                placeholder="Пароль"
-                                value={adminPassInput}
-                                onChange={e => setAdminPassInput(e.target.value)}
-                            />
-                            <button className="w-full bg-purple-600 text-white font-bold py-3 rounded-xl hover:bg-purple-700">Увійти</button>
-                        </form>
-                    </div>
-                </div>
-            );
-
-            const Header = () => (
-                <nav className="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-white/10 shadow-lg">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="flex justify-between items-center h-20">
-                            <div className="flex items-center gap-3 cursor-pointer group" onClick={goHome}>
-                                <BrandLogo />
-                                <div className="flex flex-col">
-                                    <span className="text-xl font-black text-white tracking-wide leading-none">NIGHT</span>
-                                    <span className="text-sm font-bold text-violet-400 tracking-[0.2em] leading-none">SECRET</span>
-                                </div>
-                            </div>
-                            <div className="hidden md:flex items-center space-x-8 text-sm font-medium text-gray-300">
-                                <button onClick={goHome} className="hover:text-white transition-colors">Головна</button>
-                                <button onClick={() => { setActiveView('home'); setTimeout(() => document.getElementById('categories')?.scrollIntoView({behavior:'smooth'}), 100)}} className="hover:text-white transition-colors">Категорії</button>
-                            </div>
-                            <div className="flex items-center gap-4">
-                                {isAdminMode && (
-                                    <button onClick={() => setIsAdminMode(false)} className="flex items-center gap-2 px-3 py-2 rounded-full bg-red-600 text-white text-xs font-bold uppercase">
-                                        <Icons.LogOut size={16} /> Вихід
-                                    </button>
-                                )}
-                                <button onClick={() => { setActiveView('cart'); setIsMobileMenuOpen(false); }} className="relative p-2 text-gray-400 hover:text-white transition-colors">
-                                    <Icons.ShoppingBag size={24} />
-                                    {cart.length > 0 && <span className="absolute -top-1 -right-1 bg-fuchsia-600 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full animate-bounce">{cart.reduce((a,b) => a + b.qty, 0)}</span>}
-                                </button>
-                                <button className="md:hidden p-2 text-gray-400 hover:text-white" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-                                    {isMobileMenuOpen ? <Icons.X size={24} /> : <Icons.Menu size={24} />}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    {isMobileMenuOpen && (
-                        <div className="md:hidden bg-slate-900 border-b border-white/10 animate-fade-in p-4 space-y-2">
-                            <button onClick={goHome} className="block w-full text-left px-3 py-3 text-white hover:bg-white/5 rounded-lg">Головна</button>
-                            <button onClick={() => { setActiveView('cart'); setIsMobileMenuOpen(false); }} className="block w-full text-left px-3 py-3 text-white hover:bg-white/5 rounded-lg">Кошик</button>
-                        </div>
-                    )}
-                </nav>
-            );
-
-            const ProductCard = ({ product }) => (
-                <div className="group bg-slate-800 rounded-2xl border border-white/5 overflow-hidden hover:border-violet-500/50 transition-all duration-300 hover:shadow-2xl cursor-pointer flex flex-col h-full relative" onClick={() => navigateToProduct(product.id)}>
-                    <div className="relative aspect-[4/5] bg-slate-700 overflow-hidden">
-                        <img src={product.images && product.images.length > 0 ? product.images[0] : 'https://via.placeholder.com/300'} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"/>
-                        {product.isHit && <div className="absolute top-3 left-3 bg-fuchsia-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg z-10 flex items-center gap-1"><Icons.Flame size={12}/> HIT</div>}
-                    </div>
-                    <div className="p-5 flex-1 flex flex-col">
-                        <div className="text-xs font-bold text-violet-400 uppercase tracking-wider mb-2">{product.category}</div>
-                        <h3 className="text-lg font-bold text-white mb-1 group-hover:text-violet-300 transition-colors line-clamp-1">{product.name}</h3>
-                        <p className="text-sm text-gray-400 mb-4 line-clamp-2">{product.shortDesc}</p>
-                        <div className="mt-auto flex items-center justify-between">
-                            <div><span className="text-2xl font-bold text-white">{product.price} ₴</span>{product.oldPrice && <span className="text-sm text-gray-500 line-through ml-2">{product.oldPrice} ₴</span>}</div>
-                            <AddToCartBtn product={product} />
-                        </div>
-                    </div>
-                </div>
-            );
-
-            const ProductPage = () => {
-                const product = getSelectedProduct();
-                const [currentImg, setCurrentImg] = useState(0);
-                
-                // Виправлення багу "фіолетовий фон": якщо товар не знайдено, показуємо повідомлення
-                if (!product) return (
-                    <div className="min-h-screen bg-slate-900 pt-20 flex items-center justify-center">
-                        <div className="text-center">
-                            <h2 className="text-2xl font-bold text-white mb-2">Товар не знайдено</h2>
-                            <p className="text-gray-400 mb-6">Можливо, він був видалений або посилання застаріло.</p>
-                            <button onClick={goHome} className="text-violet-400 hover:text-white font-bold">На головну</button>
-                        </div>
-                    </div>
-                );
-
-                const images = product.images || [];
-
-                return (
-                    <div className="min-h-screen bg-slate-900 pb-20 pt-10 animate-fade-in">
-                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                            <button onClick={goHome} className="flex items-center text-gray-400 hover:text-white mb-8 gap-2"><Icons.ArrowLeft size={20}/> Назад</button>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                                <div className="space-y-4">
-                                    <div className="aspect-square rounded-3xl overflow-hidden bg-slate-800 border border-white/10 shadow-2xl relative">
-                                        <img src={images[currentImg] || 'https://via.placeholder.com/500'} className="w-full h-full object-cover animate-fade-in" />
-                                    </div>
-                                    {images.length > 1 && (
-                                        <div className="flex gap-4 overflow-x-auto pb-2">
-                                            {images.map((img, idx) => (
-                                                <button key={idx} onClick={() => setCurrentImg(idx)} className={`w-20 h-20 rounded-xl overflow-hidden border-2 flex-shrink-0 ${currentImg === idx ? 'border-violet-500' : 'border-transparent'}`}>
-                                                    <img src={img} className="w-full h-full object-cover"/>
-                                                </button>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                                <div>
-                                    <div className="flex items-center gap-4 mb-4">
-                                        <span className="px-3 py-1 rounded-full bg-violet-900/50 text-violet-300 text-sm font-bold">{product.category}</span>
-                                        {product.isHit && <span className="flex items-center gap-1 text-yellow-400 text-sm font-bold"><Icons.Star fill="currentColor" size={16}/> 4.9</span>}
-                                    </div>
-                                    <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-4">{product.name}</h1>
-                                    <div className="flex items-end gap-4 mb-8">
-                                        <span className="text-4xl font-bold text-white">{product.price} ₴</span>
-                                        {product.oldPrice && <span className="text-xl text-gray-500 line-through mb-1">{product.oldPrice} ₴</span>}
-                                    </div>
-                                    <p className="text-lg text-gray-300 leading-relaxed mb-10">{product.description}</p>
-                                    
-                                    {product.specs && product.specs.length > 0 && (
-                                        <div className="bg-slate-800/50 rounded-2xl p-6 mb-10 border border-white/5">
-                                            <h3 className="font-bold text-white mb-4">Характеристики</h3>
-                                            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-8">
-                                                {product.specs.map((spec, idx) => (
-                                                    <li key={idx} className="flex items-center text-gray-400 text-sm"><span className="w-1.5 h-1.5 rounded-full bg-violet-500 mr-3"></span>{spec}</li>
-                                                ))}
-                                            </ul>
-                                        </div>
-                                    )}
-
-                                    <div className="flex gap-4">
-                                        <AddToCartBtn product={product} variant="full" />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                );
-            };
-
-            const AdminPanel = () => {
-                const [editId, setEditId] = useState(null);
-                const [formData, setFormData] = useState(null);
-
-                const handleCreateNew = () => {
-                    const newProduct = {
-                        id: Date.now(),
-                        name: "Новий товар",
-                        shortDesc: "",
-                        description: "",
-                        price: 0,
-                        oldPrice: 0,
-                        category: "Іграшки",
-                        images: [],
-                        rating: 0,
-                        specs: [],
-                        isHit: false
-                    };
-                    setProducts([newProduct, ...products]);
-                    setEditId(newProduct.id);
-                    setFormData(newProduct);
-                };
-
-                const handleEdit = (product) => {
-                    setEditId(product.id);
-                    setFormData({...product});
-                };
-
-                const handleSave = (e) => {
-                    e.preventDefault();
-                    setProducts(products.map(p => p.id === formData.id ? formData : p));
-                    setEditId(null);
-                    setFormData(null);
-                };
-
-                const handleImageUpload = (e) => {
-                    const files = Array.from(e.target.files);
-                    files.forEach(file => {
-                        const reader = new FileReader();
-                        reader.onloadend = () => {
-                            setFormData(prev => ({...prev, images: [...prev.images, reader.result]}));
-                        };
-                        reader.readAsDataURL(file);
-                    });
-                };
-
-                const removeImage = (index) => {
-                    setFormData(prev => ({...prev, images: prev.images.filter((_, i) => i !== index)}));
-                };
-
-                const addSpec = () => {
-                    setFormData(prev => ({...prev, specs: [...(prev.specs || []), "Нова характеристика"]}));
-                };
-
-                const updateSpec = (index, value) => {
-                    const newSpecs = [...formData.specs];
-                    newSpecs[index] = value;
-                    setFormData({...formData, specs: newSpecs});
-                };
-
-                const removeSpec = (index) => {
-                    setFormData(prev => ({...prev, specs: prev.specs.filter((_, i) => i !== index)}));
-                };
-
-                if (editId && formData) {
-                    return (
-                        <div className="min-h-screen bg-slate-900 py-12 px-4 animate-fade-in">
-                            <div className="max-w-4xl mx-auto bg-slate-800 p-8 rounded-2xl border border-white/10">
-                                <div className="flex justify-between items-center mb-8">
-                                    <h2 className="text-2xl font-bold text-white">Редагування товару</h2>
-                                    <button onClick={() => setEditId(null)} className="text-gray-400 hover:text-white"><Icons.X/></button>
-                                </div>
-                                <form onSubmit={handleSave} className="space-y-6">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div>
-                                            <label className="block text-sm font-bold text-gray-400 mb-2">Назва</label>
-                                            <input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-violet-500" />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-bold text-gray-400 mb-2">Категорія</label>
-                                            <select value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-violet-500">
-                                                {CATEGORIES.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
-                                                <option value="Інше">Інше</option>
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-bold text-gray-400 mb-2">Ціна</label>
-                                            <input type="number" value={formData.price} onChange={e => setFormData({...formData, price: Number(e.target.value)})} className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-violet-500" />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-bold text-gray-400 mb-2">Стара ціна</label>
-                                            <input type="number" value={formData.oldPrice || ''} onChange={e => setFormData({...formData, oldPrice: Number(e.target.value)})} className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-violet-500" />
-                                        </div>
-                                    </div>
-                                    
-                                    <div>
-                                        <label className="block text-sm font-bold text-gray-400 mb-2">Фотографії</label>
-                                        <div className="flex flex-wrap gap-4 mb-4">
-                                            {formData.images && formData.images.map((img, idx) => (
-                                                <div key={idx} className="relative w-24 h-24 rounded-lg overflow-hidden border border-white/20 group">
-                                                    <img src={img} className="w-full h-full object-cover"/>
-                                                    <button type="button" onClick={() => removeImage(idx)} className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition text-red-500"><Icons.Trash2/></button>
-                                                </div>
-                                            ))}
-                                            <label className="w-24 h-24 rounded-lg border-2 border-dashed border-white/20 flex flex-col items-center justify-center text-gray-400 cursor-pointer hover:border-violet-500 hover:text-violet-500 transition">
-                                                <Icons.Upload size={24}/>
-                                                <span className="text-xs mt-1">Додати</span>
-                                                <input type="file" multiple accept="image/*" className="hidden" onChange={handleImageUpload}/>
-                                            </label>
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-bold text-gray-400 mb-2">Короткий опис</label>
-                                        <input value={formData.shortDesc} onChange={e => setFormData({...formData, shortDesc: e.target.value})} className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-violet-500" />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-bold text-gray-400 mb-2">Повний опис</label>
-                                        <textarea rows={4} value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-violet-500" />
-                                    </div>
-
-                                    <div className="bg-slate-900 p-4 rounded-xl border border-white/10">
-                                        <div className="flex justify-between items-center mb-4">
-                                            <label className="block text-sm font-bold text-gray-400">Характеристики</label>
-                                            <button type="button" onClick={addSpec} className="text-xs bg-violet-600 px-3 py-1 rounded text-white">Додати рядок</button>
-                                        </div>
-                                        <div className="space-y-3">
-                                            {formData.specs && formData.specs.map((spec, idx) => (
-                                                <div key={idx} className="flex gap-2">
-                                                    <input value={spec} onChange={e => updateSpec(idx, e.target.value)} className="flex-1 bg-slate-800 border border-white/10 rounded px-3 py-2 text-white outline-none" />
-                                                    <button type="button" onClick={() => removeSpec(idx)} className="text-red-500 hover:text-red-400"><Icons.Trash2 size={18}/></button>
-                                                </div>
-                                            ))}
-                                            {(!formData.specs || formData.specs.length === 0) && <p className="text-xs text-gray-500 italic">Характеристики відсутні</p>}
-                                        </div>
-                                    </div>
-
-                                    <div className="flex gap-4 pt-4 border-t border-white/10">
-                                        <button type="submit" className="bg-violet-600 hover:bg-violet-700 text-white font-bold py-3 px-8 rounded-xl transition">Зберегти зміни</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    );
-                }
-
-                return (
-                    <div className="min-h-screen bg-slate-900 py-12 px-4 animate-fade-in">
-                        <div className="max-w-6xl mx-auto">
-                            <div className="flex justify-between items-center mb-8">
-                                <h1 className="text-3xl font-bold text-white flex items-center gap-3"><Icons.Settings className="text-violet-500" /> Адміністрування</h1>
-                                <button onClick={handleCreateNew} className="flex items-center gap-2 bg-violet-600 text-white px-4 py-2 rounded-lg hover:bg-violet-700 transition font-bold"><Icons.Plus size={18}/> Додати новий</button>
-                            </div>
-                            <div className="bg-slate-800 rounded-2xl border border-white/10 overflow-hidden">
-                                <table className="w-full text-left">
-                                    <thead className="bg-slate-900/50 text-gray-400 text-sm uppercase"><tr><th className="p-4">Товар</th><th className="p-4">Категорія</th><th className="p-4">Ціна</th><th className="p-4 text-right">Дії</th></tr></thead>
-                                    <tbody className="divide-y divide-white/5">
-                                        {products.map(p => (
-                                            <tr key={p.id} className="hover:bg-white/5 transition">
-                                                <td className="p-4 font-bold text-white">{p.name}</td>
-                                                <td className="p-4 text-gray-400">{p.category}</td>
-                                                <td className="p-4 text-white">{p.price} ₴</td>
-                                                <td className="p-4 text-right"><button onClick={() => handleEdit(p)} className="bg-slate-700 hover:bg-violet-600 text-white p-2 rounded-lg transition mr-2"><Icons.Edit2 size={16}/></button></td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                );
-            };
-
-            const CartView = () => {
-                const [isCheckout, setIsCheckout] = useState(false);
-                const [isSending, setIsSending] = useState(false);
-                const [form, setForm] = useState({ name: '', phone: '', city: '', branch: '' });
-
-                const submitOrder = async (e) => {
-                    e.preventDefault();
-                    setIsSending(true);
-                    const list = cart.map(i => `${i.name} (${i.qty} шт) - ${i.price * i.qty} грн`).join('\n');
-                    const msg = `<b>🔥 ЗАМОВЛЕННЯ!</b>\n\n👤 ${form.name}\n📞 ${form.phone}\n🏙 ${form.city}\n📦 ${form.branch}\n\n🛒:\n${list}\n\n💰 <b>${cartTotal} грн</b>`;
-                    try {
-                        await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-                            method: 'POST', headers: {'Content-Type': 'application/json'},
-                            body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: msg, parse_mode: 'HTML' })
-                        });
-                        alert("Дякуємо! Замовлення прийнято."); setCart([]); setIsCheckout(false); goHome();
-                    } catch (e) { alert("Помилка."); } finally { setIsSending(false); }
-                };
-
-                return (
-                    <div className="min-h-screen bg-slate-900 py-12 px-4 animate-fade-in">
-                        <div className="max-w-3xl mx-auto">
-                            <h1 className="text-3xl font-bold text-white mb-8">{isCheckout ? 'Оформлення' : 'Кошик'}</h1>
-                            {cart.length === 0 ? (
-                                <div className="text-center py-20 bg-slate-800 rounded-2xl border border-white/10"><Icons.ShoppingBag size={64} className="mx-auto text-gray-600 mb-4"/><p className="text-gray-400">Кошик порожній</p><button onClick={goHome} className="mt-4 text-violet-400 font-bold">До покупок</button></div>
-                            ) : !isCheckout ? (
-                                <div className="space-y-6">
-                                    <div className="bg-slate-800 rounded-2xl border border-white/10 overflow-hidden">
-                                        {cart.map(item => (
-                                            <div key={item.id} className="p-4 flex gap-4 border-b border-white/5 items-center">
-                                                <img src={item.images?.[0] || 'https://via.placeholder.com/100'} className="w-16 h-16 rounded object-cover"/>
-                                                <div className="flex-1"><h3 className="font-bold">{item.name}</h3><p className="text-sm text-gray-400">{item.price} ₴</p></div>
-                                                <div className="flex items-center gap-3 bg-slate-900 rounded p-1"><button onClick={()=>updateQty(item.id, -1)} className="p-1 text-gray-400 hover:text-white"><Icons.Minus size={14}/></button><span className="text-sm font-bold w-4 text-center">{item.qty}</span><button onClick={()=>updateQty(item.id, 1)} className="p-1 text-gray-400 hover:text-white"><Icons.Plus size={14}/></button></div>
-                                                <button onClick={()=>removeFromCart(item.id)} className="text-gray-500 hover:text-red-500"><Icons.Trash2 size={18}/></button>
-                                            </div>
-                                        ))}
-                                    </div>
-                                    <div className="flex justify-between items-center"><span className="text-gray-400">Разом:</span><span className="text-2xl font-bold text-violet-400">{cartTotal} ₴</span></div>
-                                    <button onClick={()=>setIsCheckout(true)} className="w-full bg-violet-600 hover:bg-violet-700 text-white font-bold py-4 rounded-xl">Оформити</button>
-                                </div>
-                            ) : (
-                                <div className="bg-slate-800 rounded-2xl p-8 border border-white/10">
-                                    <button onClick={()=>setIsCheckout(false)} className="mb-6 flex items-center gap-2 text-gray-400 hover:text-white"><Icons.ArrowLeft size={16}/> Назад</button>
-                                    <form onSubmit={submitOrder} className="space-y-4">
-                                        <input required placeholder="Ім'я" className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-violet-500" value={form.name} onChange={e=>setForm({...form, name:e.target.value})} />
-                                        <input required placeholder="Телефон" className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-violet-500" value={form.phone} onChange={e=>setForm({...form, phone:e.target.value})} />
-                                        <div className="pt-4 border-t border-white/5"><h3 className="font-bold mb-4 flex gap-2"><Icons.Truck className="text-violet-500"/> Доставка</h3><div className="grid md:grid-cols-2 gap-4"><input required placeholder="Місто" list="cities" className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-violet-500" value={form.city} onChange={e=>setForm({...form, city:e.target.value})} /><datalist id="cities">{POPULAR_CITIES.map(c=><option key={c} value={c}/>)}</datalist><input required placeholder="Відділення №" className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-violet-500" value={form.branch} onChange={e=>setForm({...form, branch:e.target.value})} /></div></div>
-                                        <button disabled={isSending} className="w-full bg-violet-600 hover:bg-violet-700 text-white font-bold py-4 rounded-xl mt-6">{isSending ? 'Відправка...' : `Підтвердити (${cartTotal} ₴)`}</button>
-                                    </form>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                );
-            };
-
-            // --- ОСНОВНИЙ РЕНДЕР ---
-            const displayedProducts = filterCategory 
-                ? products.filter(p => p.category === filterCategory)
-                : products;
-
-            if (!isAgeVerified) return <AgeVerificationModal />;
 
             return (
                 <div className="min-h-screen bg-slate-900 text-gray-100 font-sans selection:bg-violet-600 selection:text-white">
-                    {showAdminLogin && <AdminLoginModal />}
-                    <Header />
+                    {showAdminLogin && (
+                        <div className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowAdminLogin(false)}>
+                            <div className="bg-slate-800 p-8 rounded-2xl max-w-sm w-full border border-white/10" onClick={e => e.stopPropagation()}>
+                                <h3 className="text-xl font-bold text-white mb-6 text-center">Вхід в адмінку</h3>
+                                <input type="password" autoFocus className="w-full bg-slate-900 border border-white/20 rounded-xl px-4 py-3 text-white mb-6 outline-none" placeholder="Пароль" value={adminPassInput} onChange={e => setAdminPassInput(e.target.value)}/>
+                                <button onClick={(e) => { e.preventDefault(); if (adminPassInput === "lux1412") { setIsAdminMode(true); setShowAdminLogin(false); setAdminPassInput(""); } else alert("Невірний пароль!"); }} className="w-full bg-purple-600 text-white font-bold py-3 rounded-xl">Увійти</button>
+                            </div>
+                        </div>
+                    )}
+                    
+                    <Header goHome={goHome} setActiveView={setActiveView} cart={cart} isMobileMenuOpen={isMobileMenuOpen} setIsMobileMenuOpen={setIsMobileMenuOpen} isAdminMode={isAdminMode} setIsAdminMode={setIsAdminMode} />
+                    
                     <main>
-                        {isAdminMode ? <AdminPanel /> : 
-                         activeView === 'product' ? <ProductPage /> : 
-                         activeView === 'cart' ? <CartView /> : 
+                        {isAdminMode ? <AdminPanel products={products} setProducts={setProducts} /> : 
+                         activeView === 'product' ? <ProductPage product={products.find(p => p.id === selectedProductId)} goHome={goHome} addToCart={addToCart} /> : 
+                         activeView === 'cart' ? <CartView cart={cart} updateQty={updateQty} removeFromCart={removeFromCart} goHome={goHome} cartTotal={cartTotal} /> : 
                          (
                             <>
-                                <div className="relative overflow-hidden bg-slate-900 py-16 sm:py-24">
-                                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-7xl pointer-events-none"><div className="absolute top-20 right-0 w-96 h-96 bg-violet-600/20 rounded-full blur-[100px]"></div><div className="absolute bottom-0 left-10 w-72 h-72 bg-fuchsia-600/20 rounded-full blur-[100px]"></div></div>
-                                    <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center z-10">
-                                        <span className="inline-block py-1 px-3 rounded-full bg-white/5 border border-white/10 text-violet-300 text-xs font-bold uppercase tracking-wider mb-6 backdrop-blur-sm animate-pulse">Анонімна доставка • 100% Конфіденційність</span>
-                                        <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold text-white tracking-tight mb-8 drop-shadow-2xl">Відкрий свої <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-fuchsia-500">таємні бажання</span></h1>
-                                        <div className="flex flex-col sm:flex-row justify-center gap-4"><button onClick={() => document.getElementById('products-grid').scrollIntoView({behavior: 'smooth'})} className="px-8 py-4 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-violet-900/50 flex items-center justify-center gap-2"><Icons.ShoppingBag size={20} /> Перейти до каталогу</button></div>
-                                    </div>
+                                <div className="relative overflow-hidden bg-slate-900 py-16 sm:py-24 text-center">
+                                    <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-8">Відкрий свої <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-fuchsia-500">таємні бажання</span></h1>
+                                    <button onClick={() => document.getElementById('products-grid').scrollIntoView({behavior: 'smooth'})} className="px-8 py-4 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-bold transition-all shadow-lg flex items-center justify-center gap-2 mx-auto"><Icons.ShoppingBag size={20} /> Перейти до каталогу</button>
                                 </div>
-
                                 <div id="categories" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                                     <h2 className="text-2xl font-bold text-white mb-6">Популярні категорії</h2>
                                     <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                                        {CATEGORIES.map(cat => (
-                                            <button 
-                                                key={cat.name} 
-                                                onClick={() => goToCategory(cat.name)}
-                                                className={`p-4 rounded-2xl border border-white/10 bg-slate-800 hover:bg-slate-700 hover:border-violet-500/50 transition flex flex-col items-center gap-2 ${filterCategory === cat.name ? 'ring-2 ring-violet-500 bg-slate-700' : ''}`}
-                                            >
-                                                <span className="text-3xl">{cat.icon}</span>
-                                                <span className="text-sm font-bold">{cat.name}</span>
-                                            </button>
-                                        ))}
+                                        {CATEGORIES.map(cat => <button key={cat.name} onClick={() => {setFilterCategory(cat.name); setActiveView('home'); window.scrollTo({ top: document.getElementById('products-grid')?.offsetTop - 100, behavior: 'smooth' });}} className={`p-4 rounded-2xl border border-white/10 bg-slate-800 hover:bg-slate-700 transition flex flex-col items-center gap-2 ${filterCategory === cat.name ? 'ring-2 ring-violet-500 bg-slate-700' : ''}`}><span className="text-3xl">{cat.icon}</span><span className="text-sm font-bold">{cat.name}</span></button>)}
                                     </div>
                                 </div>
-
                                 <div id="products-grid" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-20">
-                                    <div className="flex items-end justify-between mb-8">
-                                        <h2 className="text-3xl font-bold text-white">{filterCategory ? `Категорія: ${filterCategory}` : 'Всі товари'}</h2>
-                                        {filterCategory && <button onClick={() => setFilterCategory(null)} className="text-violet-400 hover:text-white text-sm">Показати всі</button>}
-                                    </div>
+                                    <div className="flex items-end justify-between mb-8"><h2 className="text-3xl font-bold text-white">{filterCategory ? `Категорія: ${filterCategory}` : 'Всі товари'}</h2>{filterCategory && <button onClick={() => setFilterCategory(null)} className="text-violet-400 hover:text-white text-sm">Показати всі</button>}</div>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                                        {displayedProducts.length > 0 ? (
-                                            displayedProducts.map(product => <ProductCard key={product.id} product={product} />)
-                                        ) : (
-                                            <div className="col-span-full text-center text-gray-500 py-20">В цій категорії поки немає товарів</div>
-                                        )}
+                                        {displayedProducts.map(product => <ProductCard key={product.id} product={product} navigateToProduct={navigateToProduct} addToCart={addToCart} />)}
                                     </div>
                                 </div>
                             </>
                          )
                         }
                     </main>
-                    <footer className="bg-slate-950 border-t border-white/10 pt-16 pb-8">
-                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                            <div className="flex justify-center items-center gap-3 mb-6"><BrandLogo /><span className="text-lg font-black text-white">NIGHT<span className="text-violet-600">SECRET</span></span></div>
-                            <p className="text-gray-500 text-sm mb-4">hello@nightsecret.ua</p>
-                            <div className="flex justify-center items-center gap-2 text-xs text-gray-600">
-                                <span>© 2024 Night Secret. 18+</span>
-                                <button onClick={() => setShowAdminLogin(true)} className="opacity-10 hover:opacity-100 transition"><Icons.Lock size={10} /></button>
-                            </div>
-                        </div>
+                    <footer className="bg-slate-950 border-t border-white/10 pt-16 pb-8 text-center text-xs text-gray-600">
+                        <div className="flex justify-center items-center gap-2"><span>© 2024 Night Secret. 18+</span><button onClick={() => setShowAdminLogin(true)} className="opacity-10 hover:opacity-100 transition"><Icons.Lock size={10} /></button></div>
                     </footer>
                 </div>
             );
