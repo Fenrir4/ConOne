@@ -7,14 +7,10 @@
     
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔥</text></svg>">
 
-    <!-- 1. React -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <!-- 2. Babel -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <!-- 3. Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- 4. Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
 
     <!-- 5. FIREBASE (Оновлена версія 10.8.0 Compat) -->
@@ -29,6 +25,7 @@
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #7c3aed; border-radius: 4px; }
+        .grayscale-card { filter: grayscale(100%); opacity: 0.8; }
     </style>
 </head>
 <body class="bg-slate-900 text-gray-100">
@@ -49,7 +46,6 @@
             measurementId: "G-B1T6D9BNWN"
         };
 
-        // Безпечна ініціалізація Firebase
         let db = null;
         try {
             if (window.firebase) {
@@ -58,8 +54,6 @@
                 }
                 db = firebase.firestore();
                 console.log("Firebase підключено успішно");
-            } else {
-                console.warn("Firebase SDK не завантажився. Працюємо в офлайн режимі.");
             }
         } catch (error) {
             console.error("Помилка ініціалізації Firebase:", error);
@@ -81,6 +75,8 @@
             Edit2: (p) => <IconBase {...p}><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></IconBase>,
             Menu: (p) => <IconBase {...p}><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></IconBase>,
             ArrowLeft: (p) => <IconBase {...p}><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></IconBase>,
+            ArrowUp: (p) => <IconBase {...p}><path d="m18 15-6-6-6 6"/></IconBase>,
+            ArrowDown: (p) => <IconBase {...p}><path d="m6 9 6 6 6-6"/></IconBase>,
             Settings: (p) => <IconBase {...p}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.47a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></IconBase>,
             ChevronRight: (p) => <IconBase {...p}><path d="m9 18 6-6-6-6"/></IconBase>,
             ChevronLeft: (p) => <IconBase {...p}><path d="m15 18-6-6 6-6"/></IconBase>,
@@ -92,13 +88,15 @@
             Upload: (p) => <IconBase {...p}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></IconBase>,
             Check: (p) => <IconBase {...p}><polyline points="20 6 9 17 4 12"/></IconBase>,
             Video: (p) => <IconBase {...p}><path d="m22 8-6 4 6 4V8Z"/><rect width="14" height="12" x="2" y="6" rx="2" ry="2"/></IconBase>,
-            Link: (p) => <IconBase {...p}><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></IconBase>,
             Phone: (p) => <IconBase {...p}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></IconBase>,
             Instagram: (p) => <IconBase {...p}><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></IconBase>,
             Send: (p) => <IconBase {...p}><line x1="22" x2="11" y1="2" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></IconBase>,
             CreditCard: (p) => <IconBase {...p}><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></IconBase>,
             Eye: (p) => <IconBase {...p}><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></IconBase>,
-            Copy: (p) => <IconBase {...p}><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></IconBase>
+            EyeOff: (p) => <IconBase {...p}><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></IconBase>,
+            Copy: (p) => <IconBase {...p}><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></IconBase>,
+            PackageX: (p) => <IconBase {...p}><path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14"/><path d="m7.5 4.27 9 5.15"/><polyline points="3.29 7 12 12 20.71 7"/><line x1="12" x2="12" y1="22" y2="12"/><path d="m17 13 5 5m-5 0 5-5"/></IconBase>,
+            PackageCheck: (p) => <IconBase {...p}><path d="m16 16 2 2 4-4"/><path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14"/><path d="m7.5 4.27 9 5.15"/><polyline points="3.29 7 12 12 20.71 7"/><line x1="12" x2="12" y1="22" y2="12"/></IconBase>
         };
 
         const BrandLogo = () => (
@@ -127,9 +125,9 @@
 
         // SEED DATA (Стартові дані, якщо база пуста)
         const INITIAL_PRODUCTS_SEED = [
-            { id: 1, name: "Rose Pleasure Deluxe", shortDesc: "Вакуумний стимулятор", description: "Інноваційний стимулятор.", price: 2499, oldPrice: 3200, category: "Іграшки", images: ["https://images.unsplash.com/photo-1595475207225-428b62bda831?auto=format&fit=crop&q=80&w=600"], rating: 5.0, specs: ["Матеріал: Медичний силікон"], isHit: true },
-            { id: 2, name: "Midnight Wand Pro", shortDesc: "Потужний масажер", description: "Легендарний Magic Wand.", price: 1899, oldPrice: null, category: "Масажери", images: ["https://images.unsplash.com/photo-1616423640778-28d1b53229bd?auto=format&fit=crop&q=80&w=600"], rating: 4.9, specs: ["Матеріал: ABS + Силікон"], isHit: false },
-            { id: 3, name: "Silk Touch Oil", shortDesc: "Масажна олія", description: "Розкішна олія з ароматом ванілі.", price: 450, oldPrice: 600, category: "Косметика", images: ["https://images.unsplash.com/photo-1608248597279-f99d160bfbc8?auto=format&fit=crop&q=80&w=600"], rating: 4.8, specs: ["Об'єм: 100 мл"], isHit: true }
+            { id: 1, orderIndex: 1, name: "Rose Pleasure Deluxe", shortDesc: "Вакуумний стимулятор", description: "Інноваційний стимулятор.", price: 2499, oldPrice: 3200, category: "Іграшки", images: ["https://images.unsplash.com/photo-1595475207225-428b62bda831?auto=format&fit=crop&q=80&w=600"], rating: 5.0, specs: ["Матеріал: Медичний силікон"], isHit: true, inStock: true, isVisible: true },
+            { id: 2, orderIndex: 2, name: "Midnight Wand Pro", shortDesc: "Потужний масажер", description: "Легендарний Magic Wand.", price: 1899, oldPrice: null, category: "Масажери", images: ["https://images.unsplash.com/photo-1616423640778-28d1b53229bd?auto=format&fit=crop&q=80&w=600"], rating: 4.9, specs: ["Матеріал: ABS + Силікон"], isHit: false, inStock: true, isVisible: true },
+            { id: 3, orderIndex: 3, name: "Silk Touch Oil", shortDesc: "Масажна олія", description: "Розкішна олія з ароматом ванілі.", price: 450, oldPrice: 600, category: "Косметика", images: ["https://images.unsplash.com/photo-1608248597279-f99d160bfbc8?auto=format&fit=crop&q=80&w=600"], rating: 4.8, specs: ["Об'єм: 100 мл"], isHit: true, inStock: true, isVisible: true }
         ];
 
         const CATEGORIES = [
@@ -147,12 +145,19 @@
         const AddToCartBtn = ({ product, addToCart, variant = 'icon' }) => {
             const [added, setAdded] = useState(false);
             const handleClick = (e) => { e.stopPropagation(); addToCart(product); setAdded(true); setTimeout(() => setAdded(false), 2000); };
+            
+            // Якщо товару немає в наявності - блокуємо кнопку
+            if (product.inStock === false) {
+                if (variant === 'icon') return <button disabled className="p-3 rounded-xl bg-slate-700 text-gray-500 cursor-not-allowed"><Icons.ShoppingBag size={20}/></button>;
+                return <button disabled className="flex-1 font-bold py-5 px-8 rounded-2xl bg-slate-700 text-gray-500 cursor-not-allowed flex items-center justify-center gap-3">Немає в наявності</button>;
+            }
+
             if (variant === 'icon') return (<button onClick={handleClick} className={`p-3 rounded-xl transition-all duration-300 z-20 ${added ? 'bg-green-500 text-white shadow-green-500/50 shadow-lg' : 'bg-white/10 hover:bg-violet-600 text-white'}`} title={added ? "Додано" : "В кошик"}>{added ? <Icons.Check size={20}/> : <Icons.ShoppingBag size={20}/>}</button>);
             return (<button onClick={handleClick} className={`flex-1 font-bold py-5 px-8 rounded-2xl shadow-lg flex items-center justify-center gap-3 transition-all duration-300 active:scale-95 ${added ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-violet-600 hover:bg-violet-700 text-white'}`}>{added ? <Icons.Check size={24}/> : <Icons.ShoppingBag size={24}/>}{added ? 'Додано!' : 'Додати в кошик'}</button>);
         };
 
         const ProductCard = ({ product, navigateToProduct, addToCart }) => (
-            <div className="group bg-slate-800 rounded-2xl border border-white/5 overflow-hidden hover:border-violet-500/50 transition-all duration-300 hover:shadow-2xl cursor-pointer flex flex-col h-full relative" onClick={() => navigateToProduct(product.id)}>
+            <div className={`group bg-slate-800 rounded-2xl border border-white/5 overflow-hidden hover:border-violet-500/50 transition-all duration-300 hover:shadow-2xl cursor-pointer flex flex-col h-full relative ${product.inStock === false ? 'grayscale-card' : ''}`} onClick={() => navigateToProduct(product.id)}>
                 <div className="relative aspect-[4/5] bg-slate-700 overflow-hidden">
                     {product.images && product.images.length > 0 ? (isVideo(product.images[0]) ? <video src={product.images[0]} muted loop autoPlay playsInline className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" /> : <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"/>) : <div className="w-full h-full flex items-center justify-center bg-slate-800 text-gray-500"><Icons.Image size={40}/></div>}
                     
@@ -164,15 +169,19 @@
                     </div>
 
                     {product.isHit && <div className="absolute top-3 left-3 bg-fuchsia-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg z-10 flex items-center gap-1"><Icons.Flame size={12}/> HIT</div>}
+                    
+                    {/* OUT OF STOCK BADGE */}
+                    {product.inStock === false && (
+                        <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-20">
+                            <span className="text-white font-bold text-sm bg-red-600 px-3 py-1 rounded">НЕМАЄ В НАЯВНОСТІ</span>
+                        </div>
+                    )}
                 </div>
                 <div className="p-5 flex-1 flex flex-col">
                     <div className="text-xs font-bold text-violet-400 uppercase tracking-wider mb-2">{product.category}</div>
                     <h3 className="text-lg font-bold text-white mb-1 group-hover:text-violet-300 transition-colors line-clamp-1">{product.name}</h3>
                     <p className="text-sm text-gray-400 mb-2 line-clamp-2">{product.shortDesc}</p>
-                    
-                    {/* TEXT HINT */}
                     <div className="text-violet-400 text-xs font-bold mb-4 flex items-center gap-1 group-hover:text-violet-300 transition-colors">Детальніше <Icons.ChevronRight size={12}/></div>
-
                     <div className="mt-auto flex items-center justify-between">
                         <div><span className="text-2xl font-bold text-white">{product.price} ₴</span>{product.oldPrice > 0 && <span className="text-sm text-gray-500 line-through ml-2">{product.oldPrice} ₴</span>}</div>
                         <AddToCartBtn product={product} addToCart={addToCart} />
@@ -210,12 +219,13 @@
                         <button onClick={goBack} className="flex items-center text-gray-400 hover:text-white mb-8 gap-2"><Icons.ArrowLeft size={20}/> Назад</button>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                             <div className="space-y-4 select-none">
-                                <div className="aspect-square rounded-3xl overflow-hidden bg-slate-800 border border-white/10 shadow-2xl relative group">
+                                <div className={`aspect-square rounded-3xl overflow-hidden bg-slate-800 border border-white/10 shadow-2xl relative group ${product.inStock === false ? 'grayscale-card' : ''}`}>
                                     {images.length > 0 ? (
                                         <div key={currentImg} className="w-full h-full animate-fade-fast">
                                             {isVideo(images[currentImg]) ? <video src={images[currentImg]} controls className="w-full h-full object-contain bg-black" /> : <img src={images[currentImg]} className="w-full h-full object-cover" />}
                                         </div>
                                     ) : (<div className="w-full h-full flex items-center justify-center text-gray-600"><Icons.Image size={64}/></div>)}
+                                    {product.inStock === false && <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-20"><span className="text-white font-bold text-lg bg-red-600 px-4 py-2 rounded">НЕМАЄ В НАЯВНОСТІ</span></div>}
                                     {images.length > 1 && (<><button onClick={prevImage} className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 text-white hover:bg-violet-600 transition opacity-0 group-hover:opacity-100"><Icons.ChevronLeft size={24}/></button><button onClick={nextImage} className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 text-white hover:bg-violet-600 transition opacity-0 group-hover:opacity-100"><Icons.ChevronRight size={24}/></button></>)}
                                 </div>
                                 {images.length > 1 && (<div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">{images.map((img, idx) => (<button key={idx} onClick={() => setCurrentImg(idx)} className={`w-20 h-20 rounded-xl overflow-hidden border-2 flex-shrink-0 transition-all ${currentImg === idx ? 'border-violet-500 scale-105' : 'border-transparent opacity-70 hover:opacity-100'}`}>{isVideo(img) ? <div className="w-full h-full bg-black flex items-center justify-center"><Icons.Video size={24} className="text-white"/></div> : <img src={img} className="w-full h-full object-cover"/>}</button>))}</div>)}
@@ -318,9 +328,12 @@
                     rating: 0,
                     specs: [],
                     isHit: false,
+                    inStock: true,
+                    isVisible: true,
                     shortDesc: "",
                     description: "",
                     oldPrice: 0,
+                    orderIndex: products.length > 0 ? Math.max(...products.map(p => p.orderIndex || 0)) + 1 : 1,
                     createdAt: new Date()
                 };
 
@@ -330,7 +343,7 @@
                         setFormData(newProduct);
                      });
                 } else {
-                    setProducts([newProduct, ...products]);
+                    setProducts([...products, newProduct]);
                     setLocalEditId(newProduct.id);
                     setFormData(newProduct);
                 }
@@ -368,15 +381,56 @@
                     ...product,
                     id: Date.now(),
                     name: product.name + " (Копія)",
+                    orderIndex: products.length > 0 ? Math.max(...products.map(p => p.orderIndex || 0)) + 1 : 1,
                     createdAt: new Date()
                 };
 
                 if (db) {
                     await db.collection("products").doc(String(newProduct.id)).set(newProduct);
                 } else {
-                    setProducts([newProduct, ...products]);
+                    setProducts([...products, newProduct]);
                 }
             };
+
+            // --- НОВІ ФУНКЦІЇ ДЛЯ КНОПОК ---
+
+            const handleToggleStock = async (product) => {
+                const updated = { ...product, inStock: !product.inStock };
+                if(db) await db.collection("products").doc(String(product.id)).update({ inStock: updated.inStock });
+                else setProducts(products.map(p => p.id === product.id ? updated : p));
+            };
+
+            const handleToggleVisibility = async (product) => {
+                const updated = { ...product, isVisible: !product.isVisible };
+                if(db) await db.collection("products").doc(String(product.id)).update({ isVisible: updated.isVisible });
+                else setProducts(products.map(p => p.id === product.id ? updated : p));
+            };
+
+            const handleMove = async (index, direction) => {
+                if (direction === 'up' && index === 0) return;
+                if (direction === 'down' && index === products.length - 1) return;
+
+                const newProducts = [...products];
+                const targetIndex = direction === 'up' ? index - 1 : index + 1;
+                
+                // Swap items in array
+                [newProducts[index], newProducts[targetIndex]] = [newProducts[targetIndex], newProducts[index]];
+
+                // Swap orderIndex values to persist order
+                const tempOrder = newProducts[index].orderIndex;
+                newProducts[index].orderIndex = newProducts[targetIndex].orderIndex;
+                newProducts[targetIndex].orderIndex = tempOrder;
+
+                if (db) {
+                    // Update both docs in DB
+                    await db.collection("products").doc(String(newProducts[index].id)).update({ orderIndex: newProducts[index].orderIndex });
+                    await db.collection("products").doc(String(newProducts[targetIndex].id)).update({ orderIndex: newProducts[targetIndex].orderIndex });
+                } else {
+                    setProducts(newProducts);
+                }
+            };
+
+            // ---
 
             const handleImageUpload = (e) => {
                 Array.from(e.target.files).forEach(file => {
@@ -404,39 +458,9 @@
                                     <div><label className="block text-sm font-bold text-gray-400 mb-2">Категорія</label><select value={formData.category} onChange={e=>setFormData({...formData, category:e.target.value})} className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-violet-500">{CATEGORIES.map(c=><option key={c.name} value={c.name}>{c.name}</option>)}<option value="Інше">Інше</option></select></div>
                                     <div><label className="block text-sm font-bold text-gray-400 mb-2">Стара ціна (необов'язково)</label><input type="number" value={formData.oldPrice || ''} onChange={e=>setFormData({...formData, oldPrice:Number(e.target.value)})} className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-violet-500" placeholder="0" /></div>
                                 </div>
-                                
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-400 mb-2">Медіа (Фото/Відео)</label>
-                                    <div className="flex flex-wrap gap-4 mb-4">
-                                        {formData.images?.map((img, i) => (
-                                            <div key={i} className="relative w-24 h-24 rounded-lg overflow-hidden border border-white/20 group bg-black">
-                                                {isVideo(img) ? <video src={img} className="w-full h-full object-cover"/> : <img src={img} className="w-full h-full object-cover"/>}
-                                                <button type="button" onClick={() => removeImage(i)} className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition text-red-500"><Icons.Trash2/></button>
-                                            </div>
-                                        ))}
-                                        <label className="w-24 h-24 rounded-lg border-2 border-dashed border-white/20 flex flex-col items-center justify-center text-gray-400 cursor-pointer hover:border-violet-500 hover:text-violet-500 transition">
-                                            <Icons.Upload size={24}/>
-                                            <span className="text-xs mt-1">Файл</span>
-                                            <input type="file" multiple className="hidden" onChange={handleImageUpload}/>
-                                        </label>
-                                    </div>
-                                    <div className="flex gap-2">
-                                        <input value={urlInput} onChange={e => setUrlInput(e.target.value)} placeholder="Вставте посилання на фото або .mp4 відео" className="flex-1 bg-slate-900 border border-white/10 rounded-xl px-4 py-2 text-white outline-none focus:border-violet-500 text-sm"/>
-                                        <button type="button" onClick={handleAddUrl} className="bg-slate-700 hover:bg-violet-600 text-white px-4 rounded-xl text-sm font-bold">Додати URL</button>
-                                    </div>
-                                </div>
-
+                                <div><label className="block text-sm font-bold text-gray-400 mb-2">Медіа</label><div className="flex flex-wrap gap-4 mb-4">{formData.images?.map((img, i) => <div key={i} className="relative w-24 h-24 rounded-lg overflow-hidden border border-white/20 group bg-black">{isVideo(img) ? <video src={img} className="w-full h-full object-cover"/> : <img src={img} className="w-full h-full object-cover"/>}<button type="button" onClick={() => removeImage(i)} className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition text-red-500"><Icons.Trash2/></button></div>)}<label className="w-24 h-24 rounded-lg border-2 border-dashed border-white/20 flex flex-col items-center justify-center text-gray-400 cursor-pointer hover:border-violet-500"><Icons.Upload size={24}/><input type="file" multiple className="hidden" onChange={handleImageUpload}/></label></div><div className="flex gap-2"><input value={urlInput} onChange={e => setUrlInput(e.target.value)} placeholder="Вставте посилання на фото або .mp4 відео" className="flex-1 bg-slate-900 border border-white/10 rounded-xl px-4 py-2 text-white outline-none focus:border-violet-500 text-sm"/><button type="button" onClick={handleAddUrl} className="bg-slate-700 hover:bg-violet-600 text-white px-4 rounded-xl text-sm font-bold">Додати URL</button></div></div>
                                 <div><label className="block text-sm font-bold text-gray-400 mb-2">Опис</label><textarea rows={4} value={formData.description} onChange={e=>setFormData({...formData, description:e.target.value})} className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-violet-500" /></div>
-                                
-                                <div className="bg-slate-900 p-4 rounded-xl border border-white/10">
-                                    <div className="flex justify-between items-center mb-4"><label className="block text-sm font-bold text-gray-400">Характеристики</label><button type="button" onClick={addSpec} className="text-xs bg-violet-600 px-3 py-1 rounded text-white">Додати</button></div>
-                                    <div className="space-y-2">
-                                        {formData.specs?.map((spec, i) => (
-                                            <div key={i} className="flex gap-2"><input value={spec} onChange={e => updateSpec(i, e.target.value)} className="flex-1 bg-slate-800 border border-white/10 rounded px-3 py-2 text-white outline-none" /><button type="button" onClick={() => removeSpec(i)} className="text-red-500 hover:text-red-400"><Icons.Trash2 size={18}/></button></div>
-                                        ))}
-                                    </div>
-                                </div>
-
+                                <div className="bg-slate-900 p-4 rounded-xl border border-white/10"><div className="flex justify-between items-center mb-4"><label className="block text-sm font-bold text-gray-400">Характеристики</label><button type="button" onClick={addSpec} className="text-xs bg-violet-600 px-3 py-1 rounded text-white">Додати</button></div><div className="space-y-2">{formData.specs?.map((spec, i) => (<div key={i} className="flex gap-2"><input value={spec} onChange={e => updateSpec(i, e.target.value)} className="flex-1 bg-slate-800 border border-white/10 rounded px-3 py-2 text-white outline-none" /><button type="button" onClick={() => removeSpec(i)} className="text-red-500 hover:text-red-400"><Icons.Trash2 size={18}/></button></div>))}</div></div>
                                 <button className="bg-violet-600 text-white font-bold py-3 px-8 rounded-xl">Зберегти</button>
                             </form>
                         </div>
@@ -446,14 +470,50 @@
 
             return (
                 <div className="min-h-screen bg-slate-900 py-12 px-4 animate-fade-in">
-                    <div className="max-w-6xl mx-auto">
+                    <div className="max-w-7xl mx-auto">
                         <div className="flex justify-between items-center mb-8"><h1 className="text-3xl font-bold text-white flex items-center gap-3"><Icons.Settings className="text-violet-500" /> Адміністрування</h1><button onClick={handleCreateNew} className="flex items-center gap-2 bg-violet-600 text-white px-4 py-2 rounded-lg hover:bg-violet-700 transition font-bold"><Icons.Plus size={18}/> Новий товар</button></div>
                         <div className="bg-slate-800 rounded-2xl border border-white/10 overflow-hidden">
-                            <table className="w-full text-left"><tbody className="divide-y divide-white/5">{products.map(p=><tr key={p.id} className="hover:bg-white/5 transition"><td className="p-4 font-bold text-white">{p.name}</td><td className="p-4 text-white">{p.price} ₴</td><td className="p-4 text-right">
-                                <button onClick={()=>handleEdit(p)} className="bg-slate-700 hover:bg-violet-600 text-white p-2 rounded-lg transition mr-2" title="Редагувати"><Icons.Edit2 size={16}/></button>
-                                <button onClick={()=>handleDuplicate(p)} className="bg-slate-700 hover:bg-blue-600 text-white p-2 rounded-lg transition mr-2" title="Копіювати"><Icons.Copy size={16}/></button>
-                                <button onClick={()=>handleDelete(p.id)} className="bg-slate-700 hover:bg-red-600 text-white p-2 rounded-lg transition" title="Видалити"><Icons.Trash2 size={16}/></button>
-                            </td></tr>)}</tbody></table>
+                            <table className="w-full text-left">
+                                <thead className="bg-slate-900/50 text-gray-400 text-xs uppercase">
+                                    <tr>
+                                        <th className="p-4 w-10">#</th>
+                                        <th className="p-4">Назва</th>
+                                        <th className="p-4 hidden sm:table-cell">Категорія</th>
+                                        <th className="p-4">Ціна</th>
+                                        <th className="p-4 text-right">Дії</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-white/5">
+                                    {products.map((p, idx) => (
+                                        <tr key={p.id} className={`hover:bg-white/5 transition ${!p.isVisible ? 'opacity-50' : ''}`}>
+                                            <td className="p-4 text-gray-500">
+                                                <div className="flex flex-col gap-1">
+                                                    <button onClick={() => handleMove(idx, 'up')} className="hover:text-white p-1" disabled={idx === 0}><Icons.ArrowUp size={14}/></button>
+                                                    <button onClick={() => handleMove(idx, 'down')} className="hover:text-white p-1" disabled={idx === products.length - 1}><Icons.ArrowDown size={14}/></button>
+                                                </div>
+                                            </td>
+                                            <td className="p-4 font-bold text-white">
+                                                {p.name}
+                                                {p.inStock === false && <span className="ml-2 text-[10px] bg-red-600 px-2 py-0.5 rounded text-white">Немає</span>}
+                                                {p.isVisible === false && <span className="ml-2 text-[10px] bg-gray-600 px-2 py-0.5 rounded text-white">Приховано</span>}
+                                            </td>
+                                            <td className="p-4 text-gray-400 hidden sm:table-cell">{p.category}</td>
+                                            <td className="p-4 text-white">{p.price} ₴</td>
+                                            <td className="p-4 text-right whitespace-nowrap">
+                                                <button onClick={()=>handleToggleStock(p)} className={`p-2 rounded-lg transition mr-1 ${p.inStock === false ? 'bg-red-500/20 text-red-400' : 'bg-green-500/20 text-green-400 hover:bg-green-500 hover:text-white'}`} title={p.inStock === false ? "Позначити як в наявності" : "Позначити як немає"}>
+                                                    {p.inStock === false ? <Icons.PackageX size={16}/> : <Icons.PackageCheck size={16}/>}
+                                                </button>
+                                                <button onClick={()=>handleToggleVisibility(p)} className={`p-2 rounded-lg transition mr-1 ${p.isVisible === false ? 'bg-gray-700 text-gray-400' : 'bg-slate-700 text-white hover:bg-slate-600'}`} title={p.isVisible === false ? "Показати" : "Приховати"}>
+                                                    {p.isVisible === false ? <Icons.EyeOff size={16}/> : <Icons.Eye size={16}/>}
+                                                </button>
+                                                <button onClick={()=>handleEdit(p)} className="bg-slate-700 hover:bg-violet-600 text-white p-2 rounded-lg transition mr-1" title="Редагувати"><Icons.Edit2 size={16}/></button>
+                                                <button onClick={()=>handleDuplicate(p)} className="bg-slate-700 hover:bg-blue-600 text-white p-2 rounded-lg transition mr-1" title="Копіювати"><Icons.Copy size={16}/></button>
+                                                <button onClick={()=>handleDelete(p.id)} className="bg-slate-700 hover:bg-red-600 text-white p-2 rounded-lg transition" title="Видалити"><Icons.Trash2 size={16}/></button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -516,9 +576,11 @@
                      unsubscribe = db.collection("products").onSnapshot((snapshot) => {
                         if (snapshot.empty) {
                             // Seed database if empty
-                            INITIAL_PRODUCTS_SEED.forEach(p => db.collection("products").doc(String(p.id)).set(p));
+                            INITIAL_PRODUCTS_SEED.forEach((p, index) => db.collection("products").doc(String(p.id)).set({ ...p, orderIndex: index, inStock: true, isVisible: true }));
                         } else {
                             const loadedProducts = snapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
+                            // Sort by orderIndex
+                            loadedProducts.sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0));
                             setProducts(loadedProducts);
                         }
                     });
@@ -526,7 +588,7 @@
                     // Fallback if firebase failed
                     const saved = localStorage.getItem('products');
                     if (saved) setProducts(JSON.parse(saved));
-                    else setProducts(INITIAL_PRODUCTS_SEED);
+                    else setProducts(INITIAL_PRODUCTS_SEED.map((p, i) => ({ ...p, orderIndex: i, inStock: true, isVisible: true })));
                 }
 
                 window.history.replaceState({ view: 'home' }, '');
@@ -588,7 +650,7 @@
             const removeFromCart = (id) => setCart(cart.filter(item => item.id !== id));
             const clearCart = () => setCart([]);
             const cartTotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
-            const displayedProducts = filterCategory ? products.filter(p => p.category === filterCategory) : products;
+            const displayedProducts = filterCategory ? products.filter(p => p.category === filterCategory && p.isVisible !== false) : products.filter(p => p.isVisible !== false);
 
             if (!isAgeVerified) return (
                 <div className="fixed inset-0 z-[100] bg-slate-900 flex items-center justify-center p-4">
