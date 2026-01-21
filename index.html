@@ -3,56 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kigurumi & Toys - Магазин настрою</title>
+    <title>Sweety World - Магазин настрою</title>
     
-    <!-- React & Router -->
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- 1. React -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    
+    <!-- 2. Babel -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <!-- Додаємо бібліотеку для Маршрутизації (сторінок) -->
-    <script src="https://unpkg.com/react-router-dom@6.22.3/dist/umd/react-router-dom.production.min.js"></script>
     
-    <!-- Styles -->
+    <!-- 3. Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 4. Lucide Icons (Стабільна версія) -->
+    <script src="https://unpkg.com/lucide-react@0.292.0/dist/lucide-react.umd.js"></script>
+
+    <!-- 5. Firebase (Compat - надійна версія для браузера) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
         body { font-family: 'Nunito', sans-serif; background-color: #fff0f5; }
         .animate-fade-in { animation: fadeIn 0.5s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #ec4899; border-radius: 10px; }
         .loader { border: 4px solid #f3f3f3; border-top: 4px solid #ec4899; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        #error-root { display: none; padding: 20px; background: #fee2e2; color: #b91c1c; border: 1px solid #ef4444; margin: 20px; border-radius: 8px; font-family: monospace; }
     </style>
-    
-    <!-- Icons -->
-    <script src="https://unpkg.com/lucide-react@0.344.0/dist/lucide-react.umd.js"></script>
 </head>
 <body>
+    <div id="error-root"></div>
     <div id="root"></div>
 
-    <script type="text/babel" data-type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, deleteDoc, updateDoc, doc, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-        // --- FIREBASE CONFIG (shop-1-1e31b) ---
+    <script type="text/babel">
+        // ============================================================
+        // НАЛАШТУВАННЯ FIREBASE (conone-757e4)
+        // ============================================================
         const firebaseConfig = {
-          apiKey: "AIzaSyDjKcbBC2gJ2pAMscSrg_Y_qCT-T5QDVE8",
-          authDomain: "shop-1-1e31b.firebaseapp.com",
-          projectId: "shop-1-1e31b",
-          storageBucket: "shop-1-1e31b.firebasestorage.app",
-          messagingSenderId: "965644920152",
-          appId: "1:965644920152:web:cf535eea0bf64ca207b12d",
-          measurementId: "G-QKSWWFYGBJ"
+          apiKey: "AIzaSyAu47cciZnYXyEPMTHeH7a1bmX-kCYtGQA",
+          authDomain: "conone-757e4.firebaseapp.com",
+          projectId: "conone-757e4",
+          storageBucket: "conone-757e4.firebasestorage.app",
+          messagingSenderId: "960208791384",
+          appId: "1:960208791384:web:9e9e109b9df3c1bd95a72d",
+          measurementId: "G-B1T6D9BNWN"
         };
+        // ============================================================
 
+        // Ініціалізація бази даних
         let db;
-        try { const app = initializeApp(firebaseConfig); db = getFirestore(app); } catch (e) { console.error(e); }
+        try {
+            if (window.firebase) {
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.firestore();
+                console.log("Firebase 'conone' успішно підключено");
+            } else {
+                throw new Error("Бібліотека Firebase не завантажилась");
+            }
+        } catch (error) {
+            console.error("Помилка Firebase:", error);
+        }
 
         const { useState, useEffect, useMemo } = React;
-        const { HashRouter, Routes, Route, Link, useParams, useNavigate, useLocation } = ReactRouterDOM;
+        
+        // Отримання іконки
         const Icons = window.lucideReact || {};
-        const { ShoppingCart, X, Star, Lock, Trash2, Plus, Edit2, ArrowLeft, Image: ImageIcon, Gift, Heart, Truck, CreditCard, Banknote, Phone, LogOut, Upload, Menu, Minus, Send, Share2 } = Icons;
+        const FallbackIcon = () => <span style={{fontSize: '10px'}}>?</span>;
+        
+        const { 
+            ShoppingCart = FallbackIcon, X = FallbackIcon, Star = FallbackIcon, 
+            Lock = FallbackIcon, Trash2 = FallbackIcon, Plus = FallbackIcon, 
+            Edit2 = FallbackIcon, ArrowLeft = FallbackIcon, Image: ImageIcon = FallbackIcon, 
+            Gift = FallbackIcon, Heart = FallbackIcon, Truck = FallbackIcon, 
+            CreditCard = FallbackIcon, Banknote = FallbackIcon, Phone = FallbackIcon, 
+            LogOut = FallbackIcon, Upload = FallbackIcon, Menu = FallbackIcon, 
+            Minus = FallbackIcon, Send = FallbackIcon 
+        } = Icons;
 
-        // --- COMPONENT: LOGO ---
+        // Логотип
         const StitchLogo = () => (
             <svg viewBox="0 0 100 100" className="w-10 h-10 drop-shadow-sm transform hover:scale-110 transition duration-300">
                 <path d="M5 30 Q-5 0 40 25" fill="#4F86F7" stroke="#3b6ccf" strokeWidth="2"/>
@@ -70,22 +102,27 @@
         );
 
         const POPULAR_CITIES = ["Київ", "Харків", "Одеса", "Дніпро", "Львів", "Запоріжжя", "Вінниця", "Хмельницький", "Житомир", "Чернівці", "Рівне", "Івано-Франківськ", "Тернопіль", "Луцьк", "Ужгород", "Біла Церква"];
-        const INITIAL_PRODUCTS = [{ id: '1', name: "Кігурумі Стіч Синій", price: 650, category: "Кігурумі", image: "https://cf.shopee.com.br/file/0b8967b2727482b49f7278436910271d", rating: 5 }];
 
-        // --- GLOBAL STATE CONTEXT (SIMPLIFIED) ---
-        // В реальному проекті тут був би Redux або Context API, але ми передаємо пропси для простоти
+        // Демо-товари (якщо база ще не підключена)
+        const INITIAL_PRODUCTS = [
+            { id: '1', name: "Кігурумі Стіч Синій", price: 650, category: "Кігурумі", image: "https://cf.shopee.com.br/file/0b8967b2727482b49f7278436910271d", rating: 5 },
+            { id: '2', name: "Піжама Єдиноріг", price: 700, category: "Кігурумі", image: "https://m.media-amazon.com/images/I/71isX2yKkYL._AC_UY1000_.jpg", rating: 5 }
+        ];
 
         function App() {
             const [products, setProducts] = useState([]);
             const [loading, setLoading] = useState(true);
+            const [dbError, setDbError] = useState(null);
+            const [activePage, setActivePage] = useState('home');
             const [cart, setCart] = useState([]);
             const [isCartOpen, setIsCartOpen] = useState(false);
             const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
             const [isAdminMode, setIsAdminMode] = useState(false);
             const [passwordInput, setPasswordInput] = useState("");
             const [showLoginModal, setShowLoginModal] = useState(false);
+            const [selectedCategory, setSelectedCategory] = useState(null);
 
-            // Order Data
+            // Дані замовлення
             const [customerName, setCustomerName] = useState("");
             const [customerPhone, setCustomerPhone] = useState("");
             const [customerCity, setCustomerCity] = useState("");
@@ -97,28 +134,108 @@
             const TELEGRAM_CHAT_ID = "7085928669";
             const ADMIN_PASSWORD = "toy@56";
 
-            // --- FIREBASE SYNC ---
+            // --- СИНХРОНІЗАЦІЯ З БАЗОЮ ---
             useEffect(() => {
-                if (!db) { setProducts(INITIAL_PRODUCTS); setLoading(false); return; }
-                const unsubscribe = onSnapshot(collection(db, "products"), (snapshot) => {
-                    const productsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    setProducts(productsData.length > 0 ? productsData : INITIAL_PRODUCTS);
+                if (!db) {
+                    setProducts(INITIAL_PRODUCTS);
                     setLoading(false);
-                }, (err) => { console.error(err); setLoading(false); setProducts(INITIAL_PRODUCTS); });
+                    return;
+                }
+
+                // Підписка на оновлення
+                const unsubscribe = db.collection("products").onSnapshot((snapshot) => {
+                    const productsData = snapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data()
+                    }));
+                    setProducts(productsData.length > 0 ? productsData : []); // Показуємо порожній список, якщо база пуста
+                    setDbError(null);
+                    setLoading(false);
+                }, (error) => {
+                    console.error("Error fetching products:", error);
+                    let errorMsg = "Помилка бази даних.";
+                    if (error.code === 'not-found' || error.message.includes('does not exist')) {
+                        errorMsg = "База даних ще не створена у Firebase Console. Зайдіть у Build -> Firestore Database -> Create Database.";
+                    } else if (error.code === 'permission-denied') {
+                        errorMsg = "Немає прав доступу. Зайдіть у вкладку 'Rules' у Firebase і переконайтеся, що стоїть 'Test Mode' (allow read, write: if true).";
+                    }
+                    setDbError(errorMsg);
+                    setProducts(INITIAL_PRODUCTS); // Fallback
+                    setLoading(false);
+                });
+
                 return () => unsubscribe();
             }, []);
 
-            // --- CART & ADMIN LOGIC (Same as before) ---
-            const addToCart = (product) => {
-                const safePrice = Number(product.price) || 0;
-                const existing = cart.find(item => item.id === product.id);
-                if (existing) { setCart(cart.map(item => item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item)); } 
-                else { setCart([...cart, { ...product, price: safePrice, quantity: 1 }]); }
+            // Категорії та фільтрація
+            const uniqueCategories = useMemo(() => {
+                const cats = new Set(products.map(p => p.category).filter(Boolean));
+                return Array.from(cats);
+            }, [products]);
+
+            const filteredProducts = selectedCategory 
+                ? products.filter(p => p.category === selectedCategory)
+                : products;
+
+            // --- ФУНКЦІЇ АДМІНКИ ---
+            const addNewProduct = async () => {
+                if (!db) return alert("База даних не налаштована!");
+                try {
+                    await db.collection("products").add({
+                        name: "Новий Товар",
+                        price: 0,
+                        category: uniqueCategories[0] || "Загальне",
+                        image: "https://via.placeholder.com/300?text=Фото",
+                        rating: 5,
+                        createdAt: Date.now()
+                    });
+                } catch (e) {
+                    console.error(e);
+                    alert("Помилка додавання. Можливо, база даних не створена або заблокована правами доступу.");
+                }
+            };
+
+            const updateProductField = async (id, field, value) => {
+                if (!db) return;
+                try {
+                    await db.collection("products").doc(id).update({ [field]: value });
+                } catch (e) { console.error(e); }
+            };
+
+            const removeProduct = async (id) => {
+                if (!db) return;
+                if (confirm("Видалити цей товар назавжди?")) {
+                    try { await db.collection("products").doc(id).delete(); } catch (e) { console.error(e); }
+                }
+            };
+
+            const handleFileUpload = (e, productId) => {
+                const file = e.target.files[0];
+                if (file) {
+                    if (file.size > 800000) { alert("Фото занадто велике! Максимум 800Кб."); return; }
+                    const reader = new FileReader();
+                    reader.onloadend = () => { updateProductField(productId, 'image', reader.result); };
+                    reader.readAsDataURL(file);
+                }
+            };
+
+            // --- КОШИК ---
+            const addToCart = (p) => {
+                const safePrice = Number(p.price) || 0;
+                const existing = cart.find(i => i.id === p.id);
+                if (existing) setCart(cart.map(i => i.id === p.id ? { ...i, quantity: i.quantity + 1 } : i));
+                else setCart([...cart, { ...p, price: safePrice, quantity: 1 }]);
                 setIsCartOpen(true);
             };
-            const updateQty = (id, delta) => setCart(cart.map(item => item.id === id ? { ...item, quantity: Math.max(1, item.quantity + delta) } : item));
-            const removeFromCart = (id) => setCart(cart.filter(item => item.id !== id));
-            const totalAmount = cart.reduce((sum, item) => sum + ((Number(item.price)||0) * item.quantity), 0);
+            const updateQty = (id, delta) => setCart(cart.map(i => i.id === id ? { ...i, quantity: Math.max(1, i.quantity + delta) } : i));
+            const removeFromCart = (id) => setCart(cart.filter(i => i.id !== id));
+            const totalAmount = cart.reduce((sum, i) => sum + ((Number(i.price)||0) * i.quantity), 0);
+
+            const handleLogin = (e) => {
+                e.preventDefault();
+                if (passwordInput === ADMIN_PASSWORD) { setIsAdminMode(true); setShowLoginModal(false); setPasswordInput(""); }
+                else { alert("Невірний пароль!"); }
+            };
 
             const sendOrder = async (e) => {
                 e.preventDefault();
@@ -127,180 +244,118 @@
                 let msg = `<b>🔥 ЗАМОВЛЕННЯ!</b>\n👤 ${customerName}\n📞 ${customerPhone}\n🏙 ${customerCity}, №${customerBranch}\n💰 ${payText}\n\n`;
                 cart.forEach((i, idx) => msg += `${idx+1}. ${i.name} (x${i.quantity}) - ${i.price * i.quantity} грн\n`);
                 msg += `\n💵 <b>СУМА: ${totalAmount} грн</b>`;
+
                 try {
-                    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: msg, parse_mode: 'HTML' }) });
-                    alert("Замовлення прийнято!"); setCart([]); setIsCartOpen(false);
-                } catch (e) { alert("Помилка."); } finally { setIsOrderSending(false); }
+                    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+                        method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: msg, parse_mode: 'HTML' })
+                    });
+                    alert(`Дякую, ${customerName}! Замовлення надіслано.`); setCart([]); setIsCartOpen(false);
+                } catch (e) { alert("Помилка відправки."); }
+                finally { setIsOrderSending(false); }
             };
 
-            const adminActions = {
-                login: (e) => { e.preventDefault(); if (passwordInput === ADMIN_PASSWORD) { setIsAdminMode(true); setShowLoginModal(false); setPasswordInput(""); } else { alert("Невірний пароль!"); } },
-                add: async () => { if(!db) return; await addDoc(collection(db, "products"), { name: "Новий", price: 0, category: "Кігурумі", image: "https://via.placeholder.com/300", rating: 5, createdAt: Date.now() }); },
-                update: async (id, field, val) => { if(!db) return; await updateDoc(doc(db, "products", id), { [field]: val }); },
-                delete: async (id) => { if(!db) return; if(confirm("Видалити?")) await deleteDoc(doc(db, "products", id)); },
-                upload: (e, id) => { const f = e.target.files[0]; if(f){ const r = new FileReader(); r.onloadend=()=>adminActions.update(id, 'image', r.result); r.readAsDataURL(f); } }
-            };
-
-            // --- PAGES ---
-
-            // 1. HOME PAGE (CATALOG)
-            const HomePage = () => {
-                const [selectedCategory, setSelectedCategory] = useState(null);
-                const uniqueCategories = useMemo(() => Array.from(new Set(products.map(p => p.category).filter(Boolean))), [products]);
-                const filtered = selectedCategory ? products.filter(p => p.category === selectedCategory) : products;
-
-                return (
-                    <div className="max-w-6xl mx-auto px-4 py-8">
-                        {/* Banner */}
-                        <div className="bg-gradient-to-br from-pink-500 via-purple-400 to-indigo-400 rounded-[2.5rem] p-8 md:p-14 mb-12 text-white shadow-2xl text-center relative overflow-hidden">
-                            <div className="relative z-10">
-                                <span className="inline-block bg-white/20 backdrop-blur-md px-4 py-2 rounded-full text-sm font-bold uppercase mb-4 border border-white/30">🎁 Знижки до -30%</span>
-                                <h1 className="text-3xl md:text-6xl font-extrabold mb-4">Зігрійся цієї зими!</h1>
-                                <p className="text-lg opacity-90">Кігурумі, пледи та подарунки для найрідніших.</p>
-                            </div>
+            // --- ВІДОБРАЖЕННЯ (UI) ---
+            
+            const ProductCard = ({ p }) => (
+                <div className="bg-white rounded-3xl shadow-sm hover:shadow-xl transition border border-pink-100 flex flex-col h-full group">
+                    <div className="relative h-64 bg-white p-4 flex items-center justify-center border-b border-pink-50">
+                        <img src={p.image} className="w-full h-full object-contain group-hover:scale-105 transition duration-500" />
+                    </div>
+                    <div className="p-4 flex-1 flex flex-col">
+                        {p.category && <div className="text-[10px] text-pink-500 font-bold uppercase mb-2 bg-pink-50 inline-block px-2 py-1 rounded w-fit">{p.category}</div>}
+                        <h3 className="font-bold text-gray-800 leading-tight mb-2 line-clamp-2">{p.name}</h3>
+                        <div className="mt-auto pt-3 border-t border-gray-50 flex justify-between items-center">
+                            <span className="text-xl font-black text-pink-600">{p.price} <span className="text-sm font-medium text-gray-400">грн</span></span>
+                            <button onClick={() => addToCart(p)} className="bg-gray-100 text-gray-600 px-4 py-2 rounded-full hover:bg-pink-500 hover:text-white transition active:scale-95 flex items-center gap-2">
+                                <ShoppingCart size={18}/> <span className="text-xs font-bold">Купити</span>
+                            </button>
                         </div>
+                    </div>
+                </div>
+            );
 
-                        {/* Filters */}
-                        <div className="mb-8 flex flex-wrap gap-2 justify-center">
-                            <button onClick={() => setSelectedCategory(null)} className={`px-5 py-2 rounded-full text-sm font-bold transition ${!selectedCategory ? 'bg-gray-800 text-white' : 'bg-white text-gray-600 border'}`}>Всі</button>
-                            {uniqueCategories.map(cat => (
-                                <button key={cat} onClick={() => setSelectedCategory(cat)} className={`px-5 py-2 rounded-full text-sm font-bold transition ${selectedCategory === cat ? 'bg-pink-500 text-white' : 'bg-white text-gray-600 border'}`}>{cat}</button>
-                            ))}
+            // --- АДМІН ПАНЕЛЬ ---
+            const renderAdmin = () => (
+                <div className="max-w-6xl mx-auto px-4 py-8 animate-fade-in">
+                    <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+                        <div>
+                            <h2 className="text-3xl font-bold text-gray-800 mb-2">Адмін-панель</h2>
+                            <p className="text-sm text-gray-500">Додавайте та редагуйте товари.</p>
                         </div>
+                        <button onClick={addNewProduct} className="flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-indigo-700 transition"><Plus size={20}/> Додати товар</button>
+                    </div>
+                    
+                    {dbError && (
+                        <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded shadow-sm">
+                            <p className="font-bold mb-1">Увага! Проблема з базою даних:</p>
+                            <p>{dbError}</p>
+                        </div>
+                    )}
 
-                        {/* Grid */}
-                        {loading ? <div className="loader"></div> : (
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-                                {filtered.map(p => (
-                                    <div key={p.id} className="bg-white rounded-3xl shadow-sm hover:shadow-xl transition border border-pink-50 flex flex-col group relative">
-                                        <Link to={`/product/${p.id}`} className="block relative h-60 p-4 bg-white rounded-t-3xl overflow-hidden">
-                                            <img src={p.image} className="w-full h-full object-contain group-hover:scale-110 transition duration-500"/>
-                                            {p.rating && <div className="absolute top-3 right-3 bg-white/90 px-2 py-1 rounded-full text-xs font-bold flex gap-1 shadow-sm"><Star size={12} fill="#eab308" className="text-yellow-500"/> {p.rating}</div>}
-                                        </Link>
-                                        <div className="p-4 flex-1 flex flex-col">
-                                            <div className="text-[10px] uppercase font-bold text-pink-500 mb-1">{p.category}</div>
-                                            <Link to={`/product/${p.id}`} className="font-bold text-gray-800 leading-tight mb-2 hover:text-pink-600 transition line-clamp-2">{p.name}</Link>
-                                            <div className="mt-auto flex justify-between items-center pt-2">
-                                                <span className="text-xl font-black text-gray-900">{p.price} <span className="text-xs font-normal text-gray-400">грн</span></span>
-                                                <button onClick={(e) => {e.preventDefault(); addToCart(p)}} className="bg-gray-100 hover:bg-pink-500 hover:text-white text-gray-600 p-2.5 rounded-full transition"><ShoppingCart size={18}/></button>
-                                            </div>
+                    {loading ? <div className="loader"></div> : (
+                        <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+                            {products.length === 0 && <div className="p-12 text-center text-gray-500"><p>Список товарів порожній.</p></div>}
+                            {products.map(p => (
+                                <div key={p.id} className="flex items-center gap-4 p-4 border-b border-gray-50 hover:bg-pink-50/30">
+                                    <div className="relative group w-20 h-20 shrink-0">
+                                        <input type="file" id={`upl-${p.id}`} className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, p.id)}/>
+                                        <div className="w-full h-full rounded-xl bg-gray-50 border border-gray-200 cursor-pointer overflow-hidden" onClick={() => document.getElementById(`upl-${p.id}`).click()}>
+                                            <img src={p.image} className="w-full h-full object-contain p-1" />
+                                            <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition"><Upload className="text-white" size={20}/></div>
                                         </div>
                                     </div>
+                                    <div className="flex-1 w-full space-y-2">
+                                        <input value={p.name} onChange={(e) => updateProductField(p.id, 'name', e.target.value)} className="w-full font-bold bg-transparent focus:bg-white rounded px-2 outline-none border border-transparent focus:border-pink-300" placeholder="Назва товару"/>
+                                        <div className="relative">
+                                            <input list={`tags-${p.id}`} value={p.category} onChange={(e) => updateProductField(p.id, 'category', e.target.value)} className="text-sm bg-gray-50 rounded px-2 py-1 w-full outline-none border border-transparent focus:border-pink-300" placeholder="Категорія"/>
+                                            <datalist id={`tags-${p.id}`}>{uniqueCategories.map(c=><option key={c} value={c}/>)}</datalist>
+                                        </div>
+                                    </div>
+                                    <div className="w-24">
+                                        <input type="number" value={p.price} onChange={(e) => updateProductField(p.id, 'price', Number(e.target.value))} className="w-full font-bold text-pink-600 bg-transparent focus:bg-white rounded px-2 outline-none"/>
+                                    </div>
+                                    <button onClick={() => removeProduct(p.id)} className="p-2 text-red-400 hover:bg-red-100 p-2 rounded"><Trash2 size={20}/></button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            );
+
+            // --- ГОЛОВНА СТОРІНКА ---
+            const renderHome = () => (
+                <div className="max-w-6xl mx-auto px-4 py-8">
+                    <div className="bg-gradient-to-br from-pink-500 via-purple-400 to-indigo-400 rounded-[2.5rem] p-8 md:p-14 mb-12 text-white shadow-2xl relative overflow-hidden text-center">
+                        <div className="relative z-10 max-w-2xl mx-auto">
+                            <span className="inline-block bg-white/20 backdrop-blur-md px-4 py-2 rounded-full text-sm font-bold uppercase mb-6 border border-white/30">🎁 Офіційний магазин</span>
+                            <h1 className="text-4xl md:text-6xl font-extrabold mb-6">Магазин настрою ✨</h1>
+                            <p className="text-lg opacity-95">Наймиліші кігурумі та іграшки для найрідніших.</p>
+                        </div>
+                    </div>
+                    
+                    <div className="mb-8">
+                        <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2"><Gift className="text-pink-500"/> Каталог</h2>
+                        {uniqueCategories.length > 0 && (
+                            <div className="flex flex-wrap gap-2 animate-fade-in">
+                                <button onClick={()=>setSelectedCategory(null)} className={`px-4 py-2 rounded-full text-sm font-bold transition ${selectedCategory === null ? 'bg-pink-500 text-white shadow-md' : 'bg-white text-gray-600 hover:bg-pink-50 border border-pink-100'}`}>Всі</button>
+                                {uniqueCategories.map(cat => (
+                                    <button key={cat} onClick={() => setSelectedCategory(cat)} className={`px-4 py-2 rounded-full text-sm font-bold transition ${selectedCategory === cat ? 'bg-pink-500 text-white shadow-md' : 'bg-white text-gray-600 hover:bg-pink-50 border border-pink-100'}`}>{cat}</button>
                                 ))}
                             </div>
                         )}
                     </div>
-                );
-            };
-
-            // 2. PRODUCT DETAILS PAGE (NEW!)
-            const ProductPage = () => {
-                const { id } = useParams();
-                const product = products.find(p => p.id === id);
-                
-                // Скрол вгору при відкритті
-                useEffect(() => window.scrollTo(0, 0), [id]);
-
-                if (!product && !loading) return <div className="text-center py-20">Товар не знайдено :( <Link to="/" className="text-pink-500 underline">На головну</Link></div>;
-                if (!product) return <div className="loader"></div>;
-
-                // Схожі товари (та ж категорія, крім цього)
-                const related = products.filter(p => p.category === product.category && p.id !== product.id).slice(0, 4);
-
-                return (
-                    <div className="max-w-6xl mx-auto px-4 py-8 animate-fade-in">
-                        <Link to="/" className="inline-flex items-center text-gray-500 hover:text-pink-500 mb-6 font-bold"><ArrowLeft size={20} className="mr-2"/> Назад до каталогу</Link>
-                        
-                        <div className="bg-white rounded-[2rem] shadow-xl border border-pink-50 overflow-hidden">
-                            <div className="flex flex-col md:flex-row">
-                                {/* Ліва частина - Фото */}
-                                <div className="md:w-1/2 bg-gray-50 p-8 flex items-center justify-center relative">
-                                    <img src={product.image} className="w-full h-auto max-h-[500px] object-contain drop-shadow-md" />
-                                    <div className="absolute top-6 left-6 bg-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider text-gray-500">{product.category}</div>
-                                </div>
-                                
-                                {/* Права частина - Інфо */}
-                                <div className="md:w-1/2 p-8 md:p-12 flex flex-col">
-                                    <h1 className="text-3xl md:text-4xl font-black text-gray-800 mb-4 leading-tight">{product.name}</h1>
-                                    <div className="flex items-center gap-2 mb-6">
-                                        <div className="flex text-yellow-400 gap-1">{[...Array(5)].map((_,i)=><Star key={i} size={16} fill={i<product.rating?"currentColor":"none"}/>)}</div>
-                                        <span className="text-sm text-gray-400"> (Топ продажів)</span>
-                                    </div>
-                                    
-                                    <div className="mb-8">
-                                        <span className="text-4xl font-black text-pink-600">{product.price} грн</span>
-                                        <p className="text-green-600 text-sm font-bold mt-2 flex items-center gap-1"><Truck size={14}/> Є в наявності</p>
-                                    </div>
-
-                                    <div className="space-y-4 mb-8 text-gray-600 leading-relaxed">
-                                        <p>✨ Ідеальний вибір для подарунка або затишного вечора.</p>
-                                        <p>📦 Відправка в день замовлення.</p>
-                                        <p>✅ Оплата при отриманні або на карту.</p>
-                                    </div>
-
-                                    <div className="mt-auto flex gap-4">
-                                        <button onClick={() => addToCart(product)} className="flex-1 bg-pink-500 text-white py-4 rounded-xl font-bold text-lg hover:bg-pink-600 transition shadow-lg shadow-pink-200 active:scale-95 flex justify-center items-center gap-2">
-                                            <ShoppingCart size={20}/> Додати в кошик
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
+                    
+                    {loading ? <div className="loader"></div> : (
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-16">
+                            {filteredProducts.length === 0 && <div className="col-span-full text-center text-gray-400 py-10">Товарів немає.</div>}
+                            {filteredProducts.map(p => <ProductCard key={p.id} p={p}/>)}
                         </div>
+                    )}
+                </div>
+            );
 
-                        {/* Схожі товари */}
-                        {related.length > 0 && (
-                            <div className="mt-16">
-                                <h3 className="text-2xl font-bold text-gray-800 mb-6">Вам також може сподобатись</h3>
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                    {related.map(p => (
-                                        <Link to={`/product/${p.id}`} key={p.id} className="bg-white p-4 rounded-2xl shadow-sm hover:shadow-md transition border border-gray-100 block">
-                                            <div className="h-40 flex items-center justify-center mb-3"><img src={p.image} className="h-full object-contain"/></div>
-                                            <div className="font-bold text-sm text-gray-800 line-clamp-1">{p.name}</div>
-                                            <div className="text-pink-600 font-bold mt-1">{p.price} грн</div>
-                                        </Link>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                );
-            };
-
-            // 3. ADMIN PAGE
-            const AdminPage = () => {
-                if(!isAdminMode) return <div className="text-center py-20 text-red-500 font-bold">Доступ заборонено</div>;
-                return (
-                    <div className="max-w-6xl mx-auto px-4 py-8 animate-fade-in">
-                        <div className="flex justify-between items-center mb-8">
-                            <h2 className="text-3xl font-bold text-gray-800">Адмін-панель</h2>
-                            <button onClick={adminActions.add} className="flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-indigo-700 transition"><Plus size={20}/> Додати</button>
-                        </div>
-                        <div className="bg-white rounded-3xl shadow-xl overflow-hidden">
-                            {products.map(p => (
-                                <div key={p.id} className="flex flex-col md:flex-row items-center gap-4 p-4 border-b border-gray-50 hover:bg-gray-50">
-                                    <div className="relative group w-20 h-20 shrink-0">
-                                        <input type="file" id={`u-${p.id}`} className="hidden" onChange={(e)=>adminActions.upload(e, p.id)}/>
-                                        <div className="w-full h-full rounded-xl bg-gray-100 cursor-pointer overflow-hidden border" onClick={()=>document.getElementById(`u-${p.id}`).click()}>
-                                            <img src={p.image} className="w-full h-full object-contain p-1"/>
-                                            <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition"><Upload className="text-white"/></div>
-                                        </div>
-                                    </div>
-                                    <div className="flex-1 w-full space-y-2">
-                                        <input value={p.name} onChange={(e)=>adminActions.update(p.id, 'name', e.target.value)} className="w-full font-bold bg-transparent focus:bg-gray-100 rounded px-2 outline-none"/>
-                                        <input list={`cats-${p.id}`} value={p.category} onChange={(e)=>adminActions.update(p.id, 'category', e.target.value)} className="text-sm bg-gray-50 rounded px-2 py-1 outline-none w-full" placeholder="Категорія"/>
-                                        <datalist id={`cats-${p.id}`}>{Array.from(new Set(products.map(x=>x.category))).map(c=><option key={c} value={c}/>)}</datalist>
-                                    </div>
-                                    <input type="number" value={p.price} onChange={(e)=>adminActions.update(p.id, 'price', Number(e.target.value))} className="w-24 font-bold text-pink-600 bg-transparent focus:bg-gray-100 rounded px-2"/>
-                                    <button onClick={()=>adminActions.delete(p.id)} className="text-red-400 hover:bg-red-100 p-2 rounded"><Trash2/></button>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                );
-            };
-
-            // 4. DELIVERY & ABOUT PAGES
-            const DeliveryPage = () => (
+            // --- СТАТИЧНІ СТОРІНКИ ---
+            const renderDelivery = () => (
                 <div className="max-w-4xl mx-auto px-4 py-12 animate-fade-in">
                     <h1 className="text-3xl font-extrabold text-center mb-8">Доставка та Оплата</h1>
                     <div className="grid md:grid-cols-2 gap-8">
@@ -318,83 +373,94 @@
                 </div>
             );
 
-            const AboutPage = () => (
+            const renderAbout = () => (
                 <div className="max-w-4xl mx-auto px-4 py-12 animate-fade-in">
-                    <div className="bg-white rounded-[2.5rem] p-12 shadow-xl border border-pink-50 text-center">
-                        <div className="w-24 h-24 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-6"><Heart size={40} className="text-pink-500" fill="currentColor"/></div>
-                        <h1 className="text-4xl font-extrabold mb-6">Про Нас</h1>
-                        <p className="text-lg text-gray-600">Ми створюємо настрій! Наш магазин - це місце, де живуть наймиліші речі.</p>
+                    <div className="bg-white rounded-[2.5rem] p-8 md:p-12 shadow-xl border border-pink-50 text-center">
+                        <div className="w-24 h-24 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-6"><Heart size={40} className="text-pink-500"/></div>
+                        <h1 className="text-3xl md:text-4xl font-extrabold text-gray-800 mb-6">Про Sweety World</h1>
+                        <p className="text-lg text-gray-600 leading-relaxed mb-8">Ми - команда ентузіастів, які вірять, що одяг має приносити радість! З 2020 року ми зігріваємо клієнтів по всій Україні.</p>
                     </div>
                 </div>
             );
 
-            // --- LAYOUT (HEADER + FOOTER) ---
-            const Layout = ({ children }) => (
+            // --- ГОЛОВНИЙ РЕНДЕР ---
+            return (
                 <div className="min-h-screen flex flex-col relative">
                     <nav className="sticky top-0 z-40 bg-white/90 backdrop-blur-md shadow-sm border-b border-pink-100">
-                        <div className="max-w-6xl mx-auto px-4 h-16 flex justify-between items-center">
-                            <Link to="/" className="flex items-center gap-3 group">
-                                <div className="bg-white p-1 rounded-full border-2 border-pink-200"><StitchLogo/></div>
-                                <span className="text-xl font-black tracking-tight">Kigurumi<span className="text-pink-500">&Toys</span></span>
-                            </Link>
-                            <div className="hidden md:flex gap-6 font-bold text-gray-600">
-                                <Link to="/" className="hover:text-pink-500">Головна</Link>
-                                <Link to="/delivery" className="hover:text-pink-500">Доставка</Link>
-                                <Link to="/about" className="hover:text-pink-500">Про нас</Link>
-                            </div>
-                            <div className="flex gap-3 items-center">
-                                <button onClick={() => setIsCartOpen(true)} className="relative p-2.5 bg-white text-pink-500 rounded-full hover:bg-pink-50 border border-pink-100 shadow-sm">
-                                    <ShoppingCart size={22}/>
-                                    {cart.length > 0 && <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">{cart.reduce((a,b)=>a+b.quantity,0)}</span>}
-                                </button>
-                                <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="md:hidden p-2.5 rounded-full border">{isMobileMenuOpen ? <X/> : <Menu/>}</button>
+                        <div className="max-w-6xl mx-auto px-4">
+                            <div className="flex justify-between items-center h-16">
+                                <div className="flex items-center gap-3 cursor-pointer" onClick={() => {setIsAdminMode(false); setActivePage('home')}}>
+                                    <div className="bg-white p-1 rounded-full border-2 border-pink-200"><StitchLogo/></div>
+                                    <span className="text-xl font-black tracking-tight">Sweety<span className="text-pink-500">World</span></span>
+                                    {isAdminMode && <span className="ml-2 bg-indigo-600 text-white text-[10px] px-2 py-1 rounded-full font-bold">Admin</span>}
+                                </div>
+                                <div className="hidden md:flex gap-6 font-bold text-gray-600 ml-10 mr-auto">
+                                    <button onClick={() => setActivePage('home')} className="hover:text-pink-500">Головна</button>
+                                    <button onClick={() => setActivePage('delivery')} className="hover:text-pink-500">Доставка</button>
+                                    <button onClick={() => setActivePage('about')} className="hover:text-pink-500">Про нас</button>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    {!isAdminMode && <button onClick={() => setIsCartOpen(true)} className="relative px-4 py-2 bg-white text-pink-500 rounded-full hover:bg-pink-50 border border-pink-100 shadow-sm flex items-center gap-2">
+                                        <ShoppingCart size={22}/> <span className="font-bold text-sm hidden sm:inline">Кошик</span>
+                                        {cart.length > 0 && <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center ml-1">{cart.reduce((a,b)=>a+b.quantity,0)}</span>}
+                                    </button>}
+                                    {isAdminMode && <button onClick={() => setIsAdminMode(false)} className="p-2.5 rounded-full border bg-red-50 text-red-500 hover:bg-red-100" title="Вийти"><LogOut size={22}/></button>}
+                                    {!isAdminMode && <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="md:hidden p-2.5 rounded-full border">{isMobileMenuOpen ? <X size={22}/> : <Menu size={22}/>}</button>}
+                                </div>
                             </div>
                         </div>
-                        {isMobileMenuOpen && (
+                        {isMobileMenuOpen && !isAdminMode && (
                             <div className="md:hidden absolute top-16 left-0 w-full bg-white border-b shadow-xl p-4 flex flex-col gap-4 font-bold text-center">
-                                <Link to="/" onClick={()=>setIsMobileMenuOpen(false)}>Головна</Link>
-                                <Link to="/delivery" onClick={()=>setIsMobileMenuOpen(false)}>Доставка</Link>
-                                <Link to="/about" onClick={()=>setIsMobileMenuOpen(false)}>Про нас</Link>
+                                <button onClick={() => {setActivePage('home'); setIsMobileMenuOpen(false)}}>Головна</button>
+                                <button onClick={() => {setActivePage('delivery'); setIsMobileMenuOpen(false)}}>Доставка</button>
+                                <button onClick={() => {setActivePage('about'); setIsMobileMenuOpen(false)}}>Про нас</button>
                             </div>
                         )}
                     </nav>
 
-                    <div className="flex-grow">{children}</div>
+                    <div className="flex-grow">
+                        {isAdminMode ? renderAdmin() : (
+                            activePage === 'delivery' ? renderDelivery() : 
+                            activePage === 'about' ? renderAbout() : 
+                            renderHome()
+                        )}
+                    </div>
 
-                    <footer className="bg-gray-900 text-gray-300 pt-16 pb-8 mt-auto rounded-t-[3rem]">
-                        <div className="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
-                            <div>
-                                <div className="flex items-center gap-2 mb-4"><div className="bg-gray-800 p-1 rounded-full"><StitchLogo/></div><span className="text-xl font-bold text-white">Kigurumi<span className="text-pink-500">&Toys</span></span></div>
-                                <p className="text-sm text-gray-400">Твій магазин гарного настрою.</p>
+                    {!isAdminMode && (
+                        <footer className="bg-gray-900 text-gray-300 pt-16 pb-8 mt-auto rounded-t-[3rem]">
+                            <div className="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+                                <div>
+                                    <div className="flex items-center gap-2 mb-4"><div className="bg-gray-800 p-1 rounded-full"><StitchLogo/></div><span className="text-xl font-bold text-white tracking-tight">Sweety<span className="text-pink-500">World</span></span></div>
+                                    <p className="text-sm mt-4 text-gray-400">Твій улюблений магазин піжам та іграшок. Даруємо радість та тепло з 2020 року.</p>
+                                </div>
+                                <div>
+                                    <h3 className="text-white font-bold mb-6">Клієнтам</h3>
+                                    <ul className="space-y-3 text-sm">
+                                        <li><button onClick={() => setActivePage('delivery')} className="hover:text-pink-500 transition flex items-center gap-2"><Truck size={16}/> Доставка та оплата</button></li>
+                                        <li><button onClick={() => setActivePage('about')} className="hover:text-pink-500 transition flex items-center gap-2"><Heart size={16}/> Про нас</button></li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h3 className="text-white font-bold mb-6">Контакти</h3>
+                                    <ul className="space-y-3 text-sm">
+                                        <li className="flex items-center gap-3"><Phone size={18} className="text-pink-500"/> <a href="tel:+380971234567" className="hover:text-pink-500 transition">+38 (097) 123 45 67</a></li>
+                                        <li className="flex items-center gap-3"><svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className="text-pink-500"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg> <a href="#" target="_blank" className="hover:text-pink-500 transition">@sweety_world_ua</a></li>
+                                        <li className="flex items-center gap-3"><Send size={18} className="text-pink-500"/> <a href="https://t.me/sweety_world" target="_blank" className="hover:text-pink-500 transition">Telegram: @manager</a></li>
+                                    </ul>
+                                </div>
                             </div>
-                            <div>
-                                <h3 className="text-white font-bold mb-4">Меню</h3>
-                                <ul className="space-y-2 text-sm">
-                                    <li><Link to="/delivery" className="hover:text-pink-500">Доставка</Link></li>
-                                    <li><Link to="/about" className="hover:text-pink-500">Про нас</Link></li>
-                                </ul>
+                            <div className="max-w-6xl mx-auto px-4 pt-8 mt-8 border-t border-gray-800 text-xs text-gray-500 flex justify-between items-center">
+                                <p>© 2024 Sweety World.</p>
+                                <button onClick={() => setShowLoginModal(true)} className="bg-white/10 hover:bg-white/20 text-gray-400 hover:text-white p-3 rounded-full transition duration-300 shadow-sm border border-transparent hover:border-pink-500/30" title="Вхід для власника"><Lock size={16}/></button>
                             </div>
-                            <div>
-                                <h3 className="text-white font-bold mb-4">Контакти</h3>
-                                <ul className="space-y-3 text-sm">
-                                    <li className="flex items-center gap-2"><Phone size={16} className="text-pink-500"/> +38 (097) 123 45 67</li>
-                                    <li className="flex items-center gap-2"><Instagram size={16} className="text-pink-500"/> @kigu_toys</li>
-                                    <li className="flex items-center gap-2"><Send size={16} className="text-pink-500"/> @manager_tg</li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div className="max-w-6xl mx-auto px-4 pt-8 mt-8 border-t border-gray-800 text-xs text-gray-500 flex justify-between items-center">
-                            <p>© 2024 Kigurumi&Toys.</p>
-                            <button onClick={()=>setShowLoginModal(true)} className="bg-gray-800 hover:bg-pink-600 text-white p-2 rounded-full transition shadow-lg border border-gray-700"><Lock size={16}/></button>
-                        </div>
-                    </footer>
+                        </footer>
+                    )}
 
-                    {/* MODALS */}
                     {showLoginModal && (
                         <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/40 backdrop-blur-md" onClick={() => setShowLoginModal(false)}>
                             <div className="bg-white rounded-[2rem] shadow-2xl p-8 max-w-sm w-full relative" onClick={e => e.stopPropagation()}>
                                 <h3 className="text-2xl font-extrabold text-center mb-6">Вхід Admin</h3>
-                                <form onSubmit={handleActions.login}>
+                                <form onSubmit={handleLogin}>
                                     <input type="password" value={passwordInput} onChange={(e) => setPasswordInput(e.target.value)} className="w-full px-5 py-4 rounded-xl bg-gray-50 border-2 font-bold text-center text-lg mb-6" placeholder="Пароль" autoFocus />
                                     <button className="w-full bg-pink-500 text-white py-4 rounded-xl font-bold">Увійти</button>
                                 </form>
@@ -402,16 +468,16 @@
                         </div>
                     )}
 
-                    {isCartOpen && (
+                    {isCartOpen && !isAdminMode && (
                         <div className="fixed inset-0 z-50 flex justify-end">
                             <div className="absolute inset-0 bg-gray-900/50 backdrop-blur-sm" onClick={() => setIsCartOpen(false)}></div>
-                            <div className="w-full max-w-md bg-[#fff0f5] h-full shadow-2xl flex flex-col relative animate-fade-in ml-auto z-50 overflow-y-auto">
-                                <div className="px-6 py-5 border-b border-pink-100 flex justify-between items-center bg-white sticky top-0 z-10">
+                            <div className="w-full max-w-md bg-[#fff0f5] h-full shadow-2xl flex flex-col relative animate-fade-in ml-auto z-50">
+                                <div className="px-6 py-5 border-b border-pink-100 flex justify-between items-center bg-white">
                                     <h2 className="text-xl font-bold flex gap-2"><ShoppingCart className="text-pink-500"/> Кошик</h2>
                                     <button onClick={() => setIsCartOpen(false)} className="p-2 hover:bg-gray-100 rounded-full transition"><X size={20}/></button>
                                 </div>
-                                <div className="p-4 flex-1">
-                                    {cart.length === 0 ? <div className="text-center text-gray-500 mt-10">Пусто...</div> : (
+                                <div className="flex-1 overflow-auto p-4">
+                                    {cart.length === 0 ? <div className="text-center text-gray-500 mt-10">Кошик порожній...</div> : (
                                         <>
                                         <div className="space-y-4 mb-8">
                                             {cart.map(item => (
@@ -460,24 +526,6 @@
                         </div>
                     )}
                 </div>
-            );
-
-            // Grouping actions for cleaner JSX
-            const handleActions = { login: handleLogin };
-
-            // --- APP ROUTING ---
-            return (
-                <HashRouter>
-                    <Layout>
-                        <Routes>
-                            <Route path="/" element={<HomePage />} />
-                            <Route path="/product/:id" element={<ProductPage />} />
-                            <Route path="/admin" element={<AdminPage />} />
-                            <Route path="/delivery" element={<DeliveryPage />} />
-                            <Route path="/about" element={<AboutPage />} />
-                        </Routes>
-                    </Layout>
-                </HashRouter>
             );
         }
 
