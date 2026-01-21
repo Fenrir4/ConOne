@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sweety World - Магазин настрою</title>
+    <title>Night Secret - Територія задоволення</title>
     
     <!-- 1. React -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
@@ -14,23 +14,36 @@
     
     <!-- 3. Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#7c3aed', // Violet 600
+                        secondary: '#4c1d95', // Violet 900
+                        accent: '#db2777', // Pink 600
+                    }
+                }
+            }
+        }
+    </script>
     
-    <!-- 4. Lucide Icons (Стабільна версія) -->
+    <!-- 4. Lucide Icons -->
     <script src="https://unpkg.com/lucide-react@0.292.0/dist/lucide-react.umd.js"></script>
 
-    <!-- 5. Firebase (Compat - надійна версія для браузера) -->
+    <!-- 5. Firebase -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
-        body { font-family: 'Nunito', sans-serif; background-color: #fff0f5; }
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap');
+        body { font-family: 'Montserrat', sans-serif; background-color: #f8fafc; }
         .animate-fade-in { animation: fadeIn 0.5s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #ec4899; border-radius: 10px; }
-        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #ec4899; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
+        ::-webkit-scrollbar-thumb { background: #7c3aed; border-radius: 10px; }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #7c3aed; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         #error-root { display: none; padding: 20px; background: #fee2e2; color: #b91c1c; border: 1px solid #ef4444; margin: 20px; border-radius: 8px; font-family: monospace; }
     </style>
@@ -41,7 +54,7 @@
 
     <script type="text/babel">
         // ============================================================
-        // НАЛАШТУВАННЯ FIREBASE (conone-757e4)
+        // FIREBASE CONFIG (conone-757e4)
         // ============================================================
         const firebaseConfig = {
           apiKey: "AIzaSyAu47cciZnYXyEPMTHeH7a1bmX-kCYtGQA",
@@ -52,61 +65,45 @@
           appId: "1:960208791384:web:9e9e109b9df3c1bd95a72d",
           measurementId: "G-B1T6D9BNWN"
         };
-        // ============================================================
 
-        // Ініціалізація бази даних
+        // Init Firebase
         let db;
         try {
             if (window.firebase) {
                 firebase.initializeApp(firebaseConfig);
                 db = firebase.firestore();
-                console.log("Firebase 'conone' успішно підключено");
-            } else {
-                throw new Error("Бібліотека Firebase не завантажилась");
-            }
-        } catch (error) {
-            console.error("Помилка Firebase:", error);
-        }
+                console.log("Firebase connected");
+            } else { throw new Error("Firebase SDK not loaded"); }
+        } catch (error) { console.error("Firebase Error:", error); }
 
         const { useState, useEffect, useMemo } = React;
-        
-        // Отримання іконки
         const Icons = window.lucideReact || {};
-        const FallbackIcon = () => <span style={{fontSize: '10px'}}>?</span>;
+        const FallbackIcon = () => <span>•</span>;
         
         const { 
             ShoppingCart = FallbackIcon, X = FallbackIcon, Star = FallbackIcon, 
             Lock = FallbackIcon, Trash2 = FallbackIcon, Plus = FallbackIcon, 
-            Edit2 = FallbackIcon, ArrowLeft = FallbackIcon, Image: ImageIcon = FallbackIcon, 
-            Gift = FallbackIcon, Heart = FallbackIcon, Truck = FallbackIcon, 
-            CreditCard = FallbackIcon, Banknote = FallbackIcon, Phone = FallbackIcon, 
-            LogOut = FallbackIcon, Upload = FallbackIcon, Menu = FallbackIcon, 
-            Minus = FallbackIcon, Send = FallbackIcon 
+            Edit2 = FallbackIcon, Truck = FallbackIcon, CreditCard = FallbackIcon, 
+            Phone = FallbackIcon, LogOut = FallbackIcon, Upload = FallbackIcon, 
+            Menu = FallbackIcon, Minus = FallbackIcon, Send = FallbackIcon, 
+            Flame = FallbackIcon, ShieldCheck = FallbackIcon, Box = FallbackIcon
         } = Icons;
 
-        // Логотип
-        const StitchLogo = () => (
-            <svg viewBox="0 0 100 100" className="w-10 h-10 drop-shadow-sm transform hover:scale-110 transition duration-300">
-                <path d="M5 30 Q-5 0 40 25" fill="#4F86F7" stroke="#3b6ccf" strokeWidth="2"/>
-                <path d="M95 30 Q105 0 60 25" fill="#4F86F7" stroke="#3b6ccf" strokeWidth="2"/>
-                <path d="M10 30 Q5 10 35 25" fill="#ffb7d5" /> 
-                <path d="M90 30 Q95 10 65 25" fill="#ffb7d5" />
-                <path d="M20 50 Q20 20 50 20 T80 50 Q80 80 50 80 T20 50" fill="#4F86F7" stroke="#3b6ccf" strokeWidth="2"/>
-                <ellipse cx="38" cy="45" rx="8" ry="10" fill="#1a1a1a" />
-                <ellipse cx="62" cy="45" rx="8" ry="10" fill="#1a1a1a" />
-                <circle cx="40" cy="42" r="2" fill="white" />
-                <circle cx="60" cy="42" r="2" fill="white" />
-                <path d="M42 58 Q50 65 58 58" fill="#0f2b6e" />
-                <ellipse cx="50" cy="56" rx="6" ry="4" fill="#0f2b6e" />
-            </svg>
+        // --- НОВИЙ ЛОГОТИП (ВОГНИК) ---
+        const BrandLogo = () => (
+            <div className="relative w-10 h-10 flex items-center justify-center bg-primary rounded-xl shadow-lg shadow-purple-200">
+                <Flame className="text-white w-6 h-6" fill="currentColor" />
+            </div>
         );
 
         const POPULAR_CITIES = ["Київ", "Харків", "Одеса", "Дніпро", "Львів", "Запоріжжя", "Вінниця", "Хмельницький", "Житомир", "Чернівці", "Рівне", "Івано-Франківськ", "Тернопіль", "Луцьк", "Ужгород", "Біла Церква"];
 
-        // Демо-товари (якщо база ще не підключена)
+        // Демо-товари (Тематика 18+)
         const INITIAL_PRODUCTS = [
-            { id: '1', name: "Кігурумі Стіч Синій", price: 650, category: "Кігурумі", image: "https://cf.shopee.com.br/file/0b8967b2727482b49f7278436910271d", rating: 5 },
-            { id: '2', name: "Піжама Єдиноріг", price: 700, category: "Кігурумі", image: "https://m.media-amazon.com/images/I/71isX2yKkYL._AC_UY1000_.jpg", rating: 5 }
+            { id: '1', name: "Презервативи SKYN Elite (10 шт)", price: 350, category: "Презервативи", image: "https://m.media-amazon.com/images/I/71Xy8M-zVmL._AC_SL1500_.jpg", rating: 5 },
+            { id: '2', name: "Лубрикант System JO H2O (30 мл)", price: 420, category: "Лубриканти", image: "https://m.media-amazon.com/images/I/61t+gN-1L+L._AC_SL1500_.jpg", rating: 5 },
+            { id: '3', name: "Вібратор Satisfyer Pro 2", price: 1800, category: "Іграшки", image: "https://m.media-amazon.com/images/I/61A6-yKqjWL._AC_SL1500_.jpg", rating: 5 },
+            { id: '4', name: "Набір ONE Mixed Pleasures (3 шт)", price: 99, category: "Презервативи", image: "https://m.media-amazon.com/images/I/81+Xy-zVmL._AC_SL1500_.jpg", rating: 4 }
         ];
 
         function App() {
@@ -122,7 +119,7 @@
             const [showLoginModal, setShowLoginModal] = useState(false);
             const [selectedCategory, setSelectedCategory] = useState(null);
 
-            // Дані замовлення
+            // Order Data
             const [customerName, setCustomerName] = useState("");
             const [customerPhone, setCustomerPhone] = useState("");
             const [customerCity, setCustomerCity] = useState("");
@@ -132,189 +129,123 @@
 
             const TELEGRAM_BOT_TOKEN = "8490403071:AAFZvriLL_vzQq-ziMVTfiHAu8DmtH84Fjk"; 
             const TELEGRAM_CHAT_ID = "7085928669";
-            const ADMIN_PASSWORD = "toy@56";
+            const ADMIN_PASSWORD = "toy@56"; // Пароль той самий
 
-            // --- СИНХРОНІЗАЦІЯ З БАЗОЮ ---
+            // --- SYNC ---
             useEffect(() => {
-                if (!db) {
-                    setProducts(INITIAL_PRODUCTS);
-                    setLoading(false);
-                    return;
-                }
-
-                // Підписка на оновлення
+                if (!db) { setProducts(INITIAL_PRODUCTS); setLoading(false); return; }
                 const unsubscribe = db.collection("products").onSnapshot((snapshot) => {
-                    const productsData = snapshot.docs.map(doc => ({
-                        id: doc.id,
-                        ...doc.data()
-                    }));
-                    setProducts(productsData.length > 0 ? productsData : []); // Показуємо порожній список, якщо база пуста
-                    setDbError(null);
-                    setLoading(false);
+                    const productsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    setProducts(productsData.length > 0 ? productsData : []); 
+                    setDbError(null); setLoading(false);
                 }, (error) => {
-                    console.error("Error fetching products:", error);
-                    let errorMsg = "Помилка бази даних.";
-                    if (error.code === 'not-found' || error.message.includes('does not exist')) {
-                        errorMsg = "База даних ще не створена у Firebase Console. Зайдіть у Build -> Firestore Database -> Create Database.";
-                    } else if (error.code === 'permission-denied') {
-                        errorMsg = "Немає прав доступу. Зайдіть у вкладку 'Rules' у Firebase і переконайтеся, що стоїть 'Test Mode' (allow read, write: if true).";
-                    }
-                    setDbError(errorMsg);
-                    setProducts(INITIAL_PRODUCTS); // Fallback
-                    setLoading(false);
+                    console.error("Error:", error); setDbError(error.message); setProducts(INITIAL_PRODUCTS); setLoading(false);
                 });
-
                 return () => unsubscribe();
             }, []);
 
-            // Категорії та фільтрація
             const uniqueCategories = useMemo(() => {
                 const cats = new Set(products.map(p => p.category).filter(Boolean));
                 return Array.from(cats);
             }, [products]);
 
-            const filteredProducts = selectedCategory 
-                ? products.filter(p => p.category === selectedCategory)
-                : products;
+            const filteredProducts = selectedCategory ? products.filter(p => p.category === selectedCategory) : products;
 
-            // --- ФУНКЦІЇ АДМІНКИ ---
+            // --- ADMIN ---
             const addNewProduct = async () => {
-                if (!db) return alert("База даних не налаштована!");
-                try {
-                    await db.collection("products").add({
-                        name: "Новий Товар",
-                        price: 0,
-                        category: uniqueCategories[0] || "Загальне",
-                        image: "https://via.placeholder.com/300?text=Фото",
-                        rating: 5,
-                        createdAt: Date.now()
-                    });
-                } catch (e) {
-                    console.error(e);
-                    alert("Помилка додавання. Можливо, база даних не створена або заблокована правами доступу.");
-                }
+                if (!db) return alert("База не підключена");
+                try { await db.collection("products").add({ name: "Новий Товар", price: 0, category: uniqueCategories[0] || "Інше", image: "https://via.placeholder.com/300", rating: 5, createdAt: Date.now() }); } 
+                catch(e) { alert("Помилка додавання: " + e.message); }
+            };
+            const updateProductField = async (id, f, v) => { if(db) await db.collection("products").doc(id).update({ [f]: v }); };
+            const removeProduct = async (id) => { if(db && confirm("Видалити?")) await db.collection("products").doc(id).delete(); };
+            const handleFileUpload = (e, id) => {
+                const f = e.target.files[0];
+                if(f && f.size < 800000) { const r = new FileReader(); r.onloadend = () => updateProductField(id, 'image', r.result); r.readAsDataURL(f); }
+                else if(f) alert("Фото > 800Кб");
             };
 
-            const updateProductField = async (id, field, value) => {
-                if (!db) return;
-                try {
-                    await db.collection("products").doc(id).update({ [field]: value });
-                } catch (e) { console.error(e); }
-            };
-
-            const removeProduct = async (id) => {
-                if (!db) return;
-                if (confirm("Видалити цей товар назавжди?")) {
-                    try { await db.collection("products").doc(id).delete(); } catch (e) { console.error(e); }
-                }
-            };
-
-            const handleFileUpload = (e, productId) => {
-                const file = e.target.files[0];
-                if (file) {
-                    if (file.size > 800000) { alert("Фото занадто велике! Максимум 800Кб."); return; }
-                    const reader = new FileReader();
-                    reader.onloadend = () => { updateProductField(productId, 'image', reader.result); };
-                    reader.readAsDataURL(file);
-                }
-            };
-
-            // --- КОШИК ---
+            // --- CART ---
             const addToCart = (p) => {
-                const safePrice = Number(p.price) || 0;
                 const existing = cart.find(i => i.id === p.id);
                 if (existing) setCart(cart.map(i => i.id === p.id ? { ...i, quantity: i.quantity + 1 } : i));
-                else setCart([...cart, { ...p, price: safePrice, quantity: 1 }]);
+                else setCart([...cart, { ...p, price: Number(p.price)||0, quantity: 1 }]);
                 setIsCartOpen(true);
             };
-            const updateQty = (id, delta) => setCart(cart.map(i => i.id === id ? { ...i, quantity: Math.max(1, i.quantity + delta) } : i));
+            const updateQty = (id, d) => setCart(cart.map(i => i.id === id ? { ...i, quantity: Math.max(1, i.quantity + d) } : i));
             const removeFromCart = (id) => setCart(cart.filter(i => i.id !== id));
             const totalAmount = cart.reduce((sum, i) => sum + ((Number(i.price)||0) * i.quantity), 0);
-
-            const handleLogin = (e) => {
-                e.preventDefault();
-                if (passwordInput === ADMIN_PASSWORD) { setIsAdminMode(true); setShowLoginModal(false); setPasswordInput(""); }
-                else { alert("Невірний пароль!"); }
-            };
 
             const sendOrder = async (e) => {
                 e.preventDefault();
                 setIsOrderSending(true);
-                const payText = paymentMethod === 'cod' ? '📦 Накладний' : '💳 На карту';
-                let msg = `<b>🔥 ЗАМОВЛЕННЯ!</b>\n👤 ${customerName}\n📞 ${customerPhone}\n🏙 ${customerCity}, №${customerBranch}\n💰 ${payText}\n\n`;
+                const payText = paymentMethod === 'cod' ? '📦 Накладний (Анонімно)' : '💳 На карту (Анонімно)';
+                let msg = `<b>🍓 НОВЕ ЗАМОВЛЕННЯ!</b>\n\n👤 ${customerName}\n📞 ${customerPhone}\n🏙 ${customerCity}, №${customerBranch}\n💰 ${payText}\n\n`;
                 cart.forEach((i, idx) => msg += `${idx+1}. ${i.name} (x${i.quantity}) - ${i.price * i.quantity} грн\n`);
                 msg += `\n💵 <b>СУМА: ${totalAmount} грн</b>`;
-
                 try {
                     await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
                         method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: msg, parse_mode: 'HTML' })
                     });
-                    alert(`Дякую, ${customerName}! Замовлення надіслано.`); setCart([]); setIsCartOpen(false);
-                } catch (e) { alert("Помилка відправки."); }
-                finally { setIsOrderSending(false); }
+                    alert(`Замовлення прийнято! Менеджер зв'яжеться з вами для підтвердження. Анонімність гарантуємо.`);
+                    setCart([]); setIsCartOpen(false);
+                } catch (e) { alert("Помилка відправки."); } finally { setIsOrderSending(false); }
             };
 
-            // --- ВІДОБРАЖЕННЯ (UI) ---
-            
+            const handleLogin = (e) => {
+                e.preventDefault();
+                if (passwordInput === ADMIN_PASSWORD) { setIsAdminMode(true); setShowLoginModal(false); setPasswordInput(""); } else { alert("Невірний пароль!"); }
+            };
+
+            // --- COMPONENTS ---
             const ProductCard = ({ p }) => (
-                <div className="bg-white rounded-3xl shadow-sm hover:shadow-xl transition border border-pink-100 flex flex-col h-full group">
-                    <div className="relative h-64 bg-white p-4 flex items-center justify-center border-b border-pink-50">
+                <div className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-purple-50 flex flex-col h-full group overflow-hidden">
+                    <div className="relative h-64 bg-white p-4 flex items-center justify-center border-b border-purple-50">
                         <img src={p.image} className="w-full h-full object-contain group-hover:scale-105 transition duration-500" />
+                        <div className="absolute top-0 right-0 bg-primary text-white text-xs font-bold px-3 py-1 rounded-bl-xl">18+</div>
                     </div>
-                    <div className="p-4 flex-1 flex flex-col">
-                        {p.category && <div className="text-[10px] text-pink-500 font-bold uppercase mb-2 bg-pink-50 inline-block px-2 py-1 rounded w-fit">{p.category}</div>}
+                    <div className="p-5 flex-1 flex flex-col">
+                        <div className="text-[10px] text-primary font-bold uppercase mb-2 bg-purple-50 inline-block px-2 py-1 rounded w-fit tracking-wider">{p.category}</div>
                         <h3 className="font-bold text-gray-800 leading-tight mb-2 line-clamp-2">{p.name}</h3>
-                        <div className="mt-auto pt-3 border-t border-gray-50 flex justify-between items-center">
-                            <span className="text-xl font-black text-pink-600">{p.price} <span className="text-sm font-medium text-gray-400">грн</span></span>
-                            <button onClick={() => addToCart(p)} className="bg-gray-100 text-gray-600 px-4 py-2 rounded-full hover:bg-pink-500 hover:text-white transition active:scale-95 flex items-center gap-2">
-                                <ShoppingCart size={18}/> <span className="text-xs font-bold">Купити</span>
+                        <div className="mt-auto pt-4 border-t border-gray-50 flex justify-between items-center">
+                            <span className="text-2xl font-black text-gray-900">{p.price} <span className="text-sm font-medium text-gray-400">грн</span></span>
+                            <button onClick={() => addToCart(p)} className="bg-primary text-white px-4 py-2.5 rounded-xl hover:bg-secondary transition active:scale-95 flex items-center gap-2 shadow-lg shadow-purple-200">
+                                <ShoppingCart size={18}/> 
                             </button>
                         </div>
                     </div>
                 </div>
             );
 
-            // --- АДМІН ПАНЕЛЬ ---
+            // --- ADMIN RENDER ---
             const renderAdmin = () => (
                 <div className="max-w-6xl mx-auto px-4 py-8 animate-fade-in">
                     <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-                        <div>
-                            <h2 className="text-3xl font-bold text-gray-800 mb-2">Адмін-панель</h2>
-                            <p className="text-sm text-gray-500">Додавайте та редагуйте товари.</p>
-                        </div>
-                        <button onClick={addNewProduct} className="flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-indigo-700 transition"><Plus size={20}/> Додати товар</button>
+                        <h2 className="text-3xl font-bold text-gray-800">Адмін-панель</h2>
+                        <button onClick={addNewProduct} className="flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-xl font-bold hover:bg-secondary transition"><Plus size={20}/> Додати товар</button>
                     </div>
-                    
-                    {dbError && (
-                        <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded shadow-sm">
-                            <p className="font-bold mb-1">Увага! Проблема з базою даних:</p>
-                            <p>{dbError}</p>
-                        </div>
-                    )}
-
+                    {dbError && <div className="bg-red-100 text-red-700 p-4 mb-6 rounded">Помилка БД: {dbError}</div>}
                     {loading ? <div className="loader"></div> : (
                         <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
-                            {products.length === 0 && <div className="p-12 text-center text-gray-500"><p>Список товарів порожній.</p></div>}
+                            {products.length === 0 && <div className="p-12 text-center text-gray-500">Товарів немає.</div>}
                             {products.map(p => (
-                                <div key={p.id} className="flex items-center gap-4 p-4 border-b border-gray-50 hover:bg-pink-50/30">
+                                <div key={p.id} className="flex items-center gap-4 p-4 border-b border-gray-50 hover:bg-purple-50/30">
                                     <div className="relative group w-20 h-20 shrink-0">
                                         <input type="file" id={`upl-${p.id}`} className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, p.id)}/>
-                                        <div className="w-full h-full rounded-xl bg-gray-50 border border-gray-200 cursor-pointer overflow-hidden" onClick={() => document.getElementById(`upl-${p.id}`).click()}>
-                                            <img src={p.image} className="w-full h-full object-contain p-1" />
+                                        <div className="w-full h-full rounded-xl bg-gray-50 border cursor-pointer overflow-hidden flex items-center justify-center" onClick={() => document.getElementById(`upl-${p.id}`).click()}>
+                                            <img src={p.image} className="w-full h-full object-contain" />
                                             <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition"><Upload className="text-white" size={20}/></div>
                                         </div>
                                     </div>
                                     <div className="flex-1 w-full space-y-2">
-                                        <input value={p.name} onChange={(e) => updateProductField(p.id, 'name', e.target.value)} className="w-full font-bold bg-transparent focus:bg-white rounded px-2 outline-none border border-transparent focus:border-pink-300" placeholder="Назва товару"/>
+                                        <input value={p.name} onChange={(e) => updateProductField(p.id, 'name', e.target.value)} className="w-full font-bold bg-transparent focus:bg-white rounded px-2 outline-none border border-transparent focus:border-purple-300"/>
                                         <div className="relative">
-                                            <input list={`tags-${p.id}`} value={p.category} onChange={(e) => updateProductField(p.id, 'category', e.target.value)} className="text-sm bg-gray-50 rounded px-2 py-1 w-full outline-none border border-transparent focus:border-pink-300" placeholder="Категорія"/>
+                                            <input list={`tags-${p.id}`} value={p.category} onChange={(e) => updateProductField(p.id, 'category', e.target.value)} className="text-sm bg-gray-50 rounded px-2 py-1 w-full outline-none border border-transparent focus:border-purple-300" placeholder="Категорія"/>
                                             <datalist id={`tags-${p.id}`}>{uniqueCategories.map(c=><option key={c} value={c}/>)}</datalist>
                                         </div>
                                     </div>
-                                    <div className="w-24">
-                                        <input type="number" value={p.price} onChange={(e) => updateProductField(p.id, 'price', Number(e.target.value))} className="w-full font-bold text-pink-600 bg-transparent focus:bg-white rounded px-2 outline-none"/>
-                                    </div>
-                                    <button onClick={() => removeProduct(p.id)} className="p-2 text-red-400 hover:bg-red-100 p-2 rounded"><Trash2 size={20}/></button>
+                                    <input type="number" value={p.price} onChange={(e) => updateProductField(p.id, 'price', Number(e.target.value))} className="w-24 font-bold text-primary bg-transparent focus:bg-white rounded px-2 outline-none"/>
+                                    <button onClick={() => removeProduct(p.id)} className="p-2 text-red-400 hover:bg-red-100 rounded-lg"><Trash2 size={20}/></button>
                                 </div>
                             ))}
                         </div>
@@ -322,87 +253,101 @@
                 </div>
             );
 
-            // --- ГОЛОВНА СТОРІНКА ---
+            // --- HOME RENDER ---
             const renderHome = () => (
                 <div className="max-w-6xl mx-auto px-4 py-8">
-                    <div className="bg-gradient-to-br from-pink-500 via-purple-400 to-indigo-400 rounded-[2.5rem] p-8 md:p-14 mb-12 text-white shadow-2xl relative overflow-hidden text-center">
-                        <div className="relative z-10 max-w-2xl mx-auto">
-                            <span className="inline-block bg-white/20 backdrop-blur-md px-4 py-2 rounded-full text-sm font-bold uppercase mb-6 border border-white/30">🎁 Офіційний магазин</span>
-                            <h1 className="text-4xl md:text-6xl font-extrabold mb-6">Магазин настрою ✨</h1>
-                            <p className="text-lg opacity-95">Наймиліші кігурумі та іграшки для найрідніших.</p>
+                    {/* Hero Banner */}
+                    <div className="bg-gradient-to-r from-primary to-secondary rounded-[2.5rem] p-8 md:p-16 mb-12 text-white shadow-2xl relative overflow-hidden text-center md:text-left flex items-center">
+                        <div className="relative z-10 max-w-2xl">
+                            <span className="inline-block bg-white/10 backdrop-blur-md px-4 py-2 rounded-lg text-sm font-bold uppercase mb-6 border border-white/20 tracking-widest">Анонімно • Швидко • Якісно</span>
+                            <h1 className="text-4xl md:text-6xl font-extrabold mb-6 leading-tight">Територія твого <br/><span className="text-accent">задоволення</span></h1>
+                            <p className="text-lg opacity-80 mb-8 max-w-lg">Найкращі товари для незабутніх моментів. Оригінальна продукція SKYN, ONE, Durex та іграшки.</p>
+                            <button onClick={()=>document.getElementById('catalog').scrollIntoView({behavior:'smooth'})} className="bg-white text-primary px-8 py-4 rounded-xl font-bold hover:bg-gray-100 transition shadow-lg flex items-center gap-2 w-fit mx-auto md:mx-0">Перейти до каталогу <ArrowLeft className="rotate-180"/></button>
                         </div>
+                        {/* Decorative circle */}
+                        <div className="absolute -right-20 -bottom-40 w-96 h-96 bg-accent blur-[100px] opacity-50 rounded-full"></div>
                     </div>
                     
-                    <div className="mb-8">
-                        <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2"><Gift className="text-pink-500"/> Каталог</h2>
-                        {uniqueCategories.length > 0 && (
-                            <div className="flex flex-wrap gap-2 animate-fade-in">
-                                <button onClick={()=>setSelectedCategory(null)} className={`px-4 py-2 rounded-full text-sm font-bold transition ${selectedCategory === null ? 'bg-pink-500 text-white shadow-md' : 'bg-white text-gray-600 hover:bg-pink-50 border border-pink-100'}`}>Всі</button>
-                                {uniqueCategories.map(cat => (
-                                    <button key={cat} onClick={() => setSelectedCategory(cat)} className={`px-4 py-2 rounded-full text-sm font-bold transition ${selectedCategory === cat ? 'bg-pink-500 text-white shadow-md' : 'bg-white text-gray-600 hover:bg-pink-50 border border-pink-100'}`}>{cat}</button>
-                                ))}
-                            </div>
-                        )}
+                    <div id="catalog" className="mb-8">
+                        <div className="flex flex-wrap gap-2 justify-center md:justify-start">
+                            <button onClick={()=>setSelectedCategory(null)} className={`px-5 py-2.5 rounded-xl text-sm font-bold transition ${selectedCategory===null ? 'bg-gray-900 text-white' : 'bg-white text-gray-600 border hover:border-primary'}`}>Всі</button>
+                            {uniqueCategories.map(c=><button key={c} onClick={()=>setSelectedCategory(c)} className={`px-5 py-2.5 rounded-xl text-sm font-bold transition ${selectedCategory===c ? 'bg-primary text-white shadow-lg shadow-purple-200' : 'bg-white text-gray-600 border hover:border-primary'}`}>{c}</button>)}
+                        </div>
                     </div>
                     
                     {loading ? <div className="loader"></div> : (
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-16">
-                            {filteredProducts.length === 0 && <div className="col-span-full text-center text-gray-400 py-10">Товарів немає.</div>}
+                            {filteredProducts.length===0 && <div className="col-span-full text-center text-gray-400 py-10">Товарів немає.</div>}
                             {filteredProducts.map(p => <ProductCard key={p.id} p={p}/>)}
                         </div>
                     )}
                 </div>
             );
 
-            // --- СТАТИЧНІ СТОРІНКИ ---
+            // --- STATIC PAGES ---
             const renderDelivery = () => (
                 <div className="max-w-4xl mx-auto px-4 py-12 animate-fade-in">
-                    <h1 className="text-3xl font-extrabold text-center mb-8">Доставка та Оплата</h1>
+                    <h1 className="text-3xl font-extrabold text-center mb-10 text-gray-800">100% Анонімність та Доставка</h1>
                     <div className="grid md:grid-cols-2 gap-8">
-                        <div className="bg-white p-8 rounded-3xl shadow-lg border border-pink-100">
-                            <div className="bg-red-50 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 text-red-600"><Truck size={32}/></div>
-                            <h2 className="text-xl font-bold mb-4">Нова Пошта</h2>
-                            <ul className="space-y-2 text-gray-600"><li>🚀 Відправка в день замовлення</li><li>📦 1-2 дні по Україні</li></ul>
+                        <div className="bg-white p-8 rounded-3xl shadow-lg border border-purple-50">
+                            <div className="bg-purple-100 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 text-primary"><ShieldCheck size={32}/></div>
+                            <h2 className="text-xl font-bold mb-4">Повна конфіденційність</h2>
+                            <p className="text-gray-600 mb-4">Ми розуміємо, як важлива приватність.</p>
+                            <ul className="space-y-3 text-sm text-gray-600">
+                                <li className="flex items-center gap-2"><Box size={16}/> Упаковка без написів та логотипів</li>
+                                <li className="flex items-center gap-2"><Lock size={16}/> В описі посилки: "Косметика" або "Сувеніри"</li>
+                                <li className="flex items-center gap-2"><Truck size={16}/> Відправка в день замовлення</li>
+                            </ul>
                         </div>
-                        <div className="bg-white p-8 rounded-3xl shadow-lg border border-pink-100">
-                            <div className="bg-green-50 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 text-green-600"><CreditCard size={32}/></div>
+                        <div className="bg-white p-8 rounded-3xl shadow-lg border border-purple-50">
+                            <div className="bg-green-100 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 text-green-600"><CreditCard size={32}/></div>
                             <h2 className="text-xl font-bold mb-4">Оплата</h2>
-                            <ul className="space-y-2 text-gray-600"><li>💵 Накладний платіж</li><li>💳 На карту (Monobank/Privat)</li></ul>
+                            <ul className="space-y-3 text-gray-600 text-sm">
+                                <li className="flex gap-2"><span>💵</span> <span><b>Накладний платіж:</b> Оплата при отриманні на Новій Пошті.</span></li>
+                                <li className="flex gap-2"><span>💳</span> <span><b>На карту:</b> Monobank / PrivatBank (без комісії за переказ).</span></li>
+                            </ul>
                         </div>
                     </div>
                 </div>
             );
 
             const renderAbout = () => (
-                <div className="max-w-4xl mx-auto px-4 py-12 animate-fade-in">
-                    <div className="bg-white rounded-[2.5rem] p-8 md:p-12 shadow-xl border border-pink-50 text-center">
-                        <div className="w-24 h-24 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-6"><Heart size={40} className="text-pink-500"/></div>
-                        <h1 className="text-3xl md:text-4xl font-extrabold text-gray-800 mb-6">Про Sweety World</h1>
-                        <p className="text-lg text-gray-600 leading-relaxed mb-8">Ми - команда ентузіастів, які вірять, що одяг має приносити радість! З 2020 року ми зігріваємо клієнтів по всій Україні.</p>
+                <div className="max-w-4xl mx-auto px-4 py-12 animate-fade-in text-center">
+                    <div className="bg-white rounded-[2.5rem] p-12 shadow-xl border border-purple-50 relative overflow-hidden">
+                        <div className="relative z-10">
+                            <div className="w-24 h-24 bg-primary rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl shadow-purple-200"><Flame size={40} className="text-white"/></div>
+                            <h1 className="text-3xl md:text-4xl font-extrabold text-gray-800 mb-6">Night Secret</h1>
+                            <p className="text-lg text-gray-600 leading-relaxed mb-8 max-w-2xl mx-auto">
+                                Ми створили цей простір, щоб кожен міг безпечно та комфортно купувати якісні товари для задоволення.
+                                <br/><br/>
+                                <b>Наша місія:</b> Робити ваше інтимне життя яскравішим без зайвого сорому. Тільки оригінальна продукція, тільки безпечні матеріали.
+                            </p>
+                        </div>
+                        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary to-accent"></div>
                     </div>
                 </div>
             );
 
-            // --- ГОЛОВНИЙ РЕНДЕР ---
+            // --- MAIN LAYOUT ---
             return (
                 <div className="min-h-screen flex flex-col relative">
-                    <nav className="sticky top-0 z-40 bg-white/90 backdrop-blur-md shadow-sm border-b border-pink-100">
+                    <nav className="sticky top-0 z-40 bg-white/90 backdrop-blur-md shadow-sm border-b border-purple-100">
                         <div className="max-w-6xl mx-auto px-4">
                             <div className="flex justify-between items-center h-16">
                                 <div className="flex items-center gap-3 cursor-pointer" onClick={() => {setIsAdminMode(false); setActivePage('home')}}>
-                                    <div className="bg-white p-1 rounded-full border-2 border-pink-200"><StitchLogo/></div>
-                                    <span className="text-xl font-black tracking-tight">Sweety<span className="text-pink-500">World</span></span>
-                                    {isAdminMode && <span className="ml-2 bg-indigo-600 text-white text-[10px] px-2 py-1 rounded-full font-bold">Admin</span>}
+                                    <BrandLogo/>
+                                    <span className="text-lg md:text-xl font-black tracking-tight text-gray-800">Night<span className="text-primary">Secret</span></span>
+                                    {isAdminMode && <span className="ml-2 bg-primary text-white text-[10px] px-2 py-1 rounded-full font-bold">Admin</span>}
                                 </div>
-                                <div className="hidden md:flex gap-6 font-bold text-gray-600 ml-10 mr-auto">
-                                    <button onClick={() => setActivePage('home')} className="hover:text-pink-500">Головна</button>
-                                    <button onClick={() => setActivePage('delivery')} className="hover:text-pink-500">Доставка</button>
-                                    <button onClick={() => setActivePage('about')} className="hover:text-pink-500">Про нас</button>
+                                <div className="hidden md:flex gap-8 font-bold text-gray-600 text-sm">
+                                    <button onClick={() => setActivePage('home')} className="hover:text-primary transition">Головна</button>
+                                    <button onClick={() => setActivePage('delivery')} className="hover:text-primary transition">Анонімність</button>
+                                    <button onClick={() => setActivePage('about')} className="hover:text-primary transition">Про нас</button>
                                 </div>
                                 <div className="flex items-center gap-3">
-                                    {!isAdminMode && <button onClick={() => setIsCartOpen(true)} className="relative px-4 py-2 bg-white text-pink-500 rounded-full hover:bg-pink-50 border border-pink-100 shadow-sm flex items-center gap-2">
-                                        <ShoppingCart size={22}/> <span className="font-bold text-sm hidden sm:inline">Кошик</span>
-                                        {cart.length > 0 && <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center ml-1">{cart.reduce((a,b)=>a+b.quantity,0)}</span>}
+                                    {!isAdminMode && <button onClick={() => setIsCartOpen(true)} className="relative px-4 py-2.5 bg-gray-900 text-white rounded-xl hover:bg-gray-800 shadow-lg shadow-gray-200 flex items-center gap-2 transition active:scale-95">
+                                        <ShoppingCart size={20}/> 
+                                        {cart.length > 0 && <span className="bg-accent text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center ml-1">{cart.reduce((a,b)=>a+b.quantity,0)}</span>}
                                     </button>}
                                     {isAdminMode && <button onClick={() => setIsAdminMode(false)} className="p-2.5 rounded-full border bg-red-50 text-red-500 hover:bg-red-100" title="Вийти"><LogOut size={22}/></button>}
                                     {!isAdminMode && <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="md:hidden p-2.5 rounded-full border">{isMobileMenuOpen ? <X size={22}/> : <Menu size={22}/>}</button>}
@@ -410,48 +355,44 @@
                             </div>
                         </div>
                         {isMobileMenuOpen && !isAdminMode && (
-                            <div className="md:hidden absolute top-16 left-0 w-full bg-white border-b shadow-xl p-4 flex flex-col gap-4 font-bold text-center">
+                            <div className="md:hidden absolute top-16 left-0 w-full bg-white border-b shadow-xl p-4 flex flex-col gap-4 font-bold text-center text-gray-700">
                                 <button onClick={() => {setActivePage('home'); setIsMobileMenuOpen(false)}}>Головна</button>
-                                <button onClick={() => {setActivePage('delivery'); setIsMobileMenuOpen(false)}}>Доставка</button>
+                                <button onClick={() => {setActivePage('delivery'); setIsMobileMenuOpen(false)}}>Анонімність та Доставка</button>
                                 <button onClick={() => {setActivePage('about'); setIsMobileMenuOpen(false)}}>Про нас</button>
                             </div>
                         )}
                     </nav>
 
                     <div className="flex-grow">
-                        {isAdminMode ? renderAdmin() : (
-                            activePage === 'delivery' ? renderDelivery() : 
-                            activePage === 'about' ? renderAbout() : 
-                            renderHome()
-                        )}
+                        {isAdminMode ? renderAdmin() : (activePage === 'delivery' ? renderDelivery() : activePage === 'about' ? renderAbout() : renderHome())}
                     </div>
 
                     {!isAdminMode && (
                         <footer className="bg-gray-900 text-gray-300 pt-16 pb-8 mt-auto rounded-t-[3rem]">
                             <div className="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
                                 <div>
-                                    <div className="flex items-center gap-2 mb-4"><div className="bg-gray-800 p-1 rounded-full"><StitchLogo/></div><span className="text-xl font-bold text-white tracking-tight">Sweety<span className="text-pink-500">World</span></span></div>
-                                    <p className="text-sm mt-4 text-gray-400">Твій улюблений магазин піжам та іграшок. Даруємо радість та тепло з 2020 року.</p>
+                                    <div className="flex items-center gap-2 mb-4"><BrandLogo/><span className="text-xl font-bold text-white">Night<span className="text-primary">Secret</span></span></div>
+                                    <p className="text-sm mt-4 text-gray-400">Твій секрет у безпеці. Магазин для тих, хто цінує якість та задоволення.</p>
                                 </div>
                                 <div>
-                                    <h3 className="text-white font-bold mb-6">Клієнтам</h3>
+                                    <h3 className="text-white font-bold mb-6">Інформація</h3>
                                     <ul className="space-y-3 text-sm">
-                                        <li><button onClick={() => setActivePage('delivery')} className="hover:text-pink-500 transition flex items-center gap-2"><Truck size={16}/> Доставка та оплата</button></li>
-                                        <li><button onClick={() => setActivePage('about')} className="hover:text-pink-500 transition flex items-center gap-2"><Heart size={16}/> Про нас</button></li>
+                                        <li><button onClick={() => setActivePage('delivery')} className="hover:text-primary transition flex items-center gap-2"><ShieldCheck size={16}/> Гарантія анонімності</button></li>
+                                        <li><button onClick={() => setActivePage('about')} className="hover:text-primary transition flex items-center gap-2"><Heart size={16}/> Про нас</button></li>
                                     </ul>
                                 </div>
                                 <div>
                                     <h3 className="text-white font-bold mb-6">Контакти</h3>
                                     <ul className="space-y-3 text-sm">
-                                        <li className="flex items-center gap-3"><Phone size={18} className="text-pink-500"/> <a href="tel:+380971234567" className="hover:text-pink-500 transition">+38 (097) 123 45 67</a></li>
-                                        <li className="flex items-center gap-3"><svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className="text-pink-500"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg> <a href="#" target="_blank" className="hover:text-pink-500 transition">@sweety_world_ua</a></li>
-                                        <li className="flex items-center gap-3"><Send size={18} className="text-pink-500"/> <a href="https://t.me/sweety_world" target="_blank" className="hover:text-pink-500 transition">Telegram: @manager</a></li>
+                                        <li className="flex items-center gap-3"><Phone size={18} className="text-primary"/> +38 (097) 123 45 67</li>
+                                        <li className="flex items-center gap-3"><Send size={18} className="text-primary"/> @night_secret_ua</li>
+                                        <li className="text-xs text-gray-500 mt-2">18+ | Тільки для повнолітніх</li>
                                     </ul>
                                 </div>
                             </div>
                             <div className="max-w-6xl mx-auto px-4 pt-8 mt-8 border-t border-gray-800 text-xs text-gray-500 flex justify-between items-center">
-                                <p>© 2024 Sweety World.</p>
-                                <button onClick={() => setShowLoginModal(true)} className="bg-white/10 hover:bg-white/20 text-gray-400 hover:text-white p-3 rounded-full transition duration-300 shadow-sm border border-transparent hover:border-pink-500/30" title="Вхід для власника"><Lock size={16}/></button>
+                                <p>© 2024 Night Secret.</p>
+                                <button onClick={() => setShowLoginModal(true)} className="bg-white/5 hover:bg-white/20 text-gray-500 hover:text-white p-2 rounded-full transition"><Lock size={14}/></button>
                             </div>
                         </footer>
                     )}
@@ -459,10 +400,10 @@
                     {showLoginModal && (
                         <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/40 backdrop-blur-md" onClick={() => setShowLoginModal(false)}>
                             <div className="bg-white rounded-[2rem] shadow-2xl p-8 max-w-sm w-full relative" onClick={e => e.stopPropagation()}>
-                                <h3 className="text-2xl font-extrabold text-center mb-6">Вхід Admin</h3>
+                                <h3 className="text-2xl font-extrabold text-center mb-6 text-gray-800">Вхід Admin</h3>
                                 <form onSubmit={handleLogin}>
-                                    <input type="password" value={passwordInput} onChange={(e) => setPasswordInput(e.target.value)} className="w-full px-5 py-4 rounded-xl bg-gray-50 border-2 font-bold text-center text-lg mb-6" placeholder="Пароль" autoFocus />
-                                    <button className="w-full bg-pink-500 text-white py-4 rounded-xl font-bold">Увійти</button>
+                                    <input type="password" value={passwordInput} onChange={(e) => setPasswordInput(e.target.value)} className="w-full px-5 py-4 rounded-xl bg-gray-50 border-2 font-bold text-center text-lg mb-6 outline-none focus:border-primary" placeholder="Пароль" autoFocus />
+                                    <button className="w-full bg-primary text-white py-4 rounded-xl font-bold hover:bg-secondary transition">Увійти</button>
                                 </form>
                             </div>
                         </div>
@@ -471,9 +412,9 @@
                     {isCartOpen && !isAdminMode && (
                         <div className="fixed inset-0 z-50 flex justify-end">
                             <div className="absolute inset-0 bg-gray-900/50 backdrop-blur-sm" onClick={() => setIsCartOpen(false)}></div>
-                            <div className="w-full max-w-md bg-[#fff0f5] h-full shadow-2xl flex flex-col relative animate-fade-in ml-auto z-50">
-                                <div className="px-6 py-5 border-b border-pink-100 flex justify-between items-center bg-white">
-                                    <h2 className="text-xl font-bold flex gap-2"><ShoppingCart className="text-pink-500"/> Кошик</h2>
+                            <div className="w-full max-w-md bg-[#f8fafc] h-full shadow-2xl flex flex-col relative animate-fade-in ml-auto z-50">
+                                <div className="px-6 py-5 border-b border-purple-100 flex justify-between items-center bg-white">
+                                    <h2 className="text-xl font-bold flex gap-2 items-center"><ShoppingCart className="text-primary"/> Кошик <span className="text-xs bg-gray-100 px-2 py-1 rounded text-gray-500 font-normal">Анонімна упаковка</span></h2>
                                     <button onClick={() => setIsCartOpen(false)} className="p-2 hover:bg-gray-100 rounded-full transition"><X size={20}/></button>
                                 </div>
                                 <div className="flex-1 overflow-auto p-4">
@@ -481,12 +422,12 @@
                                         <>
                                         <div className="space-y-4 mb-8">
                                             {cart.map(item => (
-                                                <div key={item.id} className="bg-white p-4 rounded-2xl shadow-sm border border-pink-50 flex gap-4">
+                                                <div key={item.id} className="bg-white p-4 rounded-2xl shadow-sm border border-purple-50 flex gap-4">
                                                     <img src={item.image} className="w-16 h-16 object-contain bg-gray-50 rounded-lg"/>
                                                     <div className="flex-1">
-                                                        <div className="flex justify-between items-start"><div className="font-bold text-sm">{item.name}</div><button onClick={() => removeFromCart(item.id)} className="text-gray-300 hover:text-red-500"><Trash2 size={16}/></button></div>
+                                                        <div className="flex justify-between items-start"><div className="font-bold text-sm text-gray-800 line-clamp-1">{item.name}</div><button onClick={() => removeFromCart(item.id)} className="text-gray-300 hover:text-red-500"><Trash2 size={16}/></button></div>
                                                         <div className="flex justify-between items-end mt-2">
-                                                            <div className="font-bold text-pink-600">{item.price} грн</div>
+                                                            <div className="font-bold text-primary">{item.price} грн</div>
                                                             <div className="flex items-center gap-1 bg-gray-50 rounded-lg border p-0.5">
                                                                 <button onClick={() => updateQty(item.id, -1)} className="p-1 hover:bg-white rounded"><Minus size={16}/></button>
                                                                 <span className="font-bold min-w-[20px] text-center text-sm">{item.quantity}</span>
@@ -497,25 +438,25 @@
                                                 </div>
                                             ))}
                                         </div>
-                                        <div className="bg-white p-6 rounded-3xl shadow-sm border border-pink-100 space-y-4">
-                                            <h3 className="font-bold mb-4 flex gap-2"><Edit2 className="text-pink-500" size={16}/> Оформлення</h3>
+                                        <div className="bg-white p-6 rounded-3xl shadow-sm border border-purple-100 space-y-4">
+                                            <h3 className="font-bold mb-4 flex gap-2"><Edit2 className="text-primary" size={16}/> Оформлення (Анонімно)</h3>
                                             <form onSubmit={sendOrder} className="space-y-3">
-                                                <input required value={customerName} onChange={e => setCustomerName(e.target.value)} className="w-full px-4 py-3 rounded-xl bg-gray-50 border focus:border-pink-500 outline-none" placeholder="ПІБ"/>
-                                                <input required type="tel" value={customerPhone} onChange={e => setCustomerPhone(e.target.value)} className="w-full px-4 py-3 rounded-xl bg-gray-50 border focus:border-pink-500 outline-none" placeholder="Телефон"/>
-                                                <div className="bg-gray-50 p-3 rounded-xl border">
+                                                <input required value={customerName} onChange={e => setCustomerName(e.target.value)} className="w-full px-4 py-3 rounded-xl bg-gray-50 border focus:border-primary outline-none" placeholder="ПІБ"/>
+                                                <input required type="tel" value={customerPhone} onChange={e => setCustomerPhone(e.target.value)} className="w-full px-4 py-3 rounded-xl bg-gray-50 border focus:border-primary outline-none" placeholder="Телефон"/>
+                                                <div className="bg-gray-50 p-3 rounded-xl border border-gray-200">
                                                     <div className="text-xs font-bold text-red-600 mb-2 flex gap-1"><Truck size={12}/> Нова Пошта</div>
-                                                    <input list="cities" required value={customerCity} onChange={e => setCustomerCity(e.target.value)} className="w-full px-3 py-2 rounded-lg border mb-2 text-sm" placeholder="Місто"/>
+                                                    <input list="cities" required value={customerCity} onChange={e => setCustomerCity(e.target.value)} className="w-full px-3 py-2 rounded-lg border mb-2 text-sm focus:border-red-500 outline-none" placeholder="Місто"/>
                                                     <datalist id="cities">{POPULAR_CITIES.map(c => <option key={c} value={c}/>)}</datalist>
-                                                    <input required value={customerBranch} onChange={e => setCustomerBranch(e.target.value)} className="w-full px-3 py-2 rounded-lg border text-sm" placeholder="Відділення №"/>
+                                                    <input required value={customerBranch} onChange={e => setCustomerBranch(e.target.value)} className="w-full px-3 py-2 rounded-lg border text-sm focus:border-red-500 outline-none" placeholder="Відділення №"/>
                                                 </div>
-                                                <div className="bg-gray-50 p-3 rounded-xl border">
+                                                <div className="bg-gray-50 p-3 rounded-xl border border-gray-200">
                                                     <div className="text-xs font-bold text-green-600 mb-2 flex gap-1"><CreditCard size={12}/> Оплата</div>
-                                                    <label className="flex items-center gap-2 p-2 hover:bg-white cursor-pointer"><input type="radio" name="pay" checked={paymentMethod==='cod'} onChange={()=>setPaymentMethod('cod')} className="text-pink-500"/><span className="text-sm">Накладний</span></label>
-                                                    <label className="flex items-center gap-2 p-2 hover:bg-white cursor-pointer"><input type="radio" name="pay" checked={paymentMethod==='card'} onChange={()=>setPaymentMethod('card')} className="text-pink-500"/><span className="text-sm">На карту</span></label>
+                                                    <label className="flex items-center gap-2 p-2 hover:bg-white cursor-pointer"><input type="radio" name="pay" checked={paymentMethod==='cod'} onChange={()=>setPaymentMethod('cod')} className="text-primary focus:ring-primary"/><span className="text-sm">Накладний</span></label>
+                                                    <label className="flex items-center gap-2 p-2 hover:bg-white cursor-pointer"><input type="radio" name="pay" checked={paymentMethod==='card'} onChange={()=>setPaymentMethod('card')} className="text-primary focus:ring-primary"/><span className="text-sm">На карту</span></label>
                                                 </div>
                                                 <div className="pt-4 mt-4 border-t border-dashed flex justify-between items-center">
-                                                    <div className="text-xl font-black">Сума: <span className="text-pink-600">{totalAmount} грн</span></div>
-                                                    <button disabled={isOrderSending} className="bg-pink-500 text-white px-6 py-3 rounded-xl font-bold hover:bg-pink-600 transition flex items-center gap-2">{isOrderSending ? '...' : <><Send size={18}/> Замовити</>}</button>
+                                                    <div className="text-xl font-black">Сума: <span className="text-primary">{totalAmount} грн</span></div>
+                                                    <button disabled={isOrderSending} className="bg-primary text-white px-6 py-3 rounded-xl font-bold hover:bg-secondary transition flex items-center gap-2 shadow-lg shadow-purple-200 active:scale-95">{isOrderSending ? '...' : <><Send size={18}/> Замовити</>}</button>
                                                 </div>
                                             </form>
                                         </div>
