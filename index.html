@@ -88,6 +88,7 @@
             Upload: (p) => <IconBase {...p}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></IconBase>,
             Check: (p) => <IconBase {...p}><polyline points="20 6 9 17 4 12"/></IconBase>,
             Video: (p) => <IconBase {...p}><path d="m22 8-6 4 6 4V8Z"/><rect width="14" height="12" x="2" y="6" rx="2" ry="2"/></IconBase>,
+            Link: (p) => <IconBase {...p}><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></IconBase>,
             Phone: (p) => <IconBase {...p}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></IconBase>,
             Instagram: (p) => <IconBase {...p}><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></IconBase>,
             Send: (p) => <IconBase {...p}><line x1="22" x2="11" y1="2" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></IconBase>,
@@ -210,8 +211,8 @@
             const [currentImg, setCurrentImg] = useState(0);
             if (!product) return <div className="min-h-screen bg-slate-900 pt-20 flex items-center justify-center text-center"><h2 className="text-2xl font-bold text-white mb-2">Товар не знайдено</h2><button onClick={goBack} className="text-violet-400 hover:text-white font-bold">Повернутись</button></div>;
             const images = product.images || [];
-            const nextImage = () => setCurrentImg((prev) => (prev === images.length - 1 ? 0 : prev + 1));
-            const prevImage = () => setCurrentImg((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+            const nextImage = (e) => { e.stopPropagation(); setCurrentImg((prev) => (prev === images.length - 1 ? 0 : prev + 1)); };
+            const prevImage = (e) => { e.stopPropagation(); setCurrentImg((prev) => (prev === 0 ? images.length - 1 : prev - 1)); };
 
             return (
                 <div className="min-h-screen bg-slate-900 pb-20 pt-10 animate-fade-in">
@@ -226,7 +227,7 @@
                                         </div>
                                     ) : (<div className="w-full h-full flex items-center justify-center text-gray-600"><Icons.Image size={64}/></div>)}
                                     {product.inStock === false && <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-20"><span className="text-white font-bold text-lg bg-red-600 px-4 py-2 rounded">НЕМАЄ В НАЯВНОСТІ</span></div>}
-                                    {images.length > 1 && (<><button onClick={prevImage} className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 text-white hover:bg-violet-600 transition opacity-0 group-hover:opacity-100"><Icons.ChevronLeft size={24}/></button><button onClick={nextImage} className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 text-white hover:bg-violet-600 transition opacity-0 group-hover:opacity-100"><Icons.ChevronRight size={24}/></button></>)}
+                                    {images.length > 1 && (<><button onClick={prevImage} className="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-black/60 text-white hover:bg-violet-600 transition z-10"><Icons.ChevronLeft size={24}/></button><button onClick={nextImage} className="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-black/60 text-white hover:bg-violet-600 transition z-10"><Icons.ChevronRight size={24}/></button></>)}
                                 </div>
                                 {images.length > 1 && (<div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">{images.map((img, idx) => (<button key={idx} onClick={() => setCurrentImg(idx)} className={`w-20 h-20 rounded-xl overflow-hidden border-2 flex-shrink-0 transition-all ${currentImg === idx ? 'border-violet-500 scale-105' : 'border-transparent opacity-70 hover:opacity-100'}`}>{isVideo(img) ? <div className="w-full h-full bg-black flex items-center justify-center"><Icons.Video size={24} className="text-white"/></div> : <img src={img} className="w-full h-full object-cover"/>}</button>))}</div>)}
                             </div>
@@ -458,9 +459,39 @@
                                     <div><label className="block text-sm font-bold text-gray-400 mb-2">Категорія</label><select value={formData.category} onChange={e=>setFormData({...formData, category:e.target.value})} className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-violet-500">{CATEGORIES.map(c=><option key={c.name} value={c.name}>{c.name}</option>)}<option value="Інше">Інше</option></select></div>
                                     <div><label className="block text-sm font-bold text-gray-400 mb-2">Стара ціна (необов'язково)</label><input type="number" value={formData.oldPrice || ''} onChange={e=>setFormData({...formData, oldPrice:Number(e.target.value)})} className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-violet-500" placeholder="0" /></div>
                                 </div>
-                                <div><label className="block text-sm font-bold text-gray-400 mb-2">Медіа</label><div className="flex flex-wrap gap-4 mb-4">{formData.images?.map((img, i) => <div key={i} className="relative w-24 h-24 rounded-lg overflow-hidden border border-white/20 group bg-black">{isVideo(img) ? <video src={img} className="w-full h-full object-cover"/> : <img src={img} className="w-full h-full object-cover"/>}<button type="button" onClick={() => removeImage(i)} className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition text-red-500"><Icons.Trash2/></button></div>)}<label className="w-24 h-24 rounded-lg border-2 border-dashed border-white/20 flex flex-col items-center justify-center text-gray-400 cursor-pointer hover:border-violet-500"><Icons.Upload size={24}/><input type="file" multiple className="hidden" onChange={handleImageUpload}/></label></div><div className="flex gap-2"><input value={urlInput} onChange={e => setUrlInput(e.target.value)} placeholder="Вставте посилання на фото або .mp4 відео" className="flex-1 bg-slate-900 border border-white/10 rounded-xl px-4 py-2 text-white outline-none focus:border-violet-500 text-sm"/><button type="button" onClick={handleAddUrl} className="bg-slate-700 hover:bg-violet-600 text-white px-4 rounded-xl text-sm font-bold">Додати URL</button></div></div>
+                                
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-400 mb-2">Медіа (Фото/Відео)</label>
+                                    <div className="flex flex-wrap gap-4 mb-4">
+                                        {formData.images?.map((img, i) => (
+                                            <div key={i} className="relative w-24 h-24 rounded-lg overflow-hidden border border-white/20 group bg-black">
+                                                {isVideo(img) ? <video src={img} className="w-full h-full object-cover"/> : <img src={img} className="w-full h-full object-cover"/>}
+                                                <button type="button" onClick={() => removeImage(i)} className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition text-red-500"><Icons.Trash2/></button>
+                                            </div>
+                                        ))}
+                                        <label className="w-24 h-24 rounded-lg border-2 border-dashed border-white/20 flex flex-col items-center justify-center text-gray-400 cursor-pointer hover:border-violet-500 hover:text-violet-500 transition">
+                                            <Icons.Upload size={24}/>
+                                            <span className="text-xs mt-1">Файл</span>
+                                            <input type="file" multiple className="hidden" onChange={handleImageUpload}/>
+                                        </label>
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <input value={urlInput} onChange={e => setUrlInput(e.target.value)} placeholder="Вставте посилання на фото або .mp4 відео" className="flex-1 bg-slate-900 border border-white/10 rounded-xl px-4 py-2 text-white outline-none focus:border-violet-500 text-sm"/>
+                                        <button type="button" onClick={handleAddUrl} className="bg-slate-700 hover:bg-violet-600 text-white px-4 rounded-xl text-sm font-bold">Додати URL</button>
+                                    </div>
+                                </div>
+
                                 <div><label className="block text-sm font-bold text-gray-400 mb-2">Опис</label><textarea rows={4} value={formData.description} onChange={e=>setFormData({...formData, description:e.target.value})} className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-violet-500" /></div>
-                                <div className="bg-slate-900 p-4 rounded-xl border border-white/10"><div className="flex justify-between items-center mb-4"><label className="block text-sm font-bold text-gray-400">Характеристики</label><button type="button" onClick={addSpec} className="text-xs bg-violet-600 px-3 py-1 rounded text-white">Додати</button></div><div className="space-y-2">{formData.specs?.map((spec, i) => (<div key={i} className="flex gap-2"><input value={spec} onChange={e => updateSpec(i, e.target.value)} className="flex-1 bg-slate-800 border border-white/10 rounded px-3 py-2 text-white outline-none" /><button type="button" onClick={() => removeSpec(i)} className="text-red-500 hover:text-red-400"><Icons.Trash2 size={18}/></button></div>))}</div></div>
+                                
+                                <div className="bg-slate-900 p-4 rounded-xl border border-white/10">
+                                    <div className="flex justify-between items-center mb-4"><label className="block text-sm font-bold text-gray-400">Характеристики</label><button type="button" onClick={addSpec} className="text-xs bg-violet-600 px-3 py-1 rounded text-white">Додати</button></div>
+                                    <div className="space-y-2">
+                                        {formData.specs?.map((spec, i) => (
+                                            <div key={i} className="flex gap-2"><input value={spec} onChange={e => updateSpec(i, e.target.value)} className="flex-1 bg-slate-800 border border-white/10 rounded px-3 py-2 text-white outline-none" /><button type="button" onClick={() => removeSpec(i)} className="text-red-500 hover:text-red-400"><Icons.Trash2 size={18}/></button></div>
+                                        ))}
+                                    </div>
+                                </div>
+
                                 <button className="bg-violet-600 text-white font-bold py-3 px-8 rounded-xl">Зберегти</button>
                             </form>
                         </div>
@@ -488,8 +519,8 @@
                                         <tr key={p.id} className={`hover:bg-white/5 transition ${!p.isVisible ? 'opacity-50' : ''}`}>
                                             <td className="p-4 text-gray-500">
                                                 <div className="flex flex-col gap-1">
-                                                    <button onClick={() => handleMove(idx, 'up')} className="hover:text-white p-1" disabled={idx === 0}><Icons.ArrowUp size={14}/></button>
-                                                    <button onClick={() => handleMove(idx, 'down')} className="hover:text-white p-1" disabled={idx === products.length - 1}><Icons.ArrowDown size={14}/></button>
+                                                    <button onClick={() => handleMove(idx, 'up')} className="hover:text-white p-2 bg-slate-700 rounded-md" disabled={idx === 0}><Icons.ArrowUp size={16}/></button>
+                                                    <button onClick={() => handleMove(idx, 'down')} className="hover:text-white p-2 bg-slate-700 rounded-md" disabled={idx === products.length - 1}><Icons.ArrowDown size={16}/></button>
                                                 </div>
                                             </td>
                                             <td className="p-4 font-bold text-white">
