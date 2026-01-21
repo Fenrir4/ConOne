@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Night Secret - Територія задоволення</title>
     
-    <!-- 1. React -->
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <!-- 1. React (Global) -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     
     <!-- 2. Babel -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -31,7 +31,7 @@
     <!-- 4. Lucide Icons -->
     <script src="https://unpkg.com/lucide-react@0.292.0/dist/lucide-react.umd.js"></script>
 
-    <!-- 5. Firebase -->
+    <!-- 5. Firebase (Compat) -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
@@ -45,11 +45,39 @@
         ::-webkit-scrollbar-thumb { background: #7c3aed; border-radius: 10px; }
         .loader { border: 4px solid #f3f3f3; border-top: 4px solid #7c3aed; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        #error-root { display: none; padding: 20px; background: #fee2e2; color: #b91c1c; border: 1px solid #ef4444; margin: 20px; border-radius: 8px; font-family: monospace; }
+        
+        /* Error Screen */
+        #global-error { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 9999; padding: 20px; color: #dc2626; font-family: monospace; overflow: auto; }
+        #loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f8fafc; z-index: 5000; display: flex; justify-content: center; align-items: center; flex-direction: column; }
     </style>
 </head>
 <body>
-    <div id="error-root"></div>
+    <!-- Перехоплення помилок -->
+    <div id="global-error">
+        <h2 style="font-size: 24px; margin-bottom: 10px;">⚠️ Сталася помилка!</h2>
+        <p>Будь ласка, зробіть скріншот цього екрану і надішліть розробнику.</p>
+        <hr style="margin: 20px 0; border: 1px solid #eee;">
+        <pre id="error-text"></pre>
+    </div>
+
+    <script>
+        window.onerror = function(message, source, lineno, colno, error) {
+            document.getElementById('loading-screen').style.display = 'none';
+            document.getElementById('global-error').style.display = 'block';
+            document.getElementById('error-text').innerText = 
+                "Message: " + message + "\n" +
+                "Source: " + source + "\n" +
+                "Line: " + lineno + ":" + colno + "\n" +
+                "Stack: " + (error ? error.stack : "N/A");
+        };
+    </script>
+
+    <!-- Екран завантаження -->
+    <div id="loading-screen">
+        <div class="loader"></div>
+        <p style="margin-top: 10px; color: #4c1d95; font-weight: bold;">Завантаження магазину...</p>
+    </div>
+
     <div id="root"></div>
 
     <script type="text/babel">
@@ -66,19 +94,26 @@
           measurementId: "G-B1T6D9BNWN"
         };
 
-        // Init Firebase
+        // Init Firebase Safe
         let db;
         try {
             if (window.firebase) {
                 firebase.initializeApp(firebaseConfig);
                 db = firebase.firestore();
-                console.log("Firebase connected");
-            } else { throw new Error("Firebase SDK not loaded"); }
-        } catch (error) { console.error("Firebase Error:", error); }
+                console.log("Firebase connected successfully");
+            } else {
+                throw new Error("Бібліотека Firebase не завантажилась (window.firebase is undefined). Перевірте інтернет.");
+            }
+        } catch (error) {
+            console.error("Firebase Error:", error);
+            // Ми не зупиняємо роботу, щоб показати хоча б інтерфейс, але без бази
+        }
 
         const { useState, useEffect, useMemo } = React;
+        
+        // --- SAFE ICONS ---
         const Icons = window.lucideReact || {};
-        const FallbackIcon = () => <span>•</span>;
+        const FallbackIcon = () => <span style={{fontSize: '12px'}}>?</span>;
         
         const { 
             ShoppingCart = FallbackIcon, X = FallbackIcon, Star = FallbackIcon, 
@@ -89,10 +124,10 @@
             Flame = FallbackIcon, ShieldCheck = FallbackIcon, Box = FallbackIcon
         } = Icons;
 
-        // --- НОВИЙ ЛОГОТИП (ВОГНИК) ---
+        // --- ЛОГОТИП ---
         const BrandLogo = () => (
             <div className="relative w-10 h-10 flex items-center justify-center bg-primary rounded-xl shadow-lg shadow-purple-200">
-                <Flame className="text-white w-6 h-6" fill="currentColor" />
+                {Icons.Flame ? <Flame className="text-white w-6 h-6" fill="currentColor" /> : <span className="text-white font-bold">NS</span>}
             </div>
         );
 
@@ -129,17 +164,31 @@
 
             const TELEGRAM_BOT_TOKEN = "8490403071:AAFZvriLL_vzQq-ziMVTfiHAu8DmtH84Fjk"; 
             const TELEGRAM_CHAT_ID = "7085928669";
-            const ADMIN_PASSWORD = "toy@56"; // Пароль той самий
+            const ADMIN_PASSWORD = "toy@56"; 
+
+            // Прибираємо екран завантаження після маунту React
+            useEffect(() => {
+                const loader = document.getElementById('loading-screen');
+                if (loader) loader.style.display = 'none';
+            }, []);
 
             // --- SYNC ---
             useEffect(() => {
-                if (!db) { setProducts(INITIAL_PRODUCTS); setLoading(false); return; }
+                if (!db) {
+                    setProducts(INITIAL_PRODUCTS);
+                    setLoading(false);
+                    return;
+                }
                 const unsubscribe = db.collection("products").onSnapshot((snapshot) => {
                     const productsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                     setProducts(productsData.length > 0 ? productsData : []); 
                     setDbError(null); setLoading(false);
                 }, (error) => {
-                    console.error("Error:", error); setDbError(error.message); setProducts(INITIAL_PRODUCTS); setLoading(false);
+                    console.error("DB Error:", error);
+                    let msg = "Помилка бази даних.";
+                    if(error.code === 'permission-denied') msg = "Немає прав доступу (Перевірте Rules у Firebase)";
+                    if(error.code === 'not-found') msg = "База даних не створена (Build -> Firestore Database -> Create)";
+                    setDbError(msg); setProducts(INITIAL_PRODUCTS); setLoading(false);
                 });
                 return () => unsubscribe();
             }, []);
@@ -187,7 +236,7 @@
                     await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
                         method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: msg, parse_mode: 'HTML' })
                     });
-                    alert(`Замовлення прийнято! Менеджер зв'яжеться з вами для підтвердження. Анонімність гарантуємо.`);
+                    alert(`Замовлення прийнято! Менеджер зв'яжеться з вами. Анонімність гарантуємо.`);
                     setCart([]); setIsCartOpen(false);
                 } catch (e) { alert("Помилка відправки."); } finally { setIsOrderSending(false); }
             };
@@ -217,120 +266,10 @@
                 </div>
             );
 
-            // --- ADMIN RENDER ---
-            const renderAdmin = () => (
-                <div className="max-w-6xl mx-auto px-4 py-8 animate-fade-in">
-                    <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-                        <h2 className="text-3xl font-bold text-gray-800">Адмін-панель</h2>
-                        <button onClick={addNewProduct} className="flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-xl font-bold hover:bg-secondary transition"><Plus size={20}/> Додати товар</button>
-                    </div>
-                    {dbError && <div className="bg-red-100 text-red-700 p-4 mb-6 rounded">Помилка БД: {dbError}</div>}
-                    {loading ? <div className="loader"></div> : (
-                        <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
-                            {products.length === 0 && <div className="p-12 text-center text-gray-500">Товарів немає.</div>}
-                            {products.map(p => (
-                                <div key={p.id} className="flex items-center gap-4 p-4 border-b border-gray-50 hover:bg-purple-50/30">
-                                    <div className="relative group w-20 h-20 shrink-0">
-                                        <input type="file" id={`upl-${p.id}`} className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, p.id)}/>
-                                        <div className="w-full h-full rounded-xl bg-gray-50 border cursor-pointer overflow-hidden flex items-center justify-center" onClick={() => document.getElementById(`upl-${p.id}`).click()}>
-                                            <img src={p.image} className="w-full h-full object-contain" />
-                                            <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition"><Upload className="text-white" size={20}/></div>
-                                        </div>
-                                    </div>
-                                    <div className="flex-1 w-full space-y-2">
-                                        <input value={p.name} onChange={(e) => updateProductField(p.id, 'name', e.target.value)} className="w-full font-bold bg-transparent focus:bg-white rounded px-2 outline-none border border-transparent focus:border-purple-300"/>
-                                        <div className="relative">
-                                            <input list={`tags-${p.id}`} value={p.category} onChange={(e) => updateProductField(p.id, 'category', e.target.value)} className="text-sm bg-gray-50 rounded px-2 py-1 w-full outline-none border border-transparent focus:border-purple-300" placeholder="Категорія"/>
-                                            <datalist id={`tags-${p.id}`}>{uniqueCategories.map(c=><option key={c} value={c}/>)}</datalist>
-                                        </div>
-                                    </div>
-                                    <input type="number" value={p.price} onChange={(e) => updateProductField(p.id, 'price', Number(e.target.value))} className="w-24 font-bold text-primary bg-transparent focus:bg-white rounded px-2 outline-none"/>
-                                    <button onClick={() => removeProduct(p.id)} className="p-2 text-red-400 hover:bg-red-100 rounded-lg"><Trash2 size={20}/></button>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
-            );
-
-            // --- HOME RENDER ---
-            const renderHome = () => (
-                <div className="max-w-6xl mx-auto px-4 py-8">
-                    {/* Hero Banner */}
-                    <div className="bg-gradient-to-r from-primary to-secondary rounded-[2.5rem] p-8 md:p-16 mb-12 text-white shadow-2xl relative overflow-hidden text-center md:text-left flex items-center">
-                        <div className="relative z-10 max-w-2xl">
-                            <span className="inline-block bg-white/10 backdrop-blur-md px-4 py-2 rounded-lg text-sm font-bold uppercase mb-6 border border-white/20 tracking-widest">Анонімно • Швидко • Якісно</span>
-                            <h1 className="text-4xl md:text-6xl font-extrabold mb-6 leading-tight">Територія твого <br/><span className="text-accent">задоволення</span></h1>
-                            <p className="text-lg opacity-80 mb-8 max-w-lg">Найкращі товари для незабутніх моментів. Оригінальна продукція SKYN, ONE, Durex та іграшки.</p>
-                            <button onClick={()=>document.getElementById('catalog').scrollIntoView({behavior:'smooth'})} className="bg-white text-primary px-8 py-4 rounded-xl font-bold hover:bg-gray-100 transition shadow-lg flex items-center gap-2 w-fit mx-auto md:mx-0">Перейти до каталогу <ArrowLeft className="rotate-180"/></button>
-                        </div>
-                        {/* Decorative circle */}
-                        <div className="absolute -right-20 -bottom-40 w-96 h-96 bg-accent blur-[100px] opacity-50 rounded-full"></div>
-                    </div>
-                    
-                    <div id="catalog" className="mb-8">
-                        <div className="flex flex-wrap gap-2 justify-center md:justify-start">
-                            <button onClick={()=>setSelectedCategory(null)} className={`px-5 py-2.5 rounded-xl text-sm font-bold transition ${selectedCategory===null ? 'bg-gray-900 text-white' : 'bg-white text-gray-600 border hover:border-primary'}`}>Всі</button>
-                            {uniqueCategories.map(c=><button key={c} onClick={()=>setSelectedCategory(c)} className={`px-5 py-2.5 rounded-xl text-sm font-bold transition ${selectedCategory===c ? 'bg-primary text-white shadow-lg shadow-purple-200' : 'bg-white text-gray-600 border hover:border-primary'}`}>{c}</button>)}
-                        </div>
-                    </div>
-                    
-                    {loading ? <div className="loader"></div> : (
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-16">
-                            {filteredProducts.length===0 && <div className="col-span-full text-center text-gray-400 py-10">Товарів немає.</div>}
-                            {filteredProducts.map(p => <ProductCard key={p.id} p={p}/>)}
-                        </div>
-                    )}
-                </div>
-            );
-
-            // --- STATIC PAGES ---
-            const renderDelivery = () => (
-                <div className="max-w-4xl mx-auto px-4 py-12 animate-fade-in">
-                    <h1 className="text-3xl font-extrabold text-center mb-10 text-gray-800">100% Анонімність та Доставка</h1>
-                    <div className="grid md:grid-cols-2 gap-8">
-                        <div className="bg-white p-8 rounded-3xl shadow-lg border border-purple-50">
-                            <div className="bg-purple-100 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 text-primary"><ShieldCheck size={32}/></div>
-                            <h2 className="text-xl font-bold mb-4">Повна конфіденційність</h2>
-                            <p className="text-gray-600 mb-4">Ми розуміємо, як важлива приватність.</p>
-                            <ul className="space-y-3 text-sm text-gray-600">
-                                <li className="flex items-center gap-2"><Box size={16}/> Упаковка без написів та логотипів</li>
-                                <li className="flex items-center gap-2"><Lock size={16}/> В описі посилки: "Косметика" або "Сувеніри"</li>
-                                <li className="flex items-center gap-2"><Truck size={16}/> Відправка в день замовлення</li>
-                            </ul>
-                        </div>
-                        <div className="bg-white p-8 rounded-3xl shadow-lg border border-purple-50">
-                            <div className="bg-green-100 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 text-green-600"><CreditCard size={32}/></div>
-                            <h2 className="text-xl font-bold mb-4">Оплата</h2>
-                            <ul className="space-y-3 text-gray-600 text-sm">
-                                <li className="flex gap-2"><span>💵</span> <span><b>Накладний платіж:</b> Оплата при отриманні на Новій Пошті.</span></li>
-                                <li className="flex gap-2"><span>💳</span> <span><b>На карту:</b> Monobank / PrivatBank (без комісії за переказ).</span></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            );
-
-            const renderAbout = () => (
-                <div className="max-w-4xl mx-auto px-4 py-12 animate-fade-in text-center">
-                    <div className="bg-white rounded-[2.5rem] p-12 shadow-xl border border-purple-50 relative overflow-hidden">
-                        <div className="relative z-10">
-                            <div className="w-24 h-24 bg-primary rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl shadow-purple-200"><Flame size={40} className="text-white"/></div>
-                            <h1 className="text-3xl md:text-4xl font-extrabold text-gray-800 mb-6">Night Secret</h1>
-                            <p className="text-lg text-gray-600 leading-relaxed mb-8 max-w-2xl mx-auto">
-                                Ми створили цей простір, щоб кожен міг безпечно та комфортно купувати якісні товари для задоволення.
-                                <br/><br/>
-                                <b>Наша місія:</b> Робити ваше інтимне життя яскравішим без зайвого сорому. Тільки оригінальна продукція, тільки безпечні матеріали.
-                            </p>
-                        </div>
-                        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary to-accent"></div>
-                    </div>
-                </div>
-            );
-
-            // --- MAIN LAYOUT ---
+            // --- RENDER ---
             return (
                 <div className="min-h-screen flex flex-col relative">
+                    {/* NAV */}
                     <nav className="sticky top-0 z-40 bg-white/90 backdrop-blur-md shadow-sm border-b border-purple-100">
                         <div className="max-w-6xl mx-auto px-4">
                             <div className="flex justify-between items-center h-16">
@@ -364,36 +303,112 @@
                     </nav>
 
                     <div className="flex-grow">
-                        {isAdminMode ? renderAdmin() : (activePage === 'delivery' ? renderDelivery() : activePage === 'about' ? renderAbout() : renderHome())}
+                        {/* ADMIN MODE */}
+                        {isAdminMode ? (
+                            <div className="max-w-6xl mx-auto px-4 py-8 animate-fade-in">
+                                <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+                                    <h2 className="text-3xl font-bold text-gray-800">Адмін-панель</h2>
+                                    <button onClick={addNewProduct} className="flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-xl font-bold hover:bg-secondary transition"><Plus size={20}/> Додати товар</button>
+                                </div>
+                                {dbError && <div className="bg-red-100 text-red-700 p-4 mb-6 rounded font-bold">ПОМИЛКА БАЗИ ДАНИХ: {dbError}</div>}
+                                {loading ? <div className="loader"></div> : (
+                                    <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+                                        {products.length === 0 && <div className="p-12 text-center text-gray-500">Товарів немає.</div>}
+                                        {products.map(p => (
+                                            <div key={p.id} className="flex items-center gap-4 p-4 border-b border-gray-50 hover:bg-purple-50/30">
+                                                <div className="relative group w-20 h-20 shrink-0">
+                                                    <input type="file" id={`upl-${p.id}`} className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, p.id)}/>
+                                                    <div className="w-full h-full rounded-xl bg-gray-50 border cursor-pointer overflow-hidden flex items-center justify-center" onClick={() => document.getElementById(`upl-${p.id}`).click()}>
+                                                        <img src={p.image} className="w-full h-full object-contain" />
+                                                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition"><Upload className="text-white" size={20}/></div>
+                                                    </div>
+                                                </div>
+                                                <div className="flex-1 w-full space-y-2">
+                                                    <input value={p.name} onChange={(e) => updateProductField(p.id, 'name', e.target.value)} className="w-full font-bold bg-transparent focus:bg-white rounded px-2 outline-none border border-transparent focus:border-purple-300"/>
+                                                    <div className="relative">
+                                                        <input list={`tags-${p.id}`} value={p.category} onChange={(e) => updateProductField(p.id, 'category', e.target.value)} className="text-sm bg-gray-50 rounded px-2 py-1 w-full outline-none border border-transparent focus:border-purple-300" placeholder="Категорія"/>
+                                                        <datalist id={`tags-${p.id}`}>{uniqueCategories.map(c=><option key={c} value={c}/>)}</datalist>
+                                                    </div>
+                                                </div>
+                                                <input type="number" value={p.price} onChange={(e) => updateProductField(p.id, 'price', Number(e.target.value))} className="w-24 font-bold text-primary bg-transparent focus:bg-white rounded px-2 outline-none"/>
+                                                <button onClick={() => removeProduct(p.id)} className="p-2 text-red-400 hover:bg-red-100 rounded-lg"><Trash2 size={20}/></button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        ) : activePage === 'delivery' ? (
+                            <div className="max-w-4xl mx-auto px-4 py-12 animate-fade-in">
+                                <h1 className="text-3xl font-extrabold text-center mb-10 text-gray-800">100% Анонімність та Доставка</h1>
+                                <div className="grid md:grid-cols-2 gap-8">
+                                    <div className="bg-white p-8 rounded-3xl shadow-lg border border-purple-50">
+                                        <div className="bg-purple-100 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 text-primary"><ShieldCheck size={32}/></div>
+                                        <h2 className="text-xl font-bold mb-4">Повна конфіденційність</h2>
+                                        <ul className="space-y-3 text-sm text-gray-600">
+                                            <li className="flex items-center gap-2"><Box size={16}/> Упаковка без написів</li>
+                                            <li className="flex items-center gap-2"><Lock size={16}/> Опис: "Косметика"</li>
+                                            <li className="flex items-center gap-2"><Truck size={16}/> Швидка відправка</li>
+                                        </ul>
+                                    </div>
+                                    <div className="bg-white p-8 rounded-3xl shadow-lg border border-purple-50">
+                                        <div className="bg-green-100 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 text-green-600"><CreditCard size={32}/></div>
+                                        <h2 className="text-xl font-bold mb-4">Оплата</h2>
+                                        <ul className="space-y-3 text-gray-600 text-sm">
+                                            <li>💵 <b>Накладний:</b> При отриманні</li>
+                                            <li>💳 <b>Карта:</b> Mono/Privat</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        ) : activePage === 'about' ? (
+                            <div className="max-w-4xl mx-auto px-4 py-12 animate-fade-in text-center">
+                                <div className="bg-white rounded-[2.5rem] p-12 shadow-xl border border-purple-50 relative overflow-hidden">
+                                    <div className="relative z-10">
+                                        <div className="w-24 h-24 bg-primary rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl shadow-purple-200"><Flame size={40} className="text-white"/></div>
+                                        <h1 className="text-3xl md:text-4xl font-extrabold text-gray-800 mb-6">Night Secret</h1>
+                                        <p className="text-lg text-gray-600 leading-relaxed mb-8 max-w-2xl mx-auto">Твій простір безпечного задоволення.</p>
+                                    </div>
+                                    <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary to-accent"></div>
+                                </div>
+                            </div>
+                        ) : (
+                            // HOME PAGE
+                            <div className="max-w-6xl mx-auto px-4 py-8">
+                                <div className="bg-gradient-to-r from-primary to-secondary rounded-[2.5rem] p-8 md:p-16 mb-12 text-white shadow-2xl relative overflow-hidden text-center md:text-left flex items-center">
+                                    <div className="relative z-10 max-w-2xl">
+                                        <span className="inline-block bg-white/10 backdrop-blur-md px-4 py-2 rounded-lg text-sm font-bold uppercase mb-6 border border-white/20 tracking-widest">Анонімно • Швидко</span>
+                                        <h1 className="text-4xl md:text-6xl font-extrabold mb-6 leading-tight">Територія твого <br/><span className="text-accent">задоволення</span></h1>
+                                        <p className="text-lg opacity-80 mb-8 max-w-lg">Найкращі товари для незабутніх моментів.</p>
+                                        <button onClick={()=>document.getElementById('catalog').scrollIntoView({behavior:'smooth'})} className="bg-white text-primary px-8 py-4 rounded-xl font-bold hover:bg-gray-100 transition shadow-lg flex items-center gap-2 w-fit mx-auto md:mx-0">До каталогу <ArrowLeft className="rotate-180"/></button>
+                                    </div>
+                                    <div className="absolute -right-20 -bottom-40 w-96 h-96 bg-accent blur-[100px] opacity-50 rounded-full"></div>
+                                </div>
+                                
+                                <div id="catalog" className="mb-8">
+                                    <div className="flex flex-wrap gap-2 justify-center md:justify-start">
+                                        <button onClick={()=>setSelectedCategory(null)} className={`px-5 py-2.5 rounded-xl text-sm font-bold transition ${selectedCategory===null ? 'bg-gray-900 text-white' : 'bg-white text-gray-600 border hover:border-primary'}`}>Всі</button>
+                                        {uniqueCategories.map(c=><button key={c} onClick={()=>setSelectedCategory(c)} className={`px-5 py-2.5 rounded-xl text-sm font-bold transition ${selectedCategory===c ? 'bg-primary text-white shadow-lg shadow-purple-200' : 'bg-white text-gray-600 border hover:border-primary'}`}>{c}</button>)}
+                                    </div>
+                                </div>
+                                
+                                {loading ? <div className="loader"></div> : (
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-16">
+                                        {filteredProducts.length===0 && <div className="col-span-full text-center text-gray-400 py-10">Товарів немає.</div>}
+                                        {filteredProducts.map(p => <ProductCard key={p.id} p={p}/>)}
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
 
                     {!isAdminMode && (
                         <footer className="bg-gray-900 text-gray-300 pt-16 pb-8 mt-auto rounded-t-[3rem]">
                             <div className="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
-                                <div>
-                                    <div className="flex items-center gap-2 mb-4"><BrandLogo/><span className="text-xl font-bold text-white">Night<span className="text-primary">Secret</span></span></div>
-                                    <p className="text-sm mt-4 text-gray-400">Твій секрет у безпеці. Магазин для тих, хто цінує якість та задоволення.</p>
-                                </div>
-                                <div>
-                                    <h3 className="text-white font-bold mb-6">Інформація</h3>
-                                    <ul className="space-y-3 text-sm">
-                                        <li><button onClick={() => setActivePage('delivery')} className="hover:text-primary transition flex items-center gap-2"><ShieldCheck size={16}/> Гарантія анонімності</button></li>
-                                        <li><button onClick={() => setActivePage('about')} className="hover:text-primary transition flex items-center gap-2"><Heart size={16}/> Про нас</button></li>
-                                    </ul>
-                                </div>
-                                <div>
-                                    <h3 className="text-white font-bold mb-6">Контакти</h3>
-                                    <ul className="space-y-3 text-sm">
-                                        <li className="flex items-center gap-3"><Phone size={18} className="text-primary"/> +38 (097) 123 45 67</li>
-                                        <li className="flex items-center gap-3"><Send size={18} className="text-primary"/> @night_secret_ua</li>
-                                        <li className="text-xs text-gray-500 mt-2">18+ | Тільки для повнолітніх</li>
-                                    </ul>
-                                </div>
+                                <div><div className="flex items-center gap-2 mb-4"><BrandLogo/><span className="text-xl font-bold text-white">Night<span className="text-primary">Secret</span></span></div><p className="text-sm mt-4 text-gray-400">Твій секрет у безпеці.</p></div>
+                                <div><h3 className="text-white font-bold mb-6">Інформація</h3><ul className="space-y-3 text-sm"><li><button onClick={() => setActivePage('delivery')} className="hover:text-primary transition flex items-center gap-2"><ShieldCheck size={16}/> Анонімність</button></li><li><button onClick={() => setActivePage('about')} className="hover:text-primary transition flex items-center gap-2"><Heart size={16}/> Про нас</button></li></ul></div>
+                                <div><h3 className="text-white font-bold mb-6">Контакти</h3><ul className="space-y-3 text-sm"><li className="flex items-center gap-3"><Phone size={18} className="text-primary"/> +38 (097) 123 45 67</li><li className="flex items-center gap-3"><Send size={18} className="text-primary"/> @night_secret_ua</li><li className="text-xs text-gray-500 mt-2">18+</li></ul></div>
                             </div>
-                            <div className="max-w-6xl mx-auto px-4 pt-8 mt-8 border-t border-gray-800 text-xs text-gray-500 flex justify-between items-center">
-                                <p>© 2024 Night Secret.</p>
-                                <button onClick={() => setShowLoginModal(true)} className="bg-white/5 hover:bg-white/20 text-gray-500 hover:text-white p-2 rounded-full transition"><Lock size={14}/></button>
-                            </div>
+                            <div className="max-w-6xl mx-auto px-4 pt-8 mt-8 border-t border-gray-800 text-xs text-gray-500 flex justify-between items-center"><p>© 2024 Night Secret.</p><button onClick={() => setShowLoginModal(true)} className="bg-white/5 hover:bg-white/20 text-gray-500 hover:text-white p-2 rounded-full transition"><Lock size={14}/></button></div>
                         </footer>
                     )}
 
