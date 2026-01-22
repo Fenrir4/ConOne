@@ -32,6 +32,9 @@
     
     <div id="root"></div>
 
+    <!-- КНОПКА ПОРЯТУНКУ (Якщо сайт завис) -->
+    <button onclick="localStorage.clear(); window.location.reload();" style="position: fixed; bottom: 10px; left: 10px; z-index: 9999; opacity: 0.3; font-size: 10px; color: white; background: red; padding: 5px; border-radius: 5px; cursor: pointer;" title="Натисніть, якщо сайт не працює">SOS Reset</button>
+
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
@@ -199,6 +202,7 @@
             const [added, setAdded] = useState(false);
             const handleClick = (e) => { e.stopPropagation(); addToCart(product); setAdded(true); setTimeout(() => setAdded(false), 2000); };
             
+            // Якщо товару немає в наявності - блокуємо кнопку
             if (product.inStock === false) {
                 if (variant === 'icon') return <button disabled className="p-3 rounded-xl bg-slate-700 text-gray-500 cursor-not-allowed"><Icons.ShoppingBag size={20}/></button>;
                 return <button disabled className="flex-1 font-bold py-5 px-8 rounded-2xl bg-slate-700 text-gray-500 cursor-not-allowed flex items-center justify-center gap-3">Немає в наявності</button>;
@@ -213,6 +217,7 @@
                 <div className="relative aspect-[4/5] bg-slate-700 overflow-hidden">
                     {product.images && product.images.length > 0 ? (isVideo(product.images[0]) ? <video src={product.images[0]} muted loop autoPlay playsInline className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" /> : <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"/>) : <div className="w-full h-full flex items-center justify-center bg-slate-800 text-gray-500"><Icons.Image size={40}/></div>}
                     
+                    {/* OVERLAY HINT */}
                     <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                         <span className="bg-white/20 backdrop-blur-md text-white px-4 py-2 rounded-full text-sm font-bold border border-white/30 flex items-center gap-2">
                             <Icons.Eye size={16} /> Переглянути
@@ -221,6 +226,7 @@
 
                     {product.isHit && <div className="absolute top-3 left-3 bg-fuchsia-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg z-10 flex items-center gap-1"><Icons.Flame size={12}/> HIT</div>}
                     
+                    {/* OUT OF STOCK BADGE */}
                     {product.inStock === false && (
                         <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-20">
                             <span className="text-white font-bold text-sm bg-red-600 px-3 py-1 rounded">НЕМАЄ В НАЯВНОСТІ</span>
@@ -667,6 +673,24 @@
                 const verified = localStorage.getItem('ageVerified_v2');
                 if (verified === 'true') setIsAgeVerified(true);
 
+                // --- LOCAL STORAGE LOAD ---
+                // Try to load from localStorage first for immediate render
+                try {
+                    const saved = localStorage.getItem('products');
+                    if (saved) {
+                        const parsed = JSON.parse(saved);
+                        if (Array.isArray(parsed)) {
+                            setProducts(parsed);
+                        }
+                    } else {
+                        // Fallback to seed data if nothing in local storage yet (and firebase might take time or fail)
+                        // setProducts(INITIAL_PRODUCTS_SEED.map((p, i) => ({ ...p, orderIndex: i, inStock: true, isVisible: true })));
+                    }
+                } catch (e) {
+                    console.error("Local storage error:", e);
+                    localStorage.removeItem('products');
+                }
+
                 // --- FIREBASE SYNC ---
                 let unsubscribe = () => {};
                 if (db) {
@@ -681,11 +705,9 @@
                             setProducts(loadedProducts);
                         }
                     });
-                } else {
-                    // Fallback if firebase failed
-                    const saved = localStorage.getItem('products');
-                    if (saved) setProducts(JSON.parse(saved));
-                    else setProducts(INITIAL_PRODUCTS_SEED.map((p, i) => ({ ...p, orderIndex: i, inStock: true, isVisible: true })));
+                } else if (!localStorage.getItem('products')) {
+                     // Only use seed if NO local storage and NO DB
+                     setProducts(INITIAL_PRODUCTS_SEED.map((p, i) => ({ ...p, orderIndex: i, inStock: true, isVisible: true })));
                 }
 
                 window.history.replaceState({ view: 'home' }, '');
@@ -717,7 +739,11 @@
             // Backup save to local storage
             useEffect(() => {
                 if (products.length > 0) {
-                    localStorage.setItem('products', JSON.stringify(products));
+                    try {
+                        localStorage.setItem('products', JSON.stringify(products));
+                    } catch (e) {
+                         console.warn("Quota exceeded or error saving to local storage", e);
+                    }
                 }
             }, [products]);
 
