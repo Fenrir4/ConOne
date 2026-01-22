@@ -308,6 +308,7 @@
             </div>
         );
 
+        // ... (InfoPage, ProductPage, CartView, CheckoutView - без змін) ...
         const InfoPage = ({ page, goBack }) => {
             const data = INFO_PAGES[page];
             if (!data) return null;
@@ -615,6 +616,8 @@
                 }
             };
 
+            // ---
+
             const handleImageUpload = async (e) => {
                 const files = Array.from(e.target.files);
                 const resizedImages = await Promise.all(files.map(file => resizeImage(file)));
@@ -719,9 +722,12 @@
                                     {products.map((p, idx) => (
                                         <tr key={p.id} className={`hover:bg-white/5 transition ${!p.isVisible ? 'opacity-50' : ''}`}>
                                             <td className="p-4 text-gray-500">
-                                                <div className="flex flex-col gap-1">
-                                                    <button onClick={() => handleMove(idx, 'up')} className="hover:text-white p-2 bg-slate-700 rounded-md" disabled={idx === 0}><Icons.ArrowUp size={16}/></button>
-                                                    <button onClick={() => handleMove(idx, 'down')} className="hover:text-white p-2 bg-slate-700 rounded-md" disabled={idx === products.length - 1}><Icons.ArrowDown size={16}/></button>
+                                                <div className="flex items-center gap-3">
+                                                    <span className="font-mono font-bold text-white text-lg">{idx + 1}</span>
+                                                    <div className="flex flex-col gap-1">
+                                                        <button onClick={() => handleMove(idx, 'up')} className="hover:text-white p-2 bg-slate-700 rounded-md" disabled={idx === 0}><Icons.ArrowUp size={16}/></button>
+                                                        <button onClick={() => handleMove(idx, 'down')} className="hover:text-white p-2 bg-slate-700 rounded-md" disabled={idx === products.length - 1}><Icons.ArrowDown size={16}/></button>
+                                                    </div>
                                                 </div>
                                             </td>
                                             <td className="p-4">
