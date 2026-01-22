@@ -155,7 +155,7 @@
             { name: "Масажери", icon: "💆" }
         ];
 
-        const isVideo = (url) => url && (url.toLowerCase().endsWith('.mp4') || url.toLowerCase().endsWith('.webm'));
+        const isVideo = (url) => url && (url.toLowerCase().endsWith('.mp4') || url.toLowerCase().endsWith('.webm') || url.startsWith('data:video'));
 
         // --- COMPONENTS ---
 
@@ -524,6 +524,7 @@
                                 <thead className="bg-slate-900/50 text-gray-400 text-xs uppercase">
                                     <tr>
                                         <th className="p-4 w-10">#</th>
+                                        <th className="p-4">Фото</th>
                                         <th className="p-4">Назва</th>
                                         <th className="p-4 hidden sm:table-cell">Категорія</th>
                                         <th className="p-4">Ціна</th>
@@ -537,6 +538,19 @@
                                                 <div className="flex flex-col gap-1">
                                                     <button onClick={() => handleMove(idx, 'up')} className="hover:text-white p-2 bg-slate-700 rounded-md" disabled={idx === 0}><Icons.ArrowUp size={16}/></button>
                                                     <button onClick={() => handleMove(idx, 'down')} className="hover:text-white p-2 bg-slate-700 rounded-md" disabled={idx === products.length - 1}><Icons.ArrowDown size={16}/></button>
+                                                </div>
+                                            </td>
+                                            <td className="p-4">
+                                                <div className="w-12 h-12 rounded overflow-hidden bg-slate-700 flex items-center justify-center">
+                                                    {p.images && p.images.length > 0 ? (
+                                                        isVideo(p.images[0]) ? (
+                                                            <Icons.Video size={20} className="text-gray-400"/>
+                                                        ) : (
+                                                            <img src={p.images[0]} alt="" className="w-full h-full object-cover"/>
+                                                        )
+                                                    ) : (
+                                                        <Icons.Image size={20} className="text-gray-500"/>
+                                                    )}
                                                 </div>
                                             </td>
                                             <td className="p-4 font-bold text-white">
