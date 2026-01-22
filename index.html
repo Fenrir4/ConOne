@@ -107,7 +107,8 @@
             Filter: (p) => <IconBase {...p}><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></IconBase>,
             ArrowUpDown: (p) => <IconBase {...p}><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></IconBase>,
             Search: (p) => <IconBase {...p}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></IconBase>,
-            TagsOff: (p) => <IconBase {...p}><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><line x1="2" x2="22" y1="2" y2="22"/></IconBase>
+            TagsOff: (p) => <IconBase {...p}><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><line x1="2" x2="22" y1="2" y2="22"/></IconBase>,
+            ImageOff: (p) => <IconBase {...p}><line x1="2" x2="22" y1="2" y2="22"/><path d="M10.41 10.41a2 2 0 1 1-2.83-2.83"/><line x1="13.5" x2="6" y1="13.5" y2="21"/><line x1="18" x2="21" y1="12" y2="15"/></IconBase>
         };
 
         const BrandLogo = () => (
@@ -134,33 +135,30 @@
 
         const POPULAR_CITIES = ["Київ", "Харків", "Одеса", "Дніпро", "Львів", "Запоріжжя", "Вінниця", "Хмельницький", "Житомир", "Чернівці", "Рівне", "Івано-Франківськ", "Тернопіль", "Луцьк", "Ужгород", "Біла Церква", "Кропивницький", "Миколаїв", "Полтава", "Суми", "Черкаси", "Чернігів"];
 
-        // --- EXTENDED SEED DATA ---
+        // --- EXTENDED SEED DATA (З доповненнями) ---
         const INITIAL_PRODUCTS_SEED = [
-            // Muaisi
-            { id: "muaisi-red", name: "Muaisi Red 0.01", category: "Презервативи", price: 330, shortDesc: "Ультратонкі 0,01 мм", description: "Ультратонкі презервативи Muaisi Red 0,01 мм. Відчуття повної природності.", images: [], specs: ["Товщина: 0.01 мм", "Кількість: 12 шт", "Бренд: Muaisi"], inStock: true, isVisible: true },
-            { id: "muaisi-black", name: "Muaisi Black 001", category: "Презервативи", price: 120, shortDesc: "Натуральний латекс 001", description: "Ультра тонкі презервативи з натурального латексу 001 Muaisi. Для тих, хто цінує класику в ультратонкому виконанні.", images: [], specs: ["Товщина: 0.01 мм", "Кількість: 12 шт", "Бренд: Muaisi"], inStock: true, isVisible: true },
-            { id: "muaisi-white", name: "Muaisi White 001", category: "Презервативи", price: 120, shortDesc: "Більше смазки", description: "Презервативи Muaisi 001 ультра тонкі з більшою кількістю смазки. Максимальний комфорт.", images: [], specs: ["Товщина: 0.01 мм", "Кількість: 10 шт", "Особливість: Багато смазки"], inStock: true, isVisible: true },
-            { id: "muaisi-red-can", name: "Muaisi Red Can 0.02", category: "Презервативи", price: 240, shortDesc: "З реберцями", description: "Набір презервативів із підвищеною кількістю мастила та реберцями Red 0.02 мм. Додаткова стимуляція.", images: [], specs: ["Товщина: 0.02 мм", "Кількість: 12 шт", "Текстура: Ребра"], inStock: true, isVisible: true },
-            { id: "muaisi-black-can", name: "Muaisi Black Can 0.02", category: "Презервативи", price: 240, shortDesc: "Гладкі, багато мастила", description: "Набір гладких презервативів із підвищеною кількістю мастила 0.02 мм Black.", images: [], specs: ["Товщина: 0.02 мм", "Кількість: 12 шт", "Текстура: Гладка"], inStock: true, isVisible: true },
+            // ORIGINAL ITEMS (Old)
+            { id: "rose-pleasure", orderIndex: 0, name: "Rose Pleasure Deluxe", shortDesc: "Вакуумний стимулятор", description: "Інноваційний стимулятор у формі троянди. Поєднує в собі елегантний дизайн та потужні технології задоволення.", price: 2499, oldPrice: 3200, category: "Іграшки", images: [], specs: ["Матеріал: Медичний силікон", "Живлення: USB", "Водонепроникність: IPX7"], isHit: true, inStock: true, isVisible: true, isSale: true },
+            { id: "midnight-wand", orderIndex: 1, name: "Midnight Wand Pro", shortDesc: "Потужний масажер", description: "Легендарний Magic Wand у бездротовому форматі. Глибока вібрація.", price: 1899, oldPrice: null, category: "Масажери", images: [], specs: ["Матеріал: ABS + Силікон", "Режими: 20 патернів"], isHit: false, inStock: true, isVisible: true },
+            { id: "silk-touch-oil", orderIndex: 2, name: "Silk Touch Oil", shortDesc: "Масажна олія", description: "Розкішна олія з ароматом чорної орхідеї та ванілі. Не залишає липких слідів.", price: 450, oldPrice: 600, category: "Косметика", images: [], rating: 4.8, specs: ["Об'єм: 100 мл", "Основа: Натуральні олії"], isHit: true, inStock: true, isVisible: true },
+            { id: "lace-fantasy", orderIndex: 3, name: "Lace Fantasy Set", shortDesc: "Комплект білизни", description: "Вишуканий комплект мереживної білизни чорного кольору. Підкреслює фігуру.", price: 1299, oldPrice: 1500, category: "Білизна", images: [], rating: 5.0, specs: ["Колір: Чорний", "Матеріал: Мереживо"], isHit: false, inStock: true, isVisible: true },
 
-            // Pasante
-            { id: "pasante-internal", name: "Pasante Internal Condom", category: "Презервативи", price: 99, shortDesc: "Жіночий презерватив", description: "Жіночий презерватив Pasante Internal Condom. Безлатексний захист для жінок.", images: [], specs: ["Тип: Жіночий", "Кількість: 1 шт", "Бренд: Pasante"], inStock: true, isVisible: true },
-            { id: "pasante-hearts", name: "Pasante Hearts", category: "Презервативи", price: 15, shortDesc: "У формі серця", description: "Милі презервативи у формі серця. Романтичний подарунок.", images: [], specs: ["Форма: Серце", "Кількість: 1 шт", "Бренд: Pasante"], inStock: true, isVisible: true },
-            { id: "pasante-glow", name: "Pasante Glow", category: "Презервативи", price: 20, shortDesc: "Світяться в темряві", description: "Презервативи Pasante Glow. Світяться у темряві для веселих ночей.", images: [], specs: ["Ефект: Світяться", "Кількість: 1 шт", "Бренд: Pasante"], inStock: true, isVisible: true },
-            { id: "pasante-tropical", name: "Pasante Tropical", category: "Презервативи", price: 12.5, shortDesc: "Тропічні фрукти", description: "Набір презервативів Pasante - тропічні фрукти.", images: [], specs: ["Аромат: Фрукти", "Кількість: 1 шт", "Бренд: Pasante"], inStock: true, isVisible: true },
-            { id: "pasante-silk", name: "Pasante Silk Thin", category: "Презервативи", price: 15, shortDesc: "Супертонкі", description: "Супертонкі презервативи Pasante Silk Thin. Для природних відчуттів.", images: [], specs: ["Тип: Тонкі", "Кількість: 1 шт", "Бренд: Pasante"], inStock: true, isVisible: true },
-            { id: "pasante-delay", name: "Pasante Delay", category: "Презервативи", price: 15, shortDesc: "Продовжують акт", description: "Презервативи Pasante Delay (Infinity) з анестетиком для продовження задоволення.", images: [], specs: ["Ефект: Пролонгуючий", "Кількість: 1 шт", "Бренд: Pasante"], inStock: true, isVisible: true },
-            { id: "pasante-regular", name: "Pasante Regular", category: "Презервативи", price: 12.5, shortDesc: "Класичні", description: "Класичні презервативи Pasante Regular анатомічної форми.", images: [], specs: ["Форма: Анатомічна", "Кількість: 1 шт", "Бренд: Pasante"], inStock: true, isVisible: true },
-            { id: "pasante-extra-safe", name: "Pasante Extra Safe", category: "Презервативи", price: 12.5, shortDesc: "Потовщені", description: "Презервативи Pasante Extra Safe для додаткового захисту.", images: [], specs: ["Тип: Потовщені", "Кількість: 1 шт", "Бренд: Pasante"], inStock: true, isVisible: true },
-            { id: "pasante-ribs-dots", name: "Pasante Ribs & Dots", category: "Презервативи", price: 12.5, shortDesc: "Ребра та крапки", description: "Презервативи з ребрами та крапками для подвійної стимуляції.", images: [], specs: ["Текстура: Ребра + Крапки", "Кількість: 1 шт", "Бренд: Pasante"], inStock: true, isVisible: true },
+            // ONE Condoms
+            { id: "one-sensitive", orderIndex: 4, name: "One Super Sensitive", shortDesc: "Ультратонкі презервативи", description: "Ультратонкі презервативи One Super Sensitive створені для тих, хто прагне максимальної близькості. Виготовлені з використанням передової технології Sensatex®, яка робить латекс неймовірно м'яким і гладким. Мають на 50% більше лубриканту.", price: 45, oldPrice: 0, category: "Презервативи", images: [], specs: ["Матеріал: Sensatex®", "Лубрикант: +50%", "Товщина: Ультратонкі", "Бренд: One"], inStock: true, isVisible: true },
+            { id: "one-studs", orderIndex: 5, name: "One Super Studs", shortDesc: "Текстуровані з пухирцями", description: "Презервативи One Super Studs — це вибух відчуттів завдяки сотням рельєфних точок (пухирців) по всій поверхні.", price: 45, oldPrice: 0, category: "Презервативи", images: [], specs: ["Текстура: Точкова", "Матеріал: Sensatex®", "Бренд: One"], inStock: true, isVisible: true },
+            { id: "one-xl", orderIndex: 6, name: "One Legend XL", shortDesc: "Збільшений розмір", description: "One Legend XL — для справжніх легенд. Ці презервативи мають збільшені розміри (довжину та ширину).", price: 45, oldPrice: 0, category: "Презервативи", images: [], specs: ["Розмір: XL", "Ширина: 56 мм", "Бренд: One"], inStock: true, isVisible: true },
+            { id: "one-tattoo", orderIndex: 7, name: "One Tattoo Touch", shortDesc: "Рельєфний візерунок", description: "Унікальні презервативи з рельєфним малюнком у стилі тату. Це додаткова текстура для нових відчуттів.", price: 45, oldPrice: 0, category: "Презервативи", images: [], specs: ["Текстура: Рельєфний візерунок", "Дизайн: Тату-стиль", "Бренд: One"], inStock: true, isVisible: true },
+            { id: "one-extra-strong", orderIndex: 8, name: "One Extra Strong", shortDesc: "Надміцні та надійні", description: "Коли безпека понад усе. One Extra Strong виготовлені з більш щільного, але м'якого латексу.", price: 45, oldPrice: 0, category: "Презервативи", images: [], specs: ["Особливість: Підвищена міцність", "Товщина: Потовщені", "Бренд: One"], inStock: true, isVisible: true },
+            { id: "one-pleasure-dome", orderIndex: 9, name: "One Pleasure Dome", shortDesc: "Більше простору", description: "Унікальна форма з розширеною голівкою. Це дає більше свободи та чутливості.", price: 45, oldPrice: 0, category: "Презервативи", images: [], specs: ["Форма: Розширена голівка", "Бренд: One"], inStock: true, isVisible: true },
+            { id: "one-flavor-waves", orderIndex: 10, name: "One Flavor Waves", shortDesc: "Ароматизовані", description: "Колекція презервативів з яскравими смаками та ароматами.", price: 45, oldPrice: 0, category: "Презервативи", images: [], specs: ["Особливість: Ароматизовані", "Смаки: Мікс", "Бренд: One"], inStock: true, isVisible: true },
+            { id: "one-classic", orderIndex: 11, name: "One Classic Select", shortDesc: "Класична надійність", description: "Традиційні, перевірені часом презервативи з ідеальним балансом тонкості та міцності.", price: 45, oldPrice: 0, category: "Презервативи", images: [], specs: ["Форма: Класична", "Поверхня: Гладка", "Бренд: One"], inStock: true, isVisible: true },
+            { id: "one-color", orderIndex: 12, name: "One Color Sensations", shortDesc: "Кольорові презервативи", description: "Яскраві кольори для яскравих емоцій.", price: 45, oldPrice: 0, category: "Презервативи", images: [], specs: ["Особливість: Кольорові", "Бренд: One"], inStock: true, isVisible: true },
+            { id: "one-vanish", orderIndex: 13, name: "One Vanish", shortDesc: "Гіпертонкі", description: "One Vanish — це на 35% тонші презервативи, ніж стандартні моделі One.", price: 45, oldPrice: 0, category: "Презервативи", images: [], specs: ["Товщина: Гіпертонкі", "Бренд: One"], inStock: true, isVisible: true },
+            { id: "one-ultra-feel", orderIndex: 14, name: "One Ultra Feel", shortDesc: "2-в-1 з лубрикантом", description: "Унікальне комбо: ультратонкий презерватив + додатковий пакетик лубриканту 2 мл.", price: 50, oldPrice: 0, category: "Презервативи", images: [], specs: ["Особливість: Дод. лубрикант", "Тип: Тонкі", "Бренд: One"], inStock: true, isVisible: true },
+            { id: "one-glowing", orderIndex: 15, name: "One Glowing Pleasures", shortDesc: "Світяться у темряві", description: "Вимкніть світло і увімкніть пристрасть! Ці презервативи світяться у темряві.", price: 50, oldPrice: 0, category: "Презервативи", images: [], specs: ["Ефект: Флуоресцентні", "Бренд: One"], inStock: true, isVisible: true },
+            { id: "one-pleasure-plus", orderIndex: 16, name: "One Pleasure Plus", shortDesc: "Зі стимулюючою голівкою", description: "Має унікальну форму мішечка на кінці з внутрішніми реберцями для подвійної стимуляції.", price: 50, oldPrice: 0, category: "Презервативи", images: [], specs: ["Форма: Стимулююча", "Текстура: Ребриста", "Бренд: One"], inStock: true, isVisible: true },
             
-            // EXS
-            { id: "exs-pure", name: "EXS Pure", category: "Презервативи", price: 15, shortDesc: "Чисті відчуття", description: "Ультратонкі презервативи EXS Pure для чистого задоволення.", images: [], specs: ["Тип: Тонкі", "Кількість: 1 шт", "Бренд: EXS"], inStock: true, isVisible: true },
-            { id: "exs-nano", name: "EXS Nano Thin", category: "Презервативи", price: 15, shortDesc: "Надтонкі", description: "Надтонкі презервативи Exs Nano Thin. Майже непомітні.", images: [], specs: ["Тип: Надтонкі", "Кількість: 1 шт", "Бренд: EXS"], inStock: true, isVisible: true },
-            { id: "exs-delay", name: "EXS Delay Endurance", category: "Презервативи", price: 18, shortDesc: "Для витривалості", description: "Презервативи EXS Delay Endurance з ефектом затримки.", images: [], specs: ["Ефект: Пролонгуючий", "Кількість: 1 шт", "Бренд: EXS"], inStock: true, isVisible: true },
-            { id: "exs-glow", name: "EXS Glowing", category: "Презервативи", price: 19, shortDesc: "Світяться", description: "Презервативи Exs Glowing Condom. Додайте світла у вашу ніч.", images: [], specs: ["Ефект: Світяться", "Кількість: 1 шт", "Бренд: EXS"], inStock: true, isVisible: true },
-
-            // Olo
+            // OLO Condoms
             { id: "olo-thermo", name: "Olo Thermo Effect", category: "Презервативи", price: 150, shortDesc: "Термо ефект, 10 шт", description: "Презервативи Olo з термо ефектом.", images: [], specs: ["Ефект: Термо", "Кількість: 10 шт", "Бренд: Olo"], inStock: true, isVisible: true },
             { id: "olo-warming", name: "Olo Gentle Warming", category: "Презервативи", price: 150, shortDesc: "Ніжний розігрів, 10 шт", description: "Презервативи Olo з ніжним розігріваючим ефектом.", images: [], specs: ["Ефект: Розігрів", "Кількість: 10 шт", "Бренд: Olo"], inStock: true, isVisible: true },
             { id: "olo-5plus5", name: "Olo 5+5", category: "Презервативи", price: 150, shortDesc: "5 презервативів + 5 кульок", description: "Унікальний набір: 5 презервативів та 5 силіконових кульок для додаткової стимуляції.", images: [], specs: ["Комплект: 5+5", "Особливість: Кульки", "Бренд: Olo"], inStock: true, isVisible: true },
@@ -170,12 +168,6 @@
             { id: "olo-ice", name: "Olo Ice", category: "Презервативи", price: 150, shortDesc: "Охолоджуючі, 10 шт", description: "Охолоджуючі презервативи для тривалого задоволення.", images: [], specs: ["Ефект: Охолодження", "Кількість: 10 шт", "Бренд: Olo"], inStock: true, isVisible: true },
             { id: "olo-001", name: "Olo 001 Polyurethane", category: "Презервативи", price: 290, shortDesc: "Поліуретан 001, 6 шт", description: "Новинка! Поліуретанові презервативи OLO 001. Найтонші, без запаху латексу.", images: [], specs: ["Матеріал: Поліуретан", "Товщина: 0.01 мм", "Кількість: 6 шт", "Бренд: Olo"], inStock: true, isVisible: true },
             { id: "olo-spike", name: "Olo Spikes & Balls", category: "Презервативи", price: 69, shortDesc: "Вусики та шипи", description: "Екстремальні відчуття: презерватив з вусиками/шипами + кулька. 6 видів.", images: [], specs: ["Текстура: Вусики/Шипи", "Комплект: 1 шт + кулька", "Бренд: Olo"], inStock: true, isVisible: true },
-            
-            // Olo Lubes
-            { id: "olo-lube-fruit", name: "Olo Fruit Gel", category: "Лубриканти", price: 150, shortDesc: "Смакові, 120 мл", description: "Смакові гелі Olo. Доступні смаки: Вишня, Яблуко, Полуниця, Банан, Виноград, Персик.", images: [], specs: ["Об'єм: 120 мл", "Смак: Фруктовий", "Бренд: Olo"], inStock: true, isVisible: true },
-            { id: "olo-climax", name: "Olo Climax Spray", category: "Лубриканти", price: 150, shortDesc: "Спрей для жінок, 20 мл", description: "Спрей Olo Climax, підвищує сексуальне бажання та чутливість.", images: [], specs: ["Об'єм: 20 мл", "Тип: Спрей", "Бренд: Olo"], inStock: true, isVisible: true },
-            { id: "olo-warm-lube", name: "Olo Warm Lube", category: "Лубриканти", price: 150, shortDesc: "Зігріваючий, 60 мл", description: "Лубрикант Olo з ефектом тепла + легкий збуджуючий ефект.", images: [], specs: ["Об'єм: 60 мл", "Ефект: Тепло", "Бренд: Olo"], inStock: true, isVisible: true },
-            { id: "olo-cool-lube", name: "Olo Cool Lube", category: "Лубриканти", price: 150, shortDesc: "Охолоджуючий, 60 мл", description: "Лубрикант Olo на водній основі з легким охолоджуючим ефектом.", images: [], specs: ["Об'єм: 60 мл", "Ефект: Холод", "Бренд: Olo"], inStock: true, isVisible: true },
 
             // Skyn
             { id: "skyn-orig-1", name: "Skyn Original 1pc", category: "Презервативи", price: 29, shortDesc: "Безлатексні", description: "Skyn Original - безлатексні презервативи з поліізопрену. Відчуття шкіра-до-шкіри.", images: [], specs: ["Матеріал: Поліізопрен", "Кількість: 1 шт", "Бренд: Skyn"], inStock: true, isVisible: true },
@@ -201,8 +193,41 @@
             { id: "skyn-king-10", name: "Skyn King Size 10pcs", category: "Презервативи", price: 295, shortDesc: "Збільшені, 10 шт", description: "Skyn King Size.", images: [], specs: ["Розмір: XL", "Кількість: 10 шт", "Бренд: Skyn"], inStock: true, isVisible: true },
             { id: "skyn-king-3", name: "Skyn King Size 3pcs", category: "Презервативи", price: 120, shortDesc: "Збільшені, 3 шт", description: "Skyn King Size.", images: [], specs: ["Розмір: XL", "Кількість: 3 шт", "Бренд: Skyn"], inStock: true, isVisible: true },
             { id: "skyn-close-feel", name: "Skyn Close Feel 10pcs", category: "Презервативи", price: 295, shortDesc: "Тісний контакт", description: "Skyn Close Feel - вужчі за стандартні (ширина 51 мм) для щільнішого прилягання та кращих відчуттів.", images: [], specs: ["Матеріал: Поліізопрен", "Ширина: 51 мм", "Кількість: 10 шт", "Бренд: Skyn"], inStock: true, isVisible: true },
+
+            // Muaisi
+            { id: "muaisi-red", name: "Muaisi Red 0.01", category: "Презервативи", price: 330, shortDesc: "Ультратонкі 0,01 мм", description: "Ультратонкі презервативи Muaisi Red 0,01 мм.", images: [], specs: ["Товщина: 0.01 мм", "Кількість: 12 шт", "Бренд: Muaisi"], inStock: true, isVisible: true },
+            { id: "muaisi-black", name: "Muaisi Black 001", category: "Презервативи", price: 120, shortDesc: "Натуральний латекс 001", description: "Ультра тонкі презервативи з натурального латексу 001 Muaisi.", images: [], specs: ["Товщина: 0.01 мм", "Кількість: 12 шт", "Бренд: Muaisi"], inStock: true, isVisible: true },
+            { id: "muaisi-white", name: "Muaisi White 001", category: "Презервативи", price: 120, shortDesc: "Більше смазки", description: "Презервативи Muaisi 001 ультра тонкі з більшою кількістю смазки.", images: [], specs: ["Товщина: 0.01 мм", "Кількість: 10 шт", "Особливість: Багато смазки"], inStock: true, isVisible: true },
+            { id: "muaisi-red-can", name: "Muaisi Red Can 0.02", category: "Презервативи", price: 240, shortDesc: "З реберцями", description: "Набір презервативів із підвищеною кількістю мастила та реберцями Red 0.02 мм.", images: [], specs: ["Товщина: 0.02 мм", "Кількість: 12 шт", "Текстура: Ребра"], inStock: true, isVisible: true },
+            { id: "muaisi-black-can", name: "Muaisi Black Can 0.02", category: "Презервативи", price: 240, shortDesc: "Гладкі, багато мастила", description: "Набір гладких презервативів із підвищеною кількістю мастила 0.02 мм Black.", images: [], specs: ["Товщина: 0.02 мм", "Кількість: 12 шт", "Текстура: Гладка"], inStock: true, isVisible: true },
+
+            // Pasante
+            { id: "pasante-internal", name: "Pasante Internal Condom", category: "Презервативи", price: 99, shortDesc: "Жіночий презерватив", description: "Жіночий презерватив Pasante Internal Condom. Безлатексний захист для жінок.", images: [], specs: ["Тип: Жіночий", "Кількість: 1 шт", "Бренд: Pasante"], inStock: true, isVisible: true },
+            { id: "pasante-hearts", name: "Pasante Hearts", category: "Презервативи", price: 15, shortDesc: "У формі серця", description: "Милі презервативи у формі серця. Романтичний подарунок.", images: [], specs: ["Форма: Серце", "Кількість: 1 шт", "Бренд: Pasante"], inStock: true, isVisible: true },
+            { id: "pasante-glow", name: "Pasante Glow", category: "Презервативи", price: 20, shortDesc: "Світяться в темряві", description: "Презервативи Pasante Glow. Світяться у темряві для веселих ночей.", images: [], specs: ["Ефект: Світяться", "Кількість: 1 шт", "Бренд: Pasante"], inStock: true, isVisible: true },
+            { id: "pasante-tropical", name: "Pasante Tropical", category: "Презервативи", price: 12.5, shortDesc: "Тропічні фрукти", description: "Набір презервативів Pasante - тропічні фрукти.", images: [], specs: ["Аромат: Фрукти", "Кількість: 1 шт", "Бренд: Pasante"], inStock: true, isVisible: true },
+            { id: "pasante-silk", name: "Pasante Silk Thin", category: "Презервативи", price: 15, shortDesc: "Супертонкі", description: "Супертонкі презервативи Pasante Silk Thin. Для природних відчуттів.", images: [], specs: ["Тип: Тонкі", "Кількість: 1 шт", "Бренд: Pasante"], inStock: true, isVisible: true },
+            { id: "pasante-delay", name: "Pasante Delay", category: "Презервативи", price: 15, shortDesc: "Продовжують акт", description: "Презервативи Pasante Delay (Infinity) з анестетиком для продовження задоволення.", images: [], specs: ["Ефект: Пролонгуючий", "Кількість: 1 шт", "Бренд: Pasante"], inStock: true, isVisible: true },
+            { id: "pasante-regular", name: "Pasante Regular", category: "Презервативи", price: 12.5, shortDesc: "Класичні", description: "Класичні презервативи Pasante Regular анатомічної форми.", images: [], specs: ["Форма: Анатомічна", "Кількість: 1 шт", "Бренд: Pasante"], inStock: true, isVisible: true },
+            { id: "pasante-extra-safe", name: "Pasante Extra Safe", category: "Презервативи", price: 12.5, shortDesc: "Потовщені", description: "Презервативи Pasante Extra Safe для додаткового захисту.", images: [], specs: ["Тип: Потовщені", "Кількість: 1 шт", "Бренд: Pasante"], inStock: true, isVisible: true },
+            { id: "pasante-ribs-dots", name: "Pasante Ribs & Dots", category: "Презервативи", price: 12.5, shortDesc: "Ребра та крапки", description: "Презервативи з ребрами та крапками для подвійної стимуляції.", images: [], specs: ["Текстура: Ребра + Крапки", "Кількість: 1 шт", "Бренд: Pasante"], inStock: true, isVisible: true },
             
-            // Lube Skyn
+            // EXS
+            { id: "exs-pure", name: "EXS Pure", category: "Презервативи", price: 15, shortDesc: "Чисті відчуття", description: "Ультратонкі презервативи EXS Pure для чистого задоволення.", images: [], specs: ["Тип: Тонкі", "Кількість: 1 шт", "Бренд: EXS"], inStock: true, isVisible: true },
+            { id: "exs-nano", name: "EXS Nano Thin", category: "Презервативи", price: 15, shortDesc: "Надтонкі", description: "Надтонкі презервативи Exs Nano Thin. Майже непомітні.", images: [], specs: ["Тип: Надтонкі", "Кількість: 1 шт", "Бренд: EXS"], inStock: true, isVisible: true },
+            { id: "exs-delay", name: "EXS Delay Endurance", category: "Презервативи", price: 18, shortDesc: "Для витривалості", description: "Презервативи EXS Delay Endurance з ефектом затримки.", images: [], specs: ["Ефект: Пролонгуючий", "Кількість: 1 шт", "Бренд: EXS"], inStock: true, isVisible: true },
+            { id: "exs-glow", name: "EXS Glowing", category: "Презервативи", price: 19, shortDesc: "Світяться", description: "Презервативи Exs Glowing Condom. Додайте світла у вашу ніч.", images: [], specs: ["Ефект: Світяться", "Кількість: 1 шт", "Бренд: EXS"], inStock: true, isVisible: true },
+
+            // OLO & ONE GELS
+            { id: "gel-one-silk-3ml", name: "Гель One Silk 3ml", category: "Лубриканти", price: 50, shortDesc: "Гібридний лубрикант (пробник)", description: "Міні-версія преміального гібридного лубриканту One Silk.", images: [], specs: ["Об'єм: 3 мл", "Основа: Гібридна", "Бренд: One"], inStock: true, isVisible: true },
+            { id: "gel-one-move-3ml", name: "Гель One Move 3ml", category: "Лубриканти", price: 50, shortDesc: "Силіконовий лубрикант (пробник)", description: "Максимально тривале ковзання. One Move на силіконовій основі.", images: [], specs: ["Об'єм: 3 мл", "Основа: Силіконова", "Бренд: One"], inStock: true, isVisible: true },
+            { id: "gel-one-oasis-10ml", name: "Гель One Oasis Water", category: "Лубриканти", price: 120, shortDesc: "Водна основа, 10 мл", description: "Натуральний лубрикант на водній основі One Oasis.", images: [], specs: ["Об'єм: 10 мл", "Основа: Водна", "Бренд: One"], inStock: true, isVisible: true },
+            { id: "gel-one-oasis-silk-60ml", name: "One Oasis Silk 60ml", category: "Лубриканти", price: 499, shortDesc: "Гібридний лубрикант", description: "Золота середина: гібридна формула One Oasis Silk.", images: [], specs: ["Об'єм: 60 мл", "Основа: Гібридна", "Бренд: One"], inStock: true, isVisible: true },
+            { id: "gel-one-oasis-silk-236ml", name: "One Oasis Silk 236ml", category: "Лубриканти", price: 1200, shortDesc: "Гібридний, великий об'єм", description: "Велика пляшка улюбленого гібридного лубриканту One Oasis Silk.", images: [], specs: ["Об'єм: 236 мл", "Основа: Гібридна", "Бренд: One"], inStock: true, isVisible: true },
+            { id: "olo-lube-fruit", name: "Olo Fruit Gel", category: "Лубриканти", price: 150, shortDesc: "Смакові, 120 мл", description: "Смакові гелі Olo. Доступні смаки: Вишня, Яблуко, Полуниця, Банан, Виноград, Персик.", images: [], specs: ["Об'єм: 120 мл", "Смак: Фруктовий", "Бренд: Olo"], inStock: true, isVisible: true },
+            { id: "olo-climax", name: "Olo Climax Spray", category: "Лубриканти", price: 150, shortDesc: "Спрей для жінок, 20 мл", description: "Спрей Olo Climax, підвищує сексуальне бажання та чутливість.", images: [], specs: ["Об'єм: 20 мл", "Тип: Спрей", "Бренд: Olo"], inStock: true, isVisible: true },
+            { id: "olo-warm-lube", name: "Olo Warm Lube", category: "Лубриканти", price: 150, shortDesc: "Зігріваючий, 60 мл", description: "Лубрикант Olo з ефектом тепла + легкий збуджуючий ефект.", images: [], specs: ["Об'єм: 60 мл", "Ефект: Тепло", "Бренд: Olo"], inStock: true, isVisible: true },
+            { id: "olo-cool-lube", name: "Olo Cool Lube", category: "Лубриканти", price: 150, shortDesc: "Охолоджуючий, 60 мл", description: "Лубрикант Olo на водній основі з легким охолоджуючим ефектом.", images: [], specs: ["Об'єм: 60 мл", "Ефект: Холод", "Бренд: Olo"], inStock: true, isVisible: true },
             { id: "skyn-lube-aqua", name: "Skyn Aqua Lube", category: "Лубриканти", price: 450, shortDesc: "Водна основа", description: "Лубрикант Skyn Aqua на водній основі. Не липкий, без запаху, ідеально сумісний з презервативами Skyn.", images: [], specs: ["Основа: Водна", "Об'єм: 80 мл", "Бренд: Skyn"], inStock: true, isVisible: true },
             { id: "skyn-lube-white", name: "Skyn White Lube", category: "Лубриканти", price: 450, shortDesc: "Білий флакон", description: "Лубрикант Skyn у білому флаконі (уточнюйте серію Maximum Performance або All Night Long).", images: [], specs: ["Бренд: Skyn", "Об'єм: 80 мл"], inStock: true, isVisible: true }
         ];
@@ -263,23 +288,12 @@
             <div className={`group bg-slate-800 rounded-2xl border border-white/5 overflow-hidden hover:border-violet-500/50 transition-all duration-300 hover:shadow-2xl cursor-pointer flex flex-col h-full relative ${product.inStock === false ? 'grayscale-card' : ''}`} onClick={() => navigateToProduct(product.id)}>
                 <div className="relative aspect-[4/5] bg-slate-700 overflow-hidden">
                     {product.images && product.images.length > 0 ? (isVideo(product.images[0]) ? <video src={product.images[0]} muted loop autoPlay playsInline className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" /> : <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"/>) : <div className="w-full h-full flex items-center justify-center bg-slate-800 text-gray-500"><Icons.Image size={40}/></div>}
-                    
-                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <span className="bg-white/20 backdrop-blur-md text-white px-4 py-2 rounded-full text-sm font-bold border border-white/30 flex items-center gap-2">
-                            <Icons.Eye size={16} /> Переглянути
-                        </span>
-                    </div>
-
+                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300"><span className="bg-white/20 backdrop-blur-md text-white px-4 py-2 rounded-full text-sm font-bold border border-white/30 flex items-center gap-2"><Icons.Eye size={16} /> Переглянути</span></div>
                     <div className="absolute top-3 left-3 flex flex-col gap-2 z-10">
                         {product.isHit && <div className="bg-fuchsia-600 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg flex items-center gap-1"><Icons.Flame size={10}/> HIT</div>}
                         {product.isSale && <div className="bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg flex items-center gap-1"><Icons.Tag size={10}/> АКЦІЯ</div>}
                     </div>
-                    
-                    {product.inStock === false && (
-                        <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-20">
-                            <span className="text-white font-bold text-sm bg-red-600 px-3 py-1 rounded">НЕМАЄ В НАЯВНОСТІ</span>
-                        </div>
-                    )}
+                    {product.inStock === false && <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-20"><span className="text-white font-bold text-sm bg-red-600 px-3 py-1 rounded">НЕМАЄ В НАЯВНОСТІ</span></div>}
                 </div>
                 <div className="p-5 flex-1 flex flex-col">
                     <div className="text-xs font-bold text-violet-400 uppercase tracking-wider mb-2">{product.category}</div>
@@ -294,7 +308,6 @@
             </div>
         );
 
-        // ... (InfoPage, ProductPage, CartView, CheckoutView - без змін) ...
         const InfoPage = ({ page, goBack }) => {
             const data = INFO_PAGES[page];
             if (!data) return null;
@@ -479,7 +492,7 @@
                     await batchAdd.commit();
                     alert("Товари відновлено!");
                 } else {
-                    setProducts(INITIAL_PRODUCTS_SEED);
+                    setProducts(INITIAL_PRODUCTS_SEED.map((p, i) => ({ ...p, orderIndex: i, inStock: true, isVisible: true, isSale: p.isSale || false })));
                     alert("Товари скинуто (локально)!");
                 }
             };
@@ -499,6 +512,23 @@
                     setProducts(products.map(p => ({ ...p, isHit: false, isSale: false, rating: 5.0 })));
                     alert("Теги скинуто (локально)!");
                 }
+            };
+
+            const handleDeleteAllPhotos = async () => {
+                 if (!window.confirm("УВАГА! Це видалить фото у ВСІХ товарів. Ви впевнені?")) return;
+
+                 if (db) {
+                    const snapshot = await db.collection("products").get();
+                    const batch = db.batch();
+                    snapshot.docs.forEach((doc) => {
+                        batch.update(doc.ref, { images: [] });
+                    });
+                    await batch.commit();
+                    alert("Всі фото видалено!");
+                 } else {
+                     setProducts(products.map(p => ({...p, images: []})));
+                     alert("Всі фото видалено (локально)!");
+                 }
             };
 
             const handleEdit = (product) => {
@@ -614,7 +644,7 @@
                                     <div><label className="block text-sm font-bold text-gray-400 mb-2">Категорія</label><select value={formData.category} onChange={e=>setFormData({...formData, category:e.target.value})} className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-violet-500">{CATEGORIES.map(c=><option key={c.name} value={c.name}>{c.name}</option>)}<option value="Інше">Інше</option></select></div>
                                     <div><label className="block text-sm font-bold text-gray-400 mb-2">Стара ціна (необов'язково)</label><input type="number" value={formData.oldPrice || ''} onChange={e=>setFormData({...formData, oldPrice:Number(e.target.value)})} className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-violet-500" placeholder="0" /></div>
                                 </div>
-
+                                
                                 <div className="flex gap-4 p-4 bg-slate-900 rounded-xl border border-white/10">
                                     <label className="flex items-center gap-2 cursor-pointer">
                                         <input type="checkbox" checked={formData.isHit} onChange={e=>setFormData({...formData, isHit:e.target.checked})} className="accent-violet-500 w-5 h-5"/>
@@ -667,6 +697,7 @@
                         <div className="flex justify-between items-center mb-8 flex-wrap gap-4">
                             <h1 className="text-3xl font-bold text-white flex items-center gap-3"><Icons.Settings className="text-violet-500" /> Адміністрування</h1>
                             <div className="flex gap-2 flex-wrap">
+                                <button onClick={handleDeleteAllPhotos} className="flex items-center gap-2 bg-red-600/20 text-red-400 px-4 py-2 rounded-lg hover:bg-red-600 hover:text-white transition font-bold border border-red-600/50"><Icons.Image size={18}/> Видалити всі фото</button>
                                 <button onClick={handleResetTags} className="flex items-center gap-2 bg-yellow-600/20 text-yellow-400 px-4 py-2 rounded-lg hover:bg-yellow-600 hover:text-white transition font-bold border border-yellow-600/50"><Icons.TagsOff size={18}/> Скинути теги</button>
                                 <button onClick={handleReset} className="flex items-center gap-2 bg-red-600/20 text-red-400 px-4 py-2 rounded-lg hover:bg-red-600 hover:text-white transition font-bold border border-red-600/50"><Icons.RefreshCw size={18}/> Скинути та відновити</button>
                                 <button onClick={handleCreateNew} className="flex items-center gap-2 bg-violet-600 text-white px-4 py-2 rounded-lg hover:bg-violet-700 transition font-bold"><Icons.Plus size={18}/> Новий товар</button>
