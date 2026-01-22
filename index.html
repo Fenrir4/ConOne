@@ -26,6 +26,7 @@
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #7c3aed; border-radius: 4px; }
         .grayscale-card { filter: grayscale(100%); opacity: 0.8; }
+        .search-dropdown { max-height: 300px; overflow-y: auto; }
     </style>
 </head>
 <body class="bg-slate-900 text-gray-100">
@@ -104,7 +105,9 @@
             RefreshCw: (p) => <IconBase {...p}><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></IconBase>,
             Tag: (p) => <IconBase {...p}><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><circle cx="7" cy="7" r="3"/></IconBase>,
             Filter: (p) => <IconBase {...p}><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></IconBase>,
-            ArrowUpDown: (p) => <IconBase {...p}><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></IconBase>
+            ArrowUpDown: (p) => <IconBase {...p}><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></IconBase>,
+            Search: (p) => <IconBase {...p}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></IconBase>,
+            TagsOff: (p) => <IconBase {...p}><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><line x1="2" x2="22" y1="2" y2="22"/></IconBase>
         };
 
         const BrandLogo = () => (
@@ -131,7 +134,7 @@
 
         const POPULAR_CITIES = ["Київ", "Харків", "Одеса", "Дніпро", "Львів", "Запоріжжя", "Вінниця", "Хмельницький", "Житомир", "Чернівці", "Рівне", "Івано-Франківськ", "Тернопіль", "Луцьк", "Ужгород", "Біла Церква", "Кропивницький", "Миколаїв", "Полтава", "Суми", "Черкаси", "Чернігів"];
 
-        // --- NEW EXTENDED SEED DATA ---
+        // --- EXTENDED SEED DATA ---
         const INITIAL_PRODUCTS_SEED = [
             // Muaisi
             { id: "muaisi-red", name: "Muaisi Red 0.01", category: "Презервативи", price: 330, shortDesc: "Ультратонкі 0,01 мм", description: "Ультратонкі презервативи Muaisi Red 0,01 мм. Відчуття повної природності.", images: [], specs: ["Товщина: 0.01 мм", "Кількість: 12 шт", "Бренд: Muaisi"], inStock: true, isVisible: true },
@@ -139,7 +142,6 @@
             { id: "muaisi-white", name: "Muaisi White 001", category: "Презервативи", price: 120, shortDesc: "Більше смазки", description: "Презервативи Muaisi 001 ультра тонкі з більшою кількістю смазки. Максимальний комфорт.", images: [], specs: ["Товщина: 0.01 мм", "Кількість: 10 шт", "Особливість: Багато смазки"], inStock: true, isVisible: true },
             { id: "muaisi-red-can", name: "Muaisi Red Can 0.02", category: "Презервативи", price: 240, shortDesc: "З реберцями", description: "Набір презервативів із підвищеною кількістю мастила та реберцями Red 0.02 мм. Додаткова стимуляція.", images: [], specs: ["Товщина: 0.02 мм", "Кількість: 12 шт", "Текстура: Ребра"], inStock: true, isVisible: true },
             { id: "muaisi-black-can", name: "Muaisi Black Can 0.02", category: "Презервативи", price: 240, shortDesc: "Гладкі, багато мастила", description: "Набір гладких презервативів із підвищеною кількістю мастила 0.02 мм Black.", images: [], specs: ["Товщина: 0.02 мм", "Кількість: 12 шт", "Текстура: Гладка"], inStock: true, isVisible: true },
-
             // Pasante
             { id: "pasante-internal", name: "Pasante Internal Condom", category: "Презервативи", price: 99, shortDesc: "Жіночий презерватив", description: "Жіночий презерватив Pasante Internal Condom. Безлатексний захист для жінок.", images: [], specs: ["Тип: Жіночий", "Кількість: 1 шт", "Бренд: Pasante"], inStock: true, isVisible: true },
             { id: "pasante-hearts", name: "Pasante Hearts", category: "Презервативи", price: 15, shortDesc: "У формі серця", description: "Милі презервативи у формі серця. Романтичний подарунок.", images: [], specs: ["Форма: Серце", "Кількість: 1 шт", "Бренд: Pasante"], inStock: true, isVisible: true },
@@ -150,13 +152,11 @@
             { id: "pasante-regular", name: "Pasante Regular", category: "Презервативи", price: 12.5, shortDesc: "Класичні", description: "Класичні презервативи Pasante Regular анатомічної форми.", images: [], specs: ["Форма: Анатомічна", "Кількість: 1 шт", "Бренд: Pasante"], inStock: true, isVisible: true },
             { id: "pasante-extra-safe", name: "Pasante Extra Safe", category: "Презервативи", price: 12.5, shortDesc: "Потовщені", description: "Презервативи Pasante Extra Safe для додаткового захисту.", images: [], specs: ["Тип: Потовщені", "Кількість: 1 шт", "Бренд: Pasante"], inStock: true, isVisible: true },
             { id: "pasante-ribs-dots", name: "Pasante Ribs & Dots", category: "Презервативи", price: 12.5, shortDesc: "Ребра та крапки", description: "Презервативи з ребрами та крапками для подвійної стимуляції.", images: [], specs: ["Текстура: Ребра + Крапки", "Кількість: 1 шт", "Бренд: Pasante"], inStock: true, isVisible: true },
-            
             // EXS
             { id: "exs-pure", name: "EXS Pure", category: "Презервативи", price: 15, shortDesc: "Чисті відчуття", description: "Ультратонкі презервативи EXS Pure для чистого задоволення.", images: [], specs: ["Тип: Тонкі", "Кількість: 1 шт", "Бренд: EXS"], inStock: true, isVisible: true },
             { id: "exs-nano", name: "EXS Nano Thin", category: "Презервативи", price: 15, shortDesc: "Надтонкі", description: "Надтонкі презервативи Exs Nano Thin. Майже непомітні.", images: [], specs: ["Тип: Надтонкі", "Кількість: 1 шт", "Бренд: EXS"], inStock: true, isVisible: true },
             { id: "exs-delay", name: "EXS Delay Endurance", category: "Презервативи", price: 18, shortDesc: "Для витривалості", description: "Презервативи EXS Delay Endurance з ефектом затримки.", images: [], specs: ["Ефект: Пролонгуючий", "Кількість: 1 шт", "Бренд: EXS"], inStock: true, isVisible: true },
             { id: "exs-glow", name: "EXS Glowing", category: "Презервативи", price: 19, shortDesc: "Світяться", description: "Презервативи Exs Glowing Condom. Додайте світла у вашу ніч.", images: [], specs: ["Ефект: Світяться", "Кількість: 1 шт", "Бренд: EXS"], inStock: true, isVisible: true },
-
             // Olo
             { id: "olo-thermo", name: "Olo Thermo Effect", category: "Презервативи", price: 150, shortDesc: "Термо ефект, 10 шт", description: "Презервативи Olo з термо ефектом.", images: [], specs: ["Ефект: Термо", "Кількість: 10 шт", "Бренд: Olo"], inStock: true, isVisible: true },
             { id: "olo-warming", name: "Olo Gentle Warming", category: "Презервативи", price: 150, shortDesc: "Ніжний розігрів, 10 шт", description: "Презервативи Olo з ніжним розігріваючим ефектом.", images: [], specs: ["Ефект: Розігрів", "Кількість: 10 шт", "Бренд: Olo"], inStock: true, isVisible: true },
@@ -167,23 +167,39 @@
             { id: "olo-ice", name: "Olo Ice", category: "Презервативи", price: 150, shortDesc: "Охолоджуючі, 10 шт", description: "Охолоджуючі презервативи для тривалого задоволення.", images: [], specs: ["Ефект: Охолодження", "Кількість: 10 шт", "Бренд: Olo"], inStock: true, isVisible: true },
             { id: "olo-001", name: "Olo 001 Polyurethane", category: "Презервативи", price: 290, shortDesc: "Поліуретан 001, 6 шт", description: "Новинка! Поліуретанові презервативи OLO 001. Найтонші, без запаху латексу.", images: [], specs: ["Матеріал: Поліуретан", "Товщина: 0.01 мм", "Кількість: 6 шт", "Бренд: Olo"], inStock: true, isVisible: true },
             { id: "olo-spike", name: "Olo Spikes & Balls", category: "Презервативи", price: 69, shortDesc: "Вусики та шипи", description: "Екстремальні відчуття: презерватив з вусиками/шипами + кулька. 6 видів.", images: [], specs: ["Текстура: Вусики/Шипи", "Комплект: 1 шт + кулька", "Бренд: Olo"], inStock: true, isVisible: true },
-            
             // Olo Lubes
             { id: "olo-lube-fruit", name: "Olo Fruit Gel", category: "Лубриканти", price: 150, shortDesc: "Смакові, 120 мл", description: "Смакові гелі Olo. Доступні смаки: Вишня, Яблуко, Полуниця, Банан, Виноград, Персик.", images: [], specs: ["Об'єм: 120 мл", "Смак: Фруктовий", "Бренд: Olo"], inStock: true, isVisible: true },
             { id: "olo-climax", name: "Olo Climax Spray", category: "Лубриканти", price: 150, shortDesc: "Спрей для жінок, 20 мл", description: "Спрей Olo Climax, підвищує сексуальне бажання та чутливість.", images: [], specs: ["Об'єм: 20 мл", "Тип: Спрей", "Бренд: Olo"], inStock: true, isVisible: true },
             { id: "olo-warm-lube", name: "Olo Warm Lube", category: "Лубриканти", price: 150, shortDesc: "Зігріваючий, 60 мл", description: "Лубрикант Olo з ефектом тепла + легкий збуджуючий ефект.", images: [], specs: ["Об'єм: 60 мл", "Ефект: Тепло", "Бренд: Olo"], inStock: true, isVisible: true },
             { id: "olo-cool-lube", name: "Olo Cool Lube", category: "Лубриканти", price: 150, shortDesc: "Охолоджуючий, 60 мл", description: "Лубрикант Olo на водній основі з легким охолоджуючим ефектом.", images: [], specs: ["Об'єм: 60 мл", "Ефект: Холод", "Бренд: Olo"], inStock: true, isVisible: true },
-
             // Skyn
             { id: "skyn-orig-1", name: "Skyn Original 1pc", category: "Презервативи", price: 29, shortDesc: "Безлатексні", description: "Skyn Original - безлатексні презервативи з поліізопрену. Відчуття шкіра-до-шкіри.", images: [], specs: ["Матеріал: Поліізопрен", "Кількість: 1 шт", "Бренд: Skyn"], inStock: true, isVisible: true },
             { id: "skyn-orig-3", name: "Skyn Original 3pcs", category: "Презервативи", price: 120, shortDesc: "Пачка 3 шт", description: "Skyn Original, 3 шт. в упаковці.", images: [], specs: ["Матеріал: Поліізопрен", "Кількість: 3 шт", "Бренд: Skyn"], inStock: true, isVisible: true },
             { id: "skyn-orig-10", name: "Skyn Original 10pcs", category: "Презервативи", price: 290, shortDesc: "Пачка 10 шт", description: "Skyn Original, 10 шт. в упаковці.", images: [], specs: ["Матеріал: Поліізопрен", "Кількість: 10 шт", "Бренд: Skyn"], inStock: true, isVisible: true },
-            { id: "skyn-elite-3", name: "Skyn Elite 3pcs", category: "Презервативи", price: 120, shortDesc: "Ультратонкі, 3 шт", description: "Skyn Elite - на 20% тонші за Original. Максимальна чутливість.", images: [], specs: ["Матеріал: Поліізопрен", "Тип: Тонкі", "Кількість: 3 шт", "Бренд: Skyn"], inStock: true, isVisible: true },
-            { id: "skyn-elite-10", name: "Skyn Elite 10pcs", category: "Презервативи", price: 350, shortDesc: "Ультратонкі, 10 шт", description: "Skyn Elite - на 20% тонші за Original.", images: [], specs: ["Матеріал: Поліізопрен", "Тип: Тонкі", "Кількість: 10 шт", "Бренд: Skyn"], inStock: true, isVisible: true },
-            { id: "skyn-cocktail", name: "Skyn Cocktail Club", category: "Презервативи", price: 120, shortDesc: "Коктейльні смаки, 3 шт", description: "Skyn Cocktail Club - зі смаками відомих коктейлів (Піна Колада, Вишнева насолода, Дайкірі).", images: [], specs: ["Смак: Коктейлі", "Кількість: 3 шт", "Бренд: Skyn"], inStock: true, isVisible: true },
-            { id: "skyn-excitation", name: "Skyn Excitation", category: "Презервативи", price: 36.5, shortDesc: "Рельєф + Холод", description: "SKYN EXCITATION - з рельєфом та охолоджуючим ефектом для максимального збудження.", images: [], specs: ["Ефект: Холод + Рельєф", "Кількість: 1 шт", "Бренд: Skyn"], inStock: true, isVisible: true },
-            { id: "skyn-intense", name: "Skyn Intense Feel 3pcs", category: "Презервативи", price: 120, shortDesc: "З реберцями, 3 шт", description: "Skyn Intense Feel з текстурою хвиль для інтенсивних відчуттів.", images: [], specs: ["Текстура: Хвилі", "Кількість: 3 шт", "Бренд: Skyn"], inStock: true, isVisible: true },
-            { id: "skyn-extra-lube", name: "Skyn Extra Lubricated 10pcs", category: "Презервативи", price: 295, shortDesc: "Екстра зволожені", description: "Skyn Extra Lubricated - на 40% більше ультра-ніжного лубриканту.", images: [], specs: ["Особливість: Багато смазки", "Кількість: 10 шт", "Бренд: Skyn"], inStock: true, isVisible: true }
+            { id: "skyn-sel-35", name: "Skyn Selection 35pcs", category: "Презервативи", price: 830, shortDesc: "Великий мікс, 35 шт", description: "Великий набір Skyn Selection 35 шт. Різні види для різноманіття.", images: [], specs: ["Матеріал: Поліізопрен", "Кількість: 35 шт", "Бренд: Skyn"], inStock: true, isVisible: true },
+            { id: "skyn-sel-9", name: "Skyn Selection 9pcs", category: "Презервативи", price: 310, shortDesc: "Мікс, 9 шт", description: "Набір Skyn Selection 9 шт.", images: [], specs: ["Матеріал: Поліізопрен", "Кількість: 9 шт", "Бренд: Skyn"], inStock: true, isVisible: true },
+            { id: "skyn-elite-36", name: "Skyn Elite 36pcs", category: "Презервативи", price: 1044, shortDesc: "Ультратонкі, 36 шт", description: "Велика упаковка ультратонких Skyn Elite.", images: [], specs: ["Матеріал: Поліізопрен", "Кількість: 36 шт", "Бренд: Skyn"], inStock: true, isVisible: true },
+            { id: "skyn-elite-3", name: "Skyn Elite 3pcs", category: "Презервативи", price: 120, shortDesc: "Ультратонкі, 3 шт", description: "Skyn Elite - на 20% тонші за Original.", images: [], specs: ["Матеріал: Поліізопрен", "Кількість: 3 шт", "Бренд: Skyn"], inStock: true, isVisible: true },
+            { id: "skyn-elite-10", name: "Skyn Elite 10pcs", category: "Презервативи", price: 350, shortDesc: "Ультратонкі, 10 шт", description: "Skyn Elite - на 20% тонші за Original.", images: [], specs: ["Матеріал: Поліізопрен", "Кількість: 10 шт", "Бренд: Skyn"], inStock: true, isVisible: true },
+            { id: "skyn-extra-24", name: "Skyn Extra Lubricated 24pcs", category: "Презервативи", price: 690, shortDesc: "Екстра зволожені, 24 шт", description: "Skyn Extra Lubricated з додатковим лубрикантом.", images: [], specs: ["Особливість: Багато смазки", "Кількість: 24 шт", "Бренд: Skyn"], inStock: true, isVisible: true },
+            { id: "skyn-pina", name: "Skyn Pina Colada", category: "Презервативи", price: 29, shortDesc: "Піна Колада, 1 шт", description: "Презерватив Skyn зі смаком Піна Колада.", images: [], specs: ["Смак: Піна Колада", "Кількість: 1 шт", "Бренд: Skyn"], inStock: true, isVisible: true },
+            { id: "skyn-daiquiri", name: "Skyn Daiquiri", category: "Презервативи", price: 29, shortDesc: "Дайкірі, 1 шт", description: "Презерватив Skyn зі смаком Дайкірі.", images: [], specs: ["Смак: Дайкірі", "Кількість: 1 шт", "Бренд: Skyn"], inStock: true, isVisible: true },
+            { id: "skyn-cherry", name: "Skyn Cherry", category: "Презервативи", price: 29, shortDesc: "Вишня, 1 шт", description: "Презерватив Skyn зі смаком вишні.", images: [], specs: ["Смак: Вишня", "Кількість: 1 шт", "Бренд: Skyn"], inStock: true, isVisible: true },
+            { id: "skyn-cocktail", name: "Skyn Cocktail Club", category: "Презервативи", price: 120, shortDesc: "Коктейльні смаки, 3 шт", description: "Skyn Cocktail Club - мікс смаків.", images: [], specs: ["Смак: Коктейлі", "Кількість: 3 шт", "Бренд: Skyn"], inStock: true, isVisible: true },
+            { id: "skyn-excitation", name: "Skyn Excitation", category: "Презервативи", price: 36.5, shortDesc: "Рельєф + Холод", description: "SKYN EXCITATION - з рельєфом та охолоджуючим ефектом.", images: [], specs: ["Ефект: Холод + Рельєф", "Кількість: 1 шт", "Бренд: Skyn"], inStock: true, isVisible: true },
+            { id: "skyn-unknown", name: "Skyn Unknown Pleasures", category: "Презервативи", price: 990, shortDesc: "Великий мікс, 42 шт", description: "Мега набір різних видів Skyn Unknown Pleasures.", images: [], specs: ["Кількість: 42 шт", "Тип: Мікс", "Бренд: Skyn"], inStock: true, isVisible: true },
+            { id: "skyn-intense-36", name: "Skyn Intense Feel 36pcs", category: "Презервативи", price: 990, shortDesc: "З реберцями, 36 шт", description: "Велика пачка Skyn Intense Feel.", images: [], specs: ["Текстура: Хвилі", "Кількість: 36 шт", "Бренд: Skyn"], inStock: true, isVisible: true },
+            { id: "skyn-intense-10", name: "Skyn Intense Feel 10pcs", category: "Презервативи", price: 350, shortDesc: "З реберцями, 10 шт", description: "Skyn Intense Feel.", images: [], specs: ["Текстура: Хвилі", "Кількість: 10 шт", "Бренд: Skyn"], inStock: true, isVisible: true },
+            { id: "skyn-intense-3", name: "Skyn Intense Feel 3pcs", category: "Презервативи", price: 120, shortDesc: "З реберцями, 3 шт", description: "Skyn Intense Feel.", images: [], specs: ["Текстура: Хвилі", "Кількість: 3 шт", "Бренд: Skyn"], inStock: true, isVisible: true },
+            { id: "skyn-extra-10", name: "Skyn Extra Lubricated 10pcs", category: "Презервативи", price: 295, shortDesc: "Екстра зволожені, 10 шт", description: "Skyn Extra Lubricated.", images: [], specs: ["Особливість: Багато смазки", "Кількість: 10 шт", "Бренд: Skyn"], inStock: true, isVisible: true },
+            { id: "skyn-king-36", name: "Skyn King Size 36pcs", category: "Презервативи", price: 990, shortDesc: "Збільшені, 36 шт", description: "Велика пачка Skyn King Size для великих розмірів.", images: [], specs: ["Розмір: XL", "Кількість: 36 шт", "Бренд: Skyn"], inStock: true, isVisible: true },
+            { id: "skyn-king-10", name: "Skyn King Size 10pcs", category: "Презервативи", price: 295, shortDesc: "Збільшені, 10 шт", description: "Skyn King Size.", images: [], specs: ["Розмір: XL", "Кількість: 10 шт", "Бренд: Skyn"], inStock: true, isVisible: true },
+            { id: "skyn-king-3", name: "Skyn King Size 3pcs", category: "Презервативи", price: 120, shortDesc: "Збільшені, 3 шт", description: "Skyn King Size.", images: [], specs: ["Розмір: XL", "Кількість: 3 шт", "Бренд: Skyn"], inStock: true, isVisible: true },
+            { id: "skyn-close-feel", name: "Skyn Close Feel 10pcs", category: "Презервативи", price: 295, shortDesc: "Тісний контакт", description: "Skyn Close Feel - вужчі за стандартні (ширина 51 мм) для щільнішого прилягання та кращих відчуттів.", images: [], specs: ["Матеріал: Поліізопрен", "Ширина: 51 мм", "Кількість: 10 шт", "Бренд: Skyn"], inStock: true, isVisible: true },
+            
+            // Lube Skyn
+            { id: "skyn-lube-aqua", name: "Skyn Aqua Lube", category: "Лубриканти", price: 450, shortDesc: "Водна основа", description: "Лубрикант Skyn Aqua на водній основі. Не липкий, без запаху, ідеально сумісний з презервативами Skyn.", images: [], specs: ["Основа: Водна", "Об'єм: 80 мл", "Бренд: Skyn"], inStock: true, isVisible: true },
+            { id: "skyn-lube-white", name: "Skyn White Lube", category: "Лубриканти", price: 450, shortDesc: "Білий флакон", description: "Лубрикант Skyn у білому флаконі (уточнюйте серію Maximum Performance або All Night Long).", images: [], specs: ["Бренд: Skyn", "Об'єм: 80 мл"], inStock: true, isVisible: true }
         ];
 
         const CATEGORIES = [
@@ -204,7 +220,6 @@
             const [added, setAdded] = useState(false);
             const handleClick = (e) => { e.stopPropagation(); addToCart(product); setAdded(true); setTimeout(() => setAdded(false), 2000); };
             
-            // Якщо товару немає в наявності - блокуємо кнопку
             if (product.inStock === false) {
                 if (variant === 'icon') return <button disabled className="p-3 rounded-xl bg-slate-700 text-gray-500 cursor-not-allowed"><Icons.ShoppingBag size={20}/></button>;
                 return <button disabled className="flex-1 font-bold py-5 px-8 rounded-2xl bg-slate-700 text-gray-500 cursor-not-allowed flex items-center justify-center gap-3">Немає в наявності</button>;
@@ -248,8 +263,6 @@
                 </div>
             </div>
         );
-
-        // ... (InfoPage, ProductPage, CartView, CheckoutView залишаються майже без змін, лише дрібні правки) ...
 
         const InfoPage = ({ page, goBack }) => {
             const data = INFO_PAGES[page];
@@ -296,6 +309,7 @@
                                     <span className="px-3 py-1 rounded-full bg-violet-900/50 text-violet-300 text-sm font-bold">{product.category}</span>
                                     {product.isHit && <span className="bg-fuchsia-600 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg flex items-center gap-1"><Icons.Flame size={10}/> HIT</span>}
                                     {product.isSale && <span className="bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg flex items-center gap-1"><Icons.Tag size={10}/> АКЦІЯ</span>}
+                                    {product.isHit && <span className="flex items-center gap-1 text-yellow-400 text-sm font-bold ml-2"><Icons.Star fill="currentColor" size={16}/> {product.rating || '5.0'}</span>}
                                 </div>
                                 <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-4">{product.name}</h1>
                                 <div className="flex items-end gap-4 mb-8"><span className="text-4xl font-bold text-white">{product.price} ₴</span>{product.oldPrice > 0 && <span className="text-xl text-gray-500 line-through mb-1">{product.oldPrice} ₴</span>}</div>
@@ -436,6 +450,23 @@
                 } else {
                     setProducts(INITIAL_PRODUCTS_SEED);
                     alert("Товари скинуто (локально)!");
+                }
+            };
+
+            const handleResetTags = async () => {
+                if (!window.confirm("Це скине всі теги (Хіт, Акція) та встановить рейтинг 5.0 для всіх товарів. Продовжити?")) return;
+                
+                if (db) {
+                    const snapshot = await db.collection("products").get();
+                    const batch = db.batch();
+                    snapshot.docs.forEach((doc) => {
+                        batch.update(doc.ref, { isHit: false, isSale: false, rating: 5.0 });
+                    });
+                    await batch.commit();
+                    alert("Теги скинуто!");
+                } else {
+                    setProducts(products.map(p => ({ ...p, isHit: false, isSale: false, rating: 5.0 })));
+                    alert("Теги скинуто (локально)!");
                 }
             };
 
@@ -588,9 +619,10 @@
             return (
                 <div className="min-h-screen bg-slate-900 py-12 px-4 animate-fade-in">
                     <div className="max-w-7xl mx-auto">
-                        <div className="flex justify-between items-center mb-8">
+                        <div className="flex justify-between items-center mb-8 flex-wrap gap-4">
                             <h1 className="text-3xl font-bold text-white flex items-center gap-3"><Icons.Settings className="text-violet-500" /> Адміністрування</h1>
-                            <div className="flex gap-2">
+                            <div className="flex gap-2 flex-wrap">
+                                <button onClick={handleResetTags} className="flex items-center gap-2 bg-yellow-600/20 text-yellow-400 px-4 py-2 rounded-lg hover:bg-yellow-600 hover:text-white transition font-bold border border-yellow-600/50"><Icons.TagsOff size={18}/> Скинути теги</button>
                                 <button onClick={handleReset} className="flex items-center gap-2 bg-red-600/20 text-red-400 px-4 py-2 rounded-lg hover:bg-red-600 hover:text-white transition font-bold border border-red-600/50"><Icons.RefreshCw size={18}/> Скинути та відновити</button>
                                 <button onClick={handleCreateNew} className="flex items-center gap-2 bg-violet-600 text-white px-4 py-2 rounded-lg hover:bg-violet-700 transition font-bold"><Icons.Plus size={18}/> Новий товар</button>
                             </div>
@@ -657,36 +689,92 @@
             );
         };
 
-        const Header = ({ goHome, changeRoute, cart, isMobileMenuOpen, setIsMobileMenuOpen, isAdminMode, setIsAdminMode }) => (
-            <nav className="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-white/10 shadow-lg">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between items-center h-20">
-                        <div className="flex items-center gap-3 cursor-pointer group" onClick={goHome}>
-                            <BrandLogo />
-                            <div className="flex flex-col"><span className="text-xl font-black text-white tracking-wide leading-none">NIGHT</span><span className="text-sm font-bold text-violet-400 tracking-[0.2em] leading-none">SECRET</span></div>
-                        </div>
-                        <div className="hidden md:flex items-center space-x-8 text-sm font-medium text-gray-300">
-                            <button onClick={goHome} className="hover:text-white transition-colors">Головна</button>
-                            <button onClick={() => { changeRoute('home'); setTimeout(() => document.getElementById('categories')?.scrollIntoView({behavior:'smooth'}), 100)}} className="hover:text-white transition-colors">Категорії</button>
-                        </div>
-                        <div className="flex items-center gap-4">
-                            {isAdminMode && <button onClick={() => setIsAdminMode(false)} className="flex items-center gap-2 px-3 py-2 rounded-full bg-red-600 text-white text-xs font-bold uppercase"><Icons.LogOut size={16} /> Вихід</button>}
-                            <button onClick={() => { changeRoute('cart'); setIsMobileMenuOpen(false); }} className="relative p-2 text-gray-400 hover:text-white transition-colors">
-                                <Icons.ShoppingBag size={24} />
-                                {cart.length > 0 && <span className="absolute -top-1 -right-1 bg-fuchsia-600 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full animate-bounce">{cart.reduce((a,b) => a + b.qty, 0)}</span>}
-                            </button>
-                            <button className="md:hidden p-2 text-gray-400 hover:text-white" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>{isMobileMenuOpen ? <Icons.X size={24} /> : <Icons.Menu size={24} />}</button>
+        const Header = ({ goHome, changeRoute, cart, isMobileMenuOpen, setIsMobileMenuOpen, isAdminMode, setIsAdminMode, products, navigateToProduct }) => {
+            const [searchQuery, setSearchQuery] = useState("");
+            const [searchResults, setSearchResults] = useState([]);
+
+            useEffect(() => {
+                if (searchQuery.trim() === "") {
+                    setSearchResults([]);
+                    return;
+                }
+                const query = searchQuery.toLowerCase();
+                const results = products.filter(p => p.name.toLowerCase().includes(query) && p.isVisible !== false);
+                setSearchResults(results);
+            }, [searchQuery, products]);
+
+            return (
+                <nav className="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-white/10 shadow-lg">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="flex justify-between items-center h-20 gap-4">
+                            <div className="flex items-center gap-3 cursor-pointer group flex-shrink-0" onClick={goHome}>
+                                <BrandLogo />
+                                <div className="flex flex-col hidden sm:flex"><span className="text-xl font-black text-white tracking-wide leading-none">NIGHT</span><span className="text-sm font-bold text-violet-400 tracking-[0.2em] leading-none">SECRET</span></div>
+                            </div>
+
+                            {/* Search Bar */}
+                            <div className="flex-1 max-w-lg relative">
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                        <Icons.Search size={18} />
+                                    </div>
+                                    <input 
+                                        type="text" 
+                                        className="block w-full pl-10 pr-3 py-2 border border-white/10 rounded-xl leading-5 bg-slate-800 text-gray-300 placeholder-gray-500 focus:outline-none focus:bg-slate-700 focus:border-violet-500 focus:text-white sm:text-sm transition duration-150 ease-in-out" 
+                                        placeholder="Пошук товарів..." 
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                    />
+                                    {searchQuery && (
+                                        <button onClick={() => setSearchQuery("")} className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-white">
+                                            <Icons.X size={16} />
+                                        </button>
+                                    )}
+                                </div>
+                                {/* Search Results Dropdown */}
+                                {searchResults.length > 0 && (
+                                    <div className="absolute mt-1 w-full bg-slate-800 border border-white/10 rounded-xl shadow-2xl z-50 search-dropdown">
+                                        {searchResults.map(product => (
+                                            <div 
+                                                key={product.id} 
+                                                className="px-4 py-3 hover:bg-slate-700 cursor-pointer flex items-center gap-3 border-b border-white/5 last:border-0"
+                                                onClick={() => { navigateToProduct(product.id); setSearchQuery(""); }}
+                                            >
+                                                {product.images && product.images.length > 0 ? (
+                                                    <img src={product.images[0]} alt="" className="w-10 h-10 object-cover rounded-md flex-shrink-0" />
+                                                ) : (
+                                                    <div className="w-10 h-10 bg-slate-600 rounded-md flex items-center justify-center flex-shrink-0"><Icons.Image size={16}/></div>
+                                                )}
+                                                <div>
+                                                    <div className="text-sm font-bold text-white">{product.name}</div>
+                                                    <div className="text-xs text-gray-400">{product.price} ₴</div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+                                {isAdminMode && <button onClick={() => setIsAdminMode(false)} className="flex items-center gap-2 px-3 py-2 rounded-full bg-red-600 text-white text-xs font-bold uppercase"><Icons.LogOut size={16} /> <span className="hidden sm:inline">Вихід</span></button>}
+                                <button onClick={() => { changeRoute('cart'); setIsMobileMenuOpen(false); }} className="relative p-2 text-gray-400 hover:text-white transition-colors">
+                                    <Icons.ShoppingBag size={24} />
+                                    {cart.length > 0 && <span className="absolute -top-1 -right-1 bg-fuchsia-600 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full animate-bounce">{cart.reduce((a,b) => a + b.qty, 0)}</span>}
+                                </button>
+                                <button className="md:hidden p-2 text-gray-400 hover:text-white" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>{isMobileMenuOpen ? <Icons.X size={24} /> : <Icons.Menu size={24} />}</button>
+                            </div>
                         </div>
                     </div>
-                </div>
-                {isMobileMenuOpen && (
-                    <div className="md:hidden bg-slate-900 border-b border-white/10 animate-fade-in p-4 space-y-2">
-                        <button onClick={goHome} className="block w-full text-left px-3 py-3 text-white hover:bg-white/5 rounded-lg">Головна</button>
-                        <button onClick={() => { changeRoute('cart'); setIsMobileMenuOpen(false); }} className="block w-full text-left px-3 py-3 text-white hover:bg-white/5 rounded-lg">Кошик</button>
-                    </div>
-                )}
-            </nav>
-        );
+                    {isMobileMenuOpen && (
+                        <div className="md:hidden bg-slate-900 border-b border-white/10 animate-fade-in p-4 space-y-2">
+                            <button onClick={goHome} className="block w-full text-left px-3 py-3 text-white hover:bg-white/5 rounded-lg">Головна</button>
+                            <button onClick={() => { changeRoute('home'); setTimeout(() => document.getElementById('categories')?.scrollIntoView({behavior:'smooth'}), 100)}} className="block w-full text-left px-3 py-3 text-white hover:bg-white/5 rounded-lg">Категорії</button>
+                            <button onClick={() => { changeRoute('cart'); setIsMobileMenuOpen(false); }} className="block w-full text-left px-3 py-3 text-white hover:bg-white/5 rounded-lg">Кошик</button>
+                        </div>
+                    )}
+                </nav>
+            );
+        };
 
         // --- MAIN APP COMPONENT ---
         const App = () => {
@@ -842,7 +930,7 @@
                         </div>
                     )}
                     
-                    <Header goHome={goHome} changeRoute={changeRoute} cart={cart} isMobileMenuOpen={isMobileMenuOpen} setIsMobileMenuOpen={setIsMobileMenuOpen} isAdminMode={isAdminMode} setIsAdminMode={setIsAdminMode} />
+                    <Header goHome={goHome} changeRoute={changeRoute} cart={cart} isMobileMenuOpen={isMobileMenuOpen} setIsMobileMenuOpen={setIsMobileMenuOpen} isAdminMode={isAdminMode} setIsAdminMode={setIsAdminMode} products={products} navigateToProduct={navigateToProduct} />
                     
                     <main>
                         {isAdminMode ? <AdminPanel products={products} setProducts={setProducts} setEditId={setSelectedProductId} /> : 
